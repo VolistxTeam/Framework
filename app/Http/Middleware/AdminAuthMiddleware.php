@@ -3,9 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\AccessKeys;
-use App\Models\Logs;
-use App\Models\PersonalKeys;
-use Carbon\Carbon;
 use Closure;
 
 class AdminAuthMiddleware

@@ -6,9 +6,7 @@ use App\Models\AccessKeys;
 use App\Models\Logs;
 use App\Models\PersonalKeys;
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use RandomLib\Factory;
 
@@ -252,7 +250,7 @@ class AdminController extends BaseController
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('token', '');
-        $count = $request->input('count', '100');
+        $count = $request->input('count', '150');
 
         if (empty($userID) || empty($userToken)) {
             return response()->json([
@@ -274,7 +272,27 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        $logs = Logs::where('key_id', $personalKey->id)->orderBy('created_at','DESC')->limit(150)->get()->toArray();
+        if (filter_var($count, FILTER_VALIDATE_INT) === false) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidFormat',
+                    'info' => 'Provided parameters are unsupported format.'
+                ]
+            ], 400);
+        }
+
+        $count = (int) $count;
+
+        if ($count > 5000) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xTooLargeData',
+                    'info' => 'The server cannot return more than 5000 logs.'
+                ]
+            ], 400);
+        }
+
+        $logs = Logs::where('key_id', $personalKey->id)->orderBy('created_at','DESC')->limit($count)->get()->toArray();
 
         return response()->json($logs);
     }
@@ -367,7 +385,7 @@ class AdminController extends BaseController
             'usage' => [
                 'current' => $totalCount,
                 'max' => $personalKey->max_count,
-                'percent' => (float) number_format(($totalCount * 100) / $personalKey->max_count,2),
+                'percent' => (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
             ],
             'details' => $statArr
         ]);
