@@ -7,6 +7,11 @@ Let's make some awesome thing together!
 
 Confirmed to work with LiteSpeed + Laravel Swoole + APCu + MySQL
 
+### Requirements
+- PHP 8.0 or higher
+- Swoole
+- All Extensions for Lumen
+
 ### Installation
 ```
 composer create-project --prefer-dist cryental/volistx-skeleton blog
