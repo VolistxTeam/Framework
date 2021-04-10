@@ -1,11 +1,6 @@
 {
-    "name": "laravel/lumen",
-    "description": "The Laravel Lumen Framework.",
-    "keywords": [
-        "framework",
-        "laravel",
-        "lumen"
-    ],
+    "name": "cryental/volistx-skeleton",
+    "description": "Reusable Framework for Volistx API Based Lumen PHP.",
     "license": "MIT",
     "type": "project",
     "require": {
