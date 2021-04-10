@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use RandomLib\Factory;
+use SecurityLib\Strength;
 
 class AdminController extends BaseController
 {
@@ -297,6 +298,35 @@ class AdminController extends BaseController
         return response()->json($logs);
     }
 
+    public function GetTokens(Request $request)
+    {
+        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:list');
+
+        if ($permissionCheck === FALSE) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidToken',
+                    'info' => 'Invalid token was specified or do not have permission.'
+                ]
+            ], 403);
+        }
+
+        $userID = $request->input('user_id', '');
+
+        if (empty($userID)) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidParameters',
+                    'info' => 'The required parameters are not filled in.'
+                ]
+            ], 400);
+        }
+
+        $personalKey = PersonalKeys::where('user_id', $userID)->get()->toArray();
+
+        return response()->json($personalKey);
+    }
+
     public function Stats(Request $request)
     {
         $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:stats');
@@ -399,9 +429,9 @@ class AdminController extends BaseController
     private function generateUniqueKey()
     {
         $factory = new Factory;
-        $generator = $factory->getMediumStrengthGenerator();
+        $generator = $factory->getGenerator(new Strength(Strength::HIGH));
 
-        $generatedToken = $generator->generateString(32);
+        $generatedToken = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
         $nonExistConfirmed = false;
 
         while ($nonExistConfirmed == false) {
@@ -410,7 +440,7 @@ class AdminController extends BaseController
             if (empty($checkDB)) {
                 $nonExistConfirmed = true;
             } else {
-                $generatedToken = $generator->generateString(32);
+                $generatedToken = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
             }
         }
 

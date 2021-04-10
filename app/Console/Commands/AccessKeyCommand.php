@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 use App\Models\AccessKeys;
 use Illuminate\Console\Command;
 use RandomLib\Factory;
+use SecurityLib\Strength;
 
 class AccessKeyCommand extends Command
 {
@@ -14,9 +15,9 @@ class AccessKeyCommand extends Command
     public function handle()
     {
         $factory = new Factory;
-        $generator = $factory->getMediumStrengthGenerator();
+        $generator = $factory->getGenerator(new Strength(Strength::HIGH));
 
-        $generatedKey = $generator->generateString(32);
+        $generatedKey = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
         AccessKeys::create(array(
             'token' => $generatedKey,

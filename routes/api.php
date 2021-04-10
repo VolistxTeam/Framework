@@ -13,17 +13,6 @@
 |
 */
 
-$router->get('/', 'PageController@Home');
-
 $router->group(['middleware' => ['auth.user', 'cacheResponse']], function () use ($router) {
     $router->get('/example', 'Services\ExampleService@Example');
-});
-
-$router->group(['prefix' => 'manage', 'middleware' => 'auth.admin'], function () use ($router) {
-    $router->post('/create', 'Auth\AdminController@CreateInfo');
-    $router->post('/update', 'Auth\AdminController@UpdateInfo');
-    $router->post('/reset', 'Auth\AdminController@ResetInfo');
-    $router->post('/delete', 'Auth\AdminController@DeleteInfo');
-    $router->post('/stats', 'Auth\AdminController@Stats');
-    $router->post('/logs', 'Auth\AdminController@GetLogs');
 });

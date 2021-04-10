@@ -16,7 +16,7 @@ class SHA256Hasher implements RequestHasher
 
     public function getHashFor(Request $request): string
     {
-        return 'responsecache-' . hash('sha256', sha1(
+        return 'volistx-caching:' . hash('sha256', sha1(
                 "{$request->getHost()}-{$request->getRequestUri()}-{$request->getMethod()}/".$this->cacheProfile->useCacheNameSuffix($request)
             ));
     }

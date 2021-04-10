@@ -4,14 +4,16 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^8.0",
         "ext-json": "*",
         "geoip2/geoip2": "^2.11",
+        "illuminate/redis": "^8.36",
         "laravel/lumen-framework": "^8.0",
-        "nochso/html-compress-twig": "^2.0",
+        "maxsky/lumen-app-key-generator": "^1.0",
         "paragonie/random-lib": "^2.0",
-        "rcrowe/twigbridge": "^0.12.3",
+        "rogervila/lumen-rate-limiting": "^1.0",
         "spatie/laravel-responsecache": "^7.0",
+        "swooletw/laravel-swoole": "^2.8",
         "torann/geoip": "^3.0"
     },
     "require-dev": {
@@ -26,7 +28,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/helpers.php"
+            "app/Helpers.php"
         ],
         "classmap": [
             "app/Classes"

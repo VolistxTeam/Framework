@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\ThrottleRequests;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
+use Torann\GeoIP\GeoIPServiceProvider;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -17,14 +19,12 @@ $app = new Laravel\Lumen\Application(
 $app->withFacades();
 $app->withEloquent();
 
+$app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
-$app->register(\Torann\GeoIP\GeoIPServiceProvider::class);
-$app->register(TwigBridge\ServiceProvider::class);
+$app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
-
-if (!class_exists('Twig')) {
-    class_alias('TwigBridge\Facade\Twig', 'Twig');
-}
+$app->register(SwooleTW\Http\LumenServiceProvider::class);
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -46,12 +46,15 @@ $app->routeMiddleware([
     'auth.user' => App\Http\Middleware\UserAuthMiddleware::class,
     'auth.admin' => App\Http\Middleware\AdminAuthMiddleware::class,
     'cacheResponse' => CacheResponse::class,
+    'throttle' => \LumenRateLimiting\ThrottleRequests::class,
 ]);
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
+    'middleware' => 'throttle:global',
 ], function ($router) {
-    require __DIR__ . '/../routes/web.php';
+    require __DIR__ . '/../routes/system.php';
+    require __DIR__ . '/../routes/api.php';
 });
 
 collect(scandir(__DIR__ . '/../config'))->each(function ($item) use ($app) {

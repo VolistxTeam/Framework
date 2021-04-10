@@ -7,6 +7,7 @@ use App\Models\PersonalKeys;
 use Carbon\Carbon;
 use Closure;
 use RandomLib\Factory;
+use SecurityLib\Strength;
 
 class UserAuthMiddleware
 {
@@ -42,9 +43,9 @@ class UserAuthMiddleware
         }
 
         $factory = new Factory;
-        $generator = $factory->getMediumStrengthGenerator();
+        $generator = $factory->getGenerator(new Strength(Strength::LOW));
 
-        $randomRayID = strtolower($generator->generateString(16));
+        $randomRayID = strtolower($generator->generateString(16, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'));
 
         $log = [
             'url' => $request->getUri(),
