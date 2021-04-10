@@ -5,11 +5,12 @@ This is a pre-made skeleton for Volistx API platform using Lumen PHP Framework.
 
 Let's make some awesome thing together!
 
-Confirmed to work with LiteSpeed + Laravel Swoole + APCu + MySQL
+Confirmed to work with LiteSpeed + Laravel Swoole + APCu + MySQL.
 
 ### Requirements
-- PHP 8.0 or higher
-- Swoole
+- PHP 8.0 or Higher
+- Swoole Extension
+- MaxmindDB Extension
 - All Extensions for Lumen
 
 ### Installation
