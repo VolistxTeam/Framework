@@ -44,7 +44,16 @@ class AdminController extends BaseController
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
+                ]
+            ], 400);
+        }
+
+        if (filter_var($maxCount, FILTER_VALIDATE_INT) === false) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidParameters',
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }

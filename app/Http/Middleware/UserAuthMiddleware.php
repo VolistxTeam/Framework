@@ -33,7 +33,7 @@ class UserAuthMiddleware
 
         $logs = Logs::where('key_id', $personalKeys->id)->whereMonth('created_at', Carbon::now()->month)->get()->toArray();
 
-        if (count($logs) >= $personalKeys->max_count) {
+        if ($personalKeys->max_count != -1 && count($logs) >= $personalKeys->max_count) {
             return response()->json([
                 'error' => [
                     'type' => 'xUsageLimitReached',
