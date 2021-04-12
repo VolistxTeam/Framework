@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ThrottleRequests;
+use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Torann\GeoIP\GeoIPServiceProvider;
 
@@ -40,6 +41,7 @@ $app->configure('app');
 
 $app->middleware([
     App\Http\Middleware\TrustProxies::class,
+    CloudfrontProxies::class,
     App\Http\Middleware\FirewallMiddleware::class,
 ]);
 

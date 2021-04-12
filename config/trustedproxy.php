@@ -48,7 +48,7 @@ return [
         '188.114.96.0/20',
         '190.93.240.0/20',
         '197.234.240.0/22',
-        '198.41.128.0/17'
+        '198.41.128.0/17',
     ],
 
     'headers' => Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | Illuminate\Http\Request::HEADER_X_FORWARDED_HOST | Illuminate\Http\Request::HEADER_X_FORWARDED_PORT | Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO,

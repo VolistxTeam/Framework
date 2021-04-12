@@ -9,6 +9,7 @@
         "fideloper/proxy": "^4.4",
         "geoip2/geoip2": "^2.11",
         "illuminate/redis": "^8.36",
+        "jdavidbakr/cloudfront-proxies": "^1.6",
         "laravel/lumen-framework": "^8.0",
         "maxsky/lumen-app-key-generator": "^1.0",
         "paragonie/random-lib": "^2.0",
