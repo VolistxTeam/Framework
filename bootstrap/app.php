@@ -39,6 +39,7 @@ $app->singleton(
 $app->configure('app');
 
 $app->middleware([
+    App\Http\Middleware\TrustProxies::class,
     App\Http\Middleware\FirewallMiddleware::class,
 ]);
 
