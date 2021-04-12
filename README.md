@@ -38,3 +38,13 @@ Generate an admin access key using this command:
 ```
 php artisan access-key:create
 ```
+
+Run Laravel/Lumen Swoole using this package:
+```
+php artisan swoole:http start
+```
+
+If you want the Swoole server to run after reboot, add the following line to your crontab:
+```
+@reboot php /path/to/artisan swoole:http start
+```
