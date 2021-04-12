@@ -40,16 +40,7 @@ class AdminController extends BaseController
         $maxCount = $request->input('max_count', '');
         $permissions = $request->input('permissions', '');
 
-        if (empty($userID) || empty($maxCount) || empty($permissions)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
-        }
-
-        if (filter_var($maxCount, FILTER_VALIDATE_INT) === false) {
+        if (empty($userID) || empty($maxCount) || empty($permissions) || filter_var($maxCount, FILTER_VALIDATE_INT) === false) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
