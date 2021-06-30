@@ -38,7 +38,7 @@ class AdminController extends BaseController
         }
 
         $userID = $request->input('user_id', '');
-        $maxCount = $request->input('max_count', '');
+        $maxCount = $request->input('monthly_usage', '');
         $permissions = $request->input('permissions', '');
         $hoursToExpire = $request->input('hours', '');
 
@@ -103,7 +103,7 @@ class AdminController extends BaseController
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
-        $maxCount = $request->input('max_count', '');
+        $maxCount = $request->input('monthly_usage', '');
         $permissions = $request->input('permissions', '');
         $activatedAt = $request->input('activated_at', '');
         $expiresAt = $request->input('expires_at', '');
