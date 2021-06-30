@@ -19,7 +19,9 @@ composer create-project --prefer-dist cryental/volistx-skeleton blog
 ```
 
 ### Usage
-You have to register to MaxMind, get an API key and put it inside .env file.
+First, copy `.env.example` to `.env`.
+
+You have to register to MaxMind, get an API key and put it inside `.env` file.
 After that, run following commands:
 
 ```
@@ -36,7 +38,7 @@ Do not forget to set a cronjob for production:
 
 Generate an admin access key using this command:
 ```
-php artisan access-key:create
+php artisan access-key:generate
 ```
 
 Run Laravel/Lumen Swoole using this package:
