@@ -13,7 +13,7 @@
 |
 */
 
-$router->group(['prefix' => 'manage', 'middleware' => 'auth.admin'], function () use ($router) {
+$router->group(['prefix' => 'sys-bin', 'middleware' => 'auth.admin'], function () use ($router) {
     $router->post('/create', 'Auth\AdminController@CreateInfo');
     $router->post('/update', 'Auth\AdminController@UpdateInfo');
     $router->post('/reset', 'Auth\AdminController@ResetInfo');
