@@ -29,4 +29,8 @@ class AccessKeys extends Model
      * @var array
      */
     protected $fillable = ['token', 'permissions'];
+
+    protected $casts = [
+        'permissions' => 'array',
+    ];
 }

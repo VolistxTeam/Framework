@@ -16,11 +16,10 @@ class CreateLogsTable extends Migration
         Schema::create('logs', function (Blueprint $table) {
             $table->integer('id', true);
             $table->integer('key_id')->index('key_id');
-            $table->string('request_id', 16);
+            $table->string('request_id', 36);
             $table->string('access_ip', 45);
             $table->text('request_info');
             $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
         });
     }
 

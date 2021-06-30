@@ -6,6 +6,7 @@ use App\Models\AccessKeys;
 use App\Models\Logs;
 use App\Models\PersonalKeys;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use RandomLib\Factory;
@@ -39,8 +40,9 @@ class AdminController extends BaseController
         $userID = $request->input('user_id', '');
         $maxCount = $request->input('max_count', '');
         $permissions = $request->input('permissions', '');
+        $hoursToExpire = $request->input('hours', '');
 
-        if (empty($userID) || empty($maxCount) || empty($permissions) || filter_var($maxCount, FILTER_VALIDATE_INT) === false) {
+        if (empty($userID) || empty($maxCount) || empty($permissions) || empty($hoursToExpire) || filter_var($maxCount, FILTER_VALIDATE_INT) === false || filter_var($hoursToExpire, FILTER_VALIDATE_INT) === false) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
@@ -60,21 +62,29 @@ class AdminController extends BaseController
 
         $newKey = $this->generateUniqueKey();
 
-        $newPersonalKey = new PersonalKeys();
-        $newPersonalKey->user_id = $userID;
-        $newPersonalKey->key = $newKey;
-        $newPersonalKey->max_count = $maxCount;
-        $newPersonalKey->permissions = $permissions;
-        $newPersonalKey->save();
+        $expireDate = $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null;
+
+        $newPersonalKey = PersonalKeys::query()->create([
+            'user_id' => $userID,
+            'key' => $newKey,
+            'max_count' => $maxCount,
+            'permissions' => json_decode($permissions),
+            'activated_at' => Carbon::now(),
+            'expires_at' => $expireDate
+        ]);
+
+        $newPersonalKey = $newPersonalKey->toArray();
 
         return response()->json([
-            'id' => $newPersonalKey->id,
-            'user_id' => $newPersonalKey->user_id,
-            'key' => $newPersonalKey->key,
-            'max_count' => $newPersonalKey->max_count,
-            'permissions' => json_decode($newPersonalKey->permissions),
-            'created_at' => $newPersonalKey->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $newPersonalKey->updated_at->format('Y-m-d H:i:s')
+            'user_id' => $newPersonalKey['user_id'],
+            'key' => $newPersonalKey['key'],
+            'monthly_usage' => $newPersonalKey['max_count'],
+            'permissions' => $newPersonalKey['permissions'],
+            'subscription' => [
+                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
+                'activated_at' => $newPersonalKey['activated_at'],
+                'expires_at' => $newPersonalKey['expires_at']
+            ]
         ]);
     }
 
@@ -92,11 +102,13 @@ class AdminController extends BaseController
         }
 
         $userID = $request->input('user_id', '');
-        $userToken = $request->input('token', '');
+        $userToken = $request->input('user_token', '');
         $maxCount = $request->input('max_count', '');
         $permissions = $request->input('permissions', '');
+        $activatedAt = $request->input('activated_at', '');
+        $expiresAt = $request->input('expires_at', '');
 
-        if (empty($userID) || empty($userToken) || empty($maxCount) || empty($permissions)) {
+        if (empty($userID) || empty($userToken)) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
@@ -105,16 +117,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        if ($this->isJson($permissions) === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidPermissions',
-                    'info' => 'The permission format is invalid. It should be in JSON array format.'
-                ]
-            ], 400);
-        }
-
-        $newPersonalKey = PersonalKeys::where('user_id', $userID)->where('key', $userToken)->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
 
         if (empty($newPersonalKey)) {
             return response()->json([
@@ -125,18 +128,52 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        $newPersonalKey->max_count = $maxCount;
-        $newPersonalKey->permissions = $permissions;
-        $newPersonalKey->save();
+        if (!empty($maxCount) || !empty($permissions) || !empty($activatedAt) || !empty($expiresAt)) {
+            if (!empty($maxCount)) {
+                $newPersonalKey->max_count = $maxCount;
+            }
+
+
+            if (!empty($permissions)) {
+                if ($this->isJson($permissions) === FALSE) {
+                    return response()->json([
+                        'error' => [
+                            'type' => 'xInvalidPermissions',
+                            'info' => 'The permission format is invalid. It should be in JSON array format.'
+                        ]
+                    ], 400);
+                }
+
+                $newPersonalKey->permissions = json_decode($permissions);
+            }
+
+            if (!empty($activatedAt) && $this->isValidDate($activatedAt, 'Y-m-d H:i:s')) {
+                $newPersonalKey->activated_at = $activatedAt;
+            }
+
+            if (!empty($expiresAt)) {
+                if ($expiresAt == 'null') {
+                    $newPersonalKey->expires_at = null;
+                } else if ($this->isValidDate($expiresAt, 'Y-m-d H:i:s')) {
+                    $newPersonalKey->expires_at = $expiresAt;
+                }
+            }
+
+            $newPersonalKey->save();
+        }
+
+        $newPersonalKey = $newPersonalKey->toArray();
 
         return response()->json([
-            'id' => $newPersonalKey->id,
-            'user_id' => $newPersonalKey->user_id,
-            'key' => $newPersonalKey->key,
-            'max_count' => $newPersonalKey->max_count,
-            'permissions' => json_decode($newPersonalKey->permissions),
-            'created_at' => $newPersonalKey->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $newPersonalKey->updated_at->format('Y-m-d H:i:s')
+            'user_id' => $newPersonalKey['user_id'],
+            'key' => $newPersonalKey['key'],
+            'monthly_usage' => $newPersonalKey['max_count'],
+            'permissions' => $newPersonalKey['permissions'],
+            'subscription' => [
+                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
+                'activated_at' => $newPersonalKey['activated_at'],
+                'expires_at' => $newPersonalKey['expires_at']
+            ]
         ]);
     }
 
@@ -154,7 +191,7 @@ class AdminController extends BaseController
         }
 
         $userID = $request->input('user_id', '');
-        $userToken = $request->input('token', '');
+        $userToken = $request->input('user_token', '');
 
         if (empty($userID) || empty($userToken)) {
             return response()->json([
@@ -165,7 +202,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $newPersonalKey = PersonalKeys::where('user_id', $userID)->where('key', $userToken)->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
 
         if (empty($newPersonalKey)) {
             return response()->json([
@@ -181,14 +218,18 @@ class AdminController extends BaseController
         $newPersonalKey->key = $newKey;
         $newPersonalKey->save();
 
+        $newPersonalKey = $newPersonalKey->toArray();
+
         return response()->json([
-            'id' => $newPersonalKey->id,
-            'user_id' => $newPersonalKey->user_id,
-            'key' => $newPersonalKey->key,
-            'max_count' => $newPersonalKey->max_count,
-            'permissions' => json_decode($newPersonalKey->permissions),
-            'created_at' => $newPersonalKey->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $newPersonalKey->updated_at->format('Y-m-d H:i:s')
+            'user_id' => $newPersonalKey['user_id'],
+            'key' => $newPersonalKey['key'],
+            'monthly_usage' => $newPersonalKey['max_count'],
+            'permissions' => $newPersonalKey['permissions'],
+            'subscription' => [
+                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
+                'activated_at' => $newPersonalKey['activated_at'],
+                'expires_at' => $newPersonalKey['expires_at']
+            ]
         ]);
     }
 
@@ -206,7 +247,7 @@ class AdminController extends BaseController
         }
 
         $userID = $request->input('user_id', '');
-        $userToken = $request->input('token', '');
+        $userToken = $request->input('user_token', '');
 
         if (empty($userID) || empty($userToken)) {
             return response()->json([
@@ -217,7 +258,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $newPersonalKey = PersonalKeys::where('user_id', $userID)->where('key', $userToken)->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
 
         if (empty($newPersonalKey)) {
             return response()->json([
@@ -228,7 +269,8 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        Logs::where('key_id', $newPersonalKey->id)->delete();
+        Logs::query()->where('key_id', $newPersonalKey->id)->delete();
+
         $newPersonalKey->delete();
 
         return response()->json([
@@ -250,8 +292,7 @@ class AdminController extends BaseController
         }
 
         $userID = $request->input('user_id', '');
-        $userToken = $request->input('token', '');
-        $count = $request->input('count', '150');
+        $userToken = $request->input('user_token', '');
 
         if (empty($userID) || empty($userToken)) {
             return response()->json([
@@ -262,7 +303,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $personalKey = PersonalKeys::where('user_id', $userID)->where('key', $userToken)->first();
+        $personalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
 
         if (empty($personalKey)) {
             return response()->json([
@@ -273,29 +314,18 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        if (filter_var($count, FILTER_VALIDATE_INT) === false) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidFormat',
-                    'info' => 'Provided parameters are unsupported format.'
-                ]
-            ], 400);
-        }
+        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at','DESC')->paginate(25);
 
-        $count = (int) $count;
+        $buildResponse = [
+            'pagination' => [
+                'per_page' => $logs->perPage(),
+                'current' => $logs->currentPage(),
+                'total' => $logs->lastPage(),
+            ],
+            'items' => $logs->items()
+        ];
 
-        if ($count > 5000) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xTooLargeData',
-                    'info' => 'The server cannot return more than 5000 logs.'
-                ]
-            ], 400);
-        }
-
-        $logs = Logs::where('key_id', $personalKey->id)->orderBy('created_at','DESC')->limit($count)->get()->toArray();
-
-        return response()->json($logs);
+        return response()->json($buildResponse);
     }
 
     public function GetTokens(Request $request)
@@ -322,9 +352,24 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $personalKey = PersonalKeys::where('user_id', $userID)->get()->toArray();
+        $personalKey = PersonalKeys::query()->where('user_id', $userID)->get()->toArray();
 
-        return response()->json($personalKey);
+        $reconstructedArray = [];
+
+        foreach ($personalKey as $item) {
+            $reconstructedArray[] = [
+                'user_id' => $item['user_id'],
+                'key' => $item['key'],
+                'monthly_usage' => $item['max_count'],
+                'permissions' => $item['permissions'],
+                'subscription' => [
+                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                    'activated_at' => $item['activated_at'],
+                    'expires_at' => $item['expires_at']
+                ]
+            ];
+        }
+        return response()->json($reconstructedArray);
     }
 
     public function Stats(Request $request)
@@ -341,7 +386,7 @@ class AdminController extends BaseController
         }
 
         $userID = $request->input('user_id', '');
-        $userToken = $request->input('token', '');
+        $userToken = $request->input('user_token', '');
         $dateCo = $request->input('date', '');
 
         if (empty($userID) || empty($userToken)) {
@@ -357,7 +402,7 @@ class AdminController extends BaseController
             $dateCo = Carbon::now()->format('Y-m');
         }
 
-        $personalKey = PersonalKeys::where('user_id', $userID)->where('key', $userToken)->first();
+        $personalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
 
         if (empty($personalKey)) {
             return response()->json([
@@ -377,7 +422,7 @@ class AdminController extends BaseController
             $lastDay = (int)$specifiedDate->format('t');
         }
 
-        $logMonth = Logs::where('key_id', $personalKey->id)
+        $logMonth = Logs::query()->where('key_id', $personalKey->id)
             ->whereYear('created_at', $specifiedDate->format('Y'))
             ->whereMonth('created_at', $specifiedDate->format('m'))
             ->get()
@@ -385,7 +430,7 @@ class AdminController extends BaseController
                 return Carbon::parse($date->created_at)->format('d'); // grouping by months
             })->toArray();
 
-        $totalCount = Logs::where('key_id', $personalKey->id)
+        $totalCount = Logs::query()->where('key_id', $personalKey->id)
             ->whereYear('created_at', $specifiedDate->format('Y'))
             ->whereMonth('created_at', $specifiedDate->format('m'))
             ->count();
@@ -426,6 +471,12 @@ class AdminController extends BaseController
         return (json_last_error() == JSON_ERROR_NONE);
     }
 
+    private function isValidDate($string, $format = 'Y-m-d H:i:s')
+    {
+        $d = DateTime::createFromFormat($format, $string);
+        return $d && $d->format($format) == $string;
+    }
+
     private function generateUniqueKey()
     {
         $factory = new Factory;
@@ -435,7 +486,7 @@ class AdminController extends BaseController
         $nonExistConfirmed = false;
 
         while ($nonExistConfirmed == false) {
-            $checkDB = PersonalKeys::where('key', $generatedToken)->first();
+            $checkDB = PersonalKeys::query()->where('key', $generatedToken)->first();
 
             if (empty($checkDB)) {
                 $nonExistConfirmed = true;
@@ -449,19 +500,17 @@ class AdminController extends BaseController
 
     private function checkPermission($token, $permissionName)
     {
-        $accessKey = AccessKeys::where('token', $token)->first();
+        $accessKey = AccessKeys::query()->where('token', $token)->first();
 
         if (empty($accessKey)) {
             return false;
         }
 
-        $permissions = json_decode($accessKey->permissions);
-
-        if (in_array("*", $permissions)) {
+        if (in_array("*", $accessKey->permissions)) {
             return true;
         }
 
-        if (in_array($permissionName, $permissions)) {
+        if (in_array($permissionName, $accessKey->permissions)) {
             return true;
         }
 

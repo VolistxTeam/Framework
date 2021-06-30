@@ -19,6 +19,8 @@ class CreatePersonalKeysTable extends Migration
             $table->string('key', 60)->nullable()->index('key');
             $table->integer('max_count')->nullable();
             $table->string('permissions')->nullable()->default('[]');
+            $table->dateTime('activated_at')->nullable();
+            $table->dateTime('expires_at')->nullable();
             $table->dateTime('created_at')->nullable()->useCurrent();
             $table->dateTime('updated_at')->nullable()->useCurrent();
         });

@@ -8,7 +8,7 @@ use SecurityLib\Strength;
 
 class AccessKeyCommand extends Command
 {
-    protected $signature = "access-key:create";
+    protected $signature = "access-key:generate";
 
     protected $description = "Create an access key to the system.";
 

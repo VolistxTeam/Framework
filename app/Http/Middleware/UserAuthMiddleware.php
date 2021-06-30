@@ -6,21 +6,16 @@ use App\Models\Logs;
 use App\Models\PersonalKeys;
 use Carbon\Carbon;
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use RandomLib\Factory;
 use SecurityLib\Strength;
 
 class UserAuthMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @return mixed
-     */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        $personalKeys = PersonalKeys::where('key', $request->input('access_key', ''))->first();
+        $personalKeys = PersonalKeys::query()->where('key', $request->input('access_key', ''))->first();
 
         if (empty($personalKeys)) {
             return response()->json([
@@ -31,7 +26,16 @@ class UserAuthMiddleware
             ], 403);
         }
 
-        $logs = Logs::where('key_id', $personalKeys->id)->whereMonth('created_at', Carbon::now()->month)->get()->toArray();
+        $logs = Logs::query()->where('key_id', $personalKeys->id)->whereMonth('created_at', Carbon::now()->month)->get()->toArray();
+
+        if ($personalKeys->expires_at != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($personalKeys->expires_at))) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xSubscriptionExpired',
+                    'info' => 'Your subscription is already expired. Please renew or upgrade your plan.'
+                ]
+            ], 403);
+        }
 
         if ($personalKeys->max_count != -1 && count($logs) >= $personalKeys->max_count) {
             return response()->json([
@@ -42,10 +46,7 @@ class UserAuthMiddleware
             ], 429);
         }
 
-        $factory = new Factory;
-        $generator = $factory->getGenerator(new Strength(Strength::LOW));
-
-        $randomRayID = strtolower($generator->generateString(16, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'));
+        $randomRayID = Str::uuid();
 
         $log = [
             'url' => $request->getUri(),
@@ -54,12 +55,12 @@ class UserAuthMiddleware
             'body' => $request->all()
         ];
 
-        $newLog = new Logs();
-        $newLog->key_id = $personalKeys->id;
-        $newLog->request_id = $randomRayID;
-        $newLog->request_info = $log;
-        $newLog->access_ip = $request->getClientIp();
-        $newLog->save();
+        Logs::query()->create([
+            'key_id' => $personalKeys->id,
+            'request_id' => $randomRayID,
+            'request_info' => $log,
+            'access_ip' => $request->getClientIp()
+        ]);
 
         $response = $next($request);
         $response->header('X-Request-ID', $randomRayID);

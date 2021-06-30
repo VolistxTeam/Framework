@@ -26,10 +26,22 @@ class Logs extends Model
 
     protected $casts = [
         'request_info' => 'array',
-        'created_at'  => 'date:Y-m-d H:i:s',
-        'updated_at'  => 'date:Y-m-d H:i:s',
+        'created_at'  => 'date:Y-m-d H:i:s'
     ];
 
-    protected $hidden = ['id', 'key_id'];
+    protected $fillable = [
+        'key_id',
+        'request_id',
+        'request_info',
+        'access_ip'
+    ];
 
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string
+     */
+    const UPDATED_AT = null;
+
+    protected $hidden = ['id', 'key_id'];
 }

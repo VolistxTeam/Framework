@@ -25,7 +25,20 @@ class PersonalKeys extends Model
 
     protected $hidden = ['id'];
 
+    protected $fillable = [
+        'user_id',
+        'key',
+        'max_count',
+        'permissions',
+        'activated_at',
+        'expires_at'
+    ];
+
     protected $casts = [
+        'max_count' => 'integer',
+        'permissions' => 'array',
+        'activated_at'  => 'date:Y-m-d H:i:s',
+        'expires_at'  => 'date:Y-m-d H:i:s',
         'created_at'  => 'date:Y-m-d H:i:s',
         'updated_at'  => 'date:Y-m-d H:i:s',
     ];

@@ -4,19 +4,13 @@ namespace App\Http\Middleware;
 
 use App\Models\AccessKeys;
 use Closure;
+use Illuminate\Http\Request;
 
 class AdminAuthMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @return mixed
-     */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        $accessKey = AccessKeys::where('token', $request->input('access_key', ''))->first();
+        $accessKey = AccessKeys::query()->where('token', $request->input('access_key', ''))->first();
 
         if (empty($accessKey)) {
             return response()->json([

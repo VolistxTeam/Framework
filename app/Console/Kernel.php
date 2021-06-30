@@ -6,6 +6,7 @@ use Illuminate\Console\KeyGenerateCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
 use Spatie\ResponseCache\Commands\ClearCommand;
+use Mlntn\Console\Commands\Serve;
 
 class Kernel extends ConsoleKernel
 {
@@ -20,6 +21,7 @@ class Kernel extends ConsoleKernel
         Commands\DeleteLogsCommand::class,
         ClearCommand::class,
         KeyGenerateCommand::class,
+        Serve::class,
     ];
 
     /**
