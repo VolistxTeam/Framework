@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\ThrottleRequests;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Torann\GeoIP\GeoIPServiceProvider;
@@ -54,7 +53,7 @@ $app->routeMiddleware([
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
-    'middleware' => 'throttle:global',
+//    'middleware' => 'throttle:global',
 ], function ($router) {
     require __DIR__ . '/../routes/system.php';
     require __DIR__ . '/../routes/api.php';

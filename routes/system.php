@@ -13,6 +13,12 @@
 |
 */
 
+$router->group(['prefix' => 'sys-bin/load-balancer'], function () use ($router) {
+    $router->get('/', function () {
+        return 'Hi to Load Balancer!';
+    });
+});
+
 $router->group(['prefix' => 'sys-bin/admin', 'middleware' => 'auth.admin'], function () use ($router) {
     $router->post('/create', 'Auth\AdminController@CreateInfo');
     $router->post('/update', 'Auth\AdminController@UpdateInfo');

@@ -25,6 +25,9 @@ class FirewallMiddleware
             // continue
         }
 
-        return $next($request);
+        $response = $next($request);
+        $response->header('Server', 'WebShield/2.84-stable');
+
+        return $response;
     }
 }
