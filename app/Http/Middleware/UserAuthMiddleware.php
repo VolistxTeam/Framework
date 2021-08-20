@@ -15,7 +15,7 @@ class UserAuthMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $personalKeys = PersonalKeys::query()->where('key', $request->input('access_key', ''))->first();
+        $personalKeys = PersonalKeys::query()->where('key', $request->bearerToken())->first();
 
         if (empty($personalKeys)) {
             return response()->json([

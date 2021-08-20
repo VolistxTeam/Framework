@@ -10,7 +10,7 @@ class AdminAuthMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $accessKey = AccessKeys::query()->where('token', $request->input('access_key', ''))->first();
+        $accessKey = AccessKeys::query()->where('token', $request->bearerToken())->first();
 
         if (empty($accessKey)) {
             return response()->json([

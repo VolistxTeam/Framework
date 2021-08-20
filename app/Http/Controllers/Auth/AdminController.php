@@ -26,7 +26,7 @@ class AdminController extends BaseController
 
     public function CreateInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:create');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:create');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
@@ -90,7 +90,7 @@ class AdminController extends BaseController
 
     public function UpdateInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:update');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:update');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
@@ -179,7 +179,7 @@ class AdminController extends BaseController
 
     public function ResetInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:reset');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:reset');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
@@ -235,7 +235,7 @@ class AdminController extends BaseController
 
     public function DeleteInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:delete');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:delete');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
@@ -280,7 +280,7 @@ class AdminController extends BaseController
 
     public function GetLogs(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:logs');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:logs');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
@@ -330,7 +330,7 @@ class AdminController extends BaseController
 
     public function GetTokens(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:list');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:list');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
@@ -374,7 +374,7 @@ class AdminController extends BaseController
 
     public function Stats(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->input('access_key', ''), 'key:stats');
+        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:stats');
 
         if ($permissionCheck === FALSE) {
             return response()->json([
