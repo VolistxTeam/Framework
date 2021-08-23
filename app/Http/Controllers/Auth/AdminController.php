@@ -26,16 +26,7 @@ class AdminController extends BaseController
 
     public function CreateInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:create');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:create');
 
         $userID = $request->input('user_id', '');
         $maxCount = $request->input('monthly_usage', '');
@@ -90,16 +81,7 @@ class AdminController extends BaseController
 
     public function UpdateInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:update');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:update');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
@@ -179,16 +161,7 @@ class AdminController extends BaseController
 
     public function ResetInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:reset');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:reset');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
@@ -235,16 +208,7 @@ class AdminController extends BaseController
 
     public function DeleteInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:delete');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:delete');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
@@ -280,16 +244,7 @@ class AdminController extends BaseController
 
     public function GetLogs(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:logs');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:logs');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
@@ -314,7 +269,7 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at','DESC')->paginate(25);
+        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at', 'DESC')->paginate(25);
 
         $buildResponse = [
             'pagination' => [
@@ -330,16 +285,7 @@ class AdminController extends BaseController
 
     public function GetTokens(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:list');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:list');
 
         $userID = $request->input('user_id', '');
 
@@ -374,16 +320,7 @@ class AdminController extends BaseController
 
     public function Stats(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:stats');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:stats');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
@@ -466,7 +403,8 @@ class AdminController extends BaseController
         ]);
     }
 
-    private function isJson($string) {
+    private function isJson($string)
+    {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
     }
@@ -475,6 +413,22 @@ class AdminController extends BaseController
     {
         $d = DateTime::createFromFormat($format, $string);
         return $d && $d->format($format) == $string;
+    }
+
+    private function checkPermissionShared($token, $permissionName)
+    {
+        $permissionCheck = $this->checkPermission($token, $permissionName);
+
+        if ($permissionCheck === FALSE) {
+            response()->json([
+                'error' => [
+                    'type' => 'xInvalidToken',
+                    'info' => 'Invalid token was specified or do not have permission.'
+                ]
+            ], 403)->send();
+
+            exit();
+        }
     }
 
     private function generateUniqueKey()
