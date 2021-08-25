@@ -8,6 +8,7 @@ use App\Models\PersonalKeys;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use RandomLib\Factory;
 use SecurityLib\Strength;
@@ -33,7 +34,19 @@ class AdminController extends BaseController
         $permissions = $request->input('permissions', '');
         $hoursToExpire = $request->input('hours', '');
 
-        if (empty($userID) || empty($maxCount) || empty($permissions) || empty($hoursToExpire) || filter_var($maxCount, FILTER_VALIDATE_INT) === false || filter_var($hoursToExpire, FILTER_VALIDATE_INT) === false) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'monthly_usage' => $maxCount,
+            'permissions' => $permissions,
+            'hours' => $hoursToExpire
+        ], [
+            'user_id' => 'required|integer',
+            'monthly_usage' => 'required|integer',
+            'permissions' => 'required|json',
+            'hours' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
@@ -42,29 +55,14 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        if ($this->isJson($permissions) === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidPermissions',
-                    'info' => 'The permission format is invalid. It should be in JSON array format.'
-                ]
-            ], 400);
-        }
-
-        $newKey = $this->generateUniqueKey();
-
-        $expireDate = $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null;
-
         $newPersonalKey = PersonalKeys::query()->create([
             'user_id' => $userID,
-            'key' => $newKey,
+            'key' => $this->generateUniqueKey(),
             'max_count' => $maxCount,
             'permissions' => json_decode($permissions),
             'activated_at' => Carbon::now(),
-            'expires_at' => $expireDate
-        ]);
-
-        $newPersonalKey = $newPersonalKey->toArray();
+            'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
+        ])->toArray();
 
         return response()->json([
             'user_id' => $newPersonalKey['user_id'],
@@ -90,11 +88,19 @@ class AdminController extends BaseController
         $activatedAt = $request->input('activated_at', '');
         $expiresAt = $request->input('expires_at', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -166,11 +172,19 @@ class AdminController extends BaseController
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -213,11 +227,19 @@ class AdminController extends BaseController
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -249,11 +271,19 @@ class AdminController extends BaseController
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -289,11 +319,17 @@ class AdminController extends BaseController
 
         $userID = $request->input('user_id', '');
 
-        if (empty($userID)) {
+        $validator = Validator::make([
+            'user_id' => $userID
+        ], [
+            'user_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -326,11 +362,19 @@ class AdminController extends BaseController
         $userToken = $request->input('user_token', '');
         $dateCo = $request->input('date', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -403,10 +447,15 @@ class AdminController extends BaseController
         ]);
     }
 
-    private function isJson($string)
+    private function isJson($inputString)
     {
-        json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
+        $validator = Validator::make([
+            'inputString' => $inputString
+        ], [
+            'inputString' => 'required|json'
+        ]);
+
+        return !$validator->fails();
     }
 
     private function isValidDate($string, $format = 'Y-m-d H:i:s')
