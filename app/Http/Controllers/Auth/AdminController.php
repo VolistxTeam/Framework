@@ -460,7 +460,7 @@ class AdminController extends BaseController
         $factory = new Factory;
         $generator = $factory->getGenerator(new Strength(Strength::HIGH));
 
-        $generatedToken = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
         $nonExistConfirmed = false;
 
         while ($nonExistConfirmed == false) {
@@ -469,7 +469,7 @@ class AdminController extends BaseController
             if (empty($checkDB)) {
                 $nonExistConfirmed = true;
             } else {
-                $generatedToken = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
             }
         }
 

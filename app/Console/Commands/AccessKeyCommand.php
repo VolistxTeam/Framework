@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Models\AccessKeys;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 use RandomLib\Factory;
 use SecurityLib\Strength;
 
@@ -17,11 +19,12 @@ class AccessKeyCommand extends Command
         $factory = new Factory;
         $generator = $factory->getGenerator(new Strength(Strength::HIGH));
 
-        $generatedKey = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        $generatedKey = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
         AccessKeys::query()->create(array(
             'token' => $generatedKey,
-            'permissions'  => array('*')
+            'permissions' => empty($permissionLists) ? array('*') : json_decode($permissionLists),
+            'whitelist_range' => empty($whitelistRange) ? array() : json_decode($whitelistRange)
         ));
 
         $this->info('Your access key is created: ' . $generatedKey);

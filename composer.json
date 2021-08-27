@@ -17,7 +17,8 @@
         "rogervila/lumen-rate-limiting": "^1.0",
         "spatie/laravel-responsecache": "^7.0",
         "swooletw/laravel-swoole": "^2.8",
-        "torann/geoip": "^3.0"
+        "torann/geoip": "^3.0",
+        "wikimedia/ip-set": "^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
