@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
+use Wikimedia\IPSet;
 
 class FirewallMiddleware
 {
@@ -11,7 +13,9 @@ class FirewallMiddleware
     {
         $clientIP = $request->getClientIp();
 
-        if (in_array($clientIP, config('firewall.ipBlacklist', []))) {
+        $ipSet = new IPSet(config('firewall.ipBlacklist', []));
+
+        if ($ipSet->match($clientIP)) {
             return response('', 403);
         }
 
@@ -21,7 +25,7 @@ class FirewallMiddleware
             if (in_array($geoIPLookup->iso_code, config('firewall.countryBlacklist', []))) {
                 return response('', 403);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             // continue
         }
 
