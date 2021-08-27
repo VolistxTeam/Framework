@@ -64,17 +64,7 @@ class AdminController extends BaseController
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
         ])->toArray();
 
-        return response()->json([
-            'user_id' => $newPersonalKey['user_id'],
-            'key' => $newPersonalKey['key'],
-            'monthly_usage' => $newPersonalKey['max_count'],
-            'permissions' => $newPersonalKey['permissions'],
-            'subscription' => [
-                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
-                'activated_at' => $newPersonalKey['activated_at'],
-                'expires_at' => $newPersonalKey['expires_at']
-            ]
-        ]);
+        return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
     public function UpdateInfo(Request $request)
@@ -121,7 +111,6 @@ class AdminController extends BaseController
                 $newPersonalKey->max_count = $maxCount;
             }
 
-
             if (!empty($permissions)) {
                 if ($this->isJson($permissions) === FALSE) {
                     return response()->json([
@@ -135,14 +124,14 @@ class AdminController extends BaseController
                 $newPersonalKey->permissions = json_decode($permissions);
             }
 
-            if (!empty($activatedAt) && $this->isValidDate($activatedAt, 'Y-m-d H:i:s')) {
+            if (!empty($activatedAt) && $this->isValidDate($activatedAt)) {
                 $newPersonalKey->activated_at = $activatedAt;
             }
 
             if (!empty($expiresAt)) {
                 if ($expiresAt == 'null') {
                     $newPersonalKey->expires_at = null;
-                } else if ($this->isValidDate($expiresAt, 'Y-m-d H:i:s')) {
+                } else if ($this->isValidDate($expiresAt)) {
                     $newPersonalKey->expires_at = $expiresAt;
                 }
             }
@@ -152,17 +141,7 @@ class AdminController extends BaseController
 
         $newPersonalKey = $newPersonalKey->toArray();
 
-        return response()->json([
-            'user_id' => $newPersonalKey['user_id'],
-            'key' => $newPersonalKey['key'],
-            'monthly_usage' => $newPersonalKey['max_count'],
-            'permissions' => $newPersonalKey['permissions'],
-            'subscription' => [
-                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
-                'activated_at' => $newPersonalKey['activated_at'],
-                'expires_at' => $newPersonalKey['expires_at']
-            ]
-        ]);
+        return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
     public function ResetInfo(Request $request)
@@ -207,17 +186,7 @@ class AdminController extends BaseController
 
         $newPersonalKey = $newPersonalKey->toArray();
 
-        return response()->json([
-            'user_id' => $newPersonalKey['user_id'],
-            'key' => $newPersonalKey['key'],
-            'monthly_usage' => $newPersonalKey['max_count'],
-            'permissions' => $newPersonalKey['permissions'],
-            'subscription' => [
-                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
-                'activated_at' => $newPersonalKey['activated_at'],
-                'expires_at' => $newPersonalKey['expires_at']
-            ]
-        ]);
+        return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
     public function DeleteInfo(Request $request)
@@ -339,18 +308,9 @@ class AdminController extends BaseController
         $reconstructedArray = [];
 
         foreach ($personalKey as $item) {
-            $reconstructedArray[] = [
-                'user_id' => $item['user_id'],
-                'key' => $item['key'],
-                'monthly_usage' => $item['max_count'],
-                'permissions' => $item['permissions'],
-                'subscription' => [
-                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                    'activated_at' => $item['activated_at'],
-                    'expires_at' => $item['expires_at']
-                ]
-            ];
+            $reconstructedArray[] = $this->convertItemToArray($item);
         }
+
         return response()->json($reconstructedArray);
     }
 
@@ -445,6 +405,21 @@ class AdminController extends BaseController
             ],
             'details' => $statArr
         ]);
+    }
+
+    private function convertItemToArray($item)
+    {
+        return [
+            'user_id' => $item['user_id'],
+            'key' => $item['key'],
+            'monthly_usage' => $item['max_count'],
+            'permissions' => $item['permissions'],
+            'subscription' => [
+                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                'activated_at' => $item['activated_at'],
+                'expires_at' => $item['expires_at']
+            ]
+        ];
     }
 
     private function isJson($inputString)
