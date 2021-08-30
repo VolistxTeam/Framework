@@ -29,10 +29,10 @@ class AdminController extends BaseController
     {
         $this->checkPermissionShared($request->bearerToken(), 'key:create');
 
-        $userID = $request->input('user_id', '');
-        $maxCount = $request->input('monthly_usage', '');
-        $permissions = $request->input('permissions', '');
-        $hoursToExpire = $request->input('hours', '');
+        $userID = $request->input('user_id', ''); // user id (integer)
+        $maxCount = $request->input('monthly_usage', ''); // monthly api call usages (integer)
+        $permissions = $request->input('permissions', ''); // permissions (json, default one should be [])
+        $hoursToExpire = $request->input('hours', ''); // subscription (integer, count as hours | -1 means unlimited subscription)
 
         $validator = Validator::make([
             'user_id' => $userID,
