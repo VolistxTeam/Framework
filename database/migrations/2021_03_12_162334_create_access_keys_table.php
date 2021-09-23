@@ -17,7 +17,7 @@ class CreateAccessKeysTable extends Migration
             $table->integer('id', true);
             $table->string('token', 100)->default('')->index('token');
             $table->json('whitelist_range')->default('[]');
-            $table->string('permissions')->default('[]');
+            $table->json('permissions')->default('[]');
             $table->dateTime('created_at')->useCurrent();
             $table->dateTime('updated_at')->useCurrent();
         });
