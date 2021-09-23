@@ -16,7 +16,7 @@ class CreatePersonalKeysTable extends Migration
         Schema::create('personal_keys', function (Blueprint $table) {
             $table->integer('id', true);
             $table->integer('user_id')->nullable()->index('user_id');
-            $table->string('key', 60)->nullable()->index('key');
+            $table->string('key', 100)->nullable()->index('key');
             $table->integer('max_count')->nullable();
             $table->string('permissions')->nullable()->default('[]');
             $table->dateTime('activated_at')->nullable();

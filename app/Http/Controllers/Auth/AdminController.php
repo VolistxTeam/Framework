@@ -8,6 +8,7 @@ use App\Models\PersonalKeys;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use RandomLib\Factory;
 use SecurityLib\Strength;
@@ -26,23 +27,26 @@ class AdminController extends BaseController
 
     public function CreateInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:create');
+        $this->checkPermissionShared($request->bearerToken(), 'key:create');
 
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $userID = $request->input('user_id', ''); // user id (integer)
+        $maxCount = $request->input('monthly_usage', ''); // monthly api call usages (integer)
+        $permissions = $request->input('permissions', ''); // permissions (json, default one should be [])
+        $hoursToExpire = $request->input('hours', ''); // subscription (integer, count as hours | -1 means unlimited subscription)
 
-        $userID = $request->input('user_id', '');
-        $maxCount = $request->input('monthly_usage', '');
-        $permissions = $request->input('permissions', '');
-        $hoursToExpire = $request->input('hours', '');
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'monthly_usage' => $maxCount,
+            'permissions' => $permissions,
+            'hours' => $hoursToExpire
+        ], [
+            'user_id' => 'required|integer',
+            'monthly_usage' => 'required|integer',
+            'permissions' => 'required|json',
+            'hours' => 'required|integer'
+        ]);
 
-        if (empty($userID) || empty($maxCount) || empty($permissions) || empty($hoursToExpire) || filter_var($maxCount, FILTER_VALIDATE_INT) === false || filter_var($hoursToExpire, FILTER_VALIDATE_INT) === false) {
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
@@ -51,55 +55,21 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        if ($this->isJson($permissions) === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidPermissions',
-                    'info' => 'The permission format is invalid. It should be in JSON array format.'
-                ]
-            ], 400);
-        }
-
-        $newKey = $this->generateUniqueKey();
-
-        $expireDate = $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null;
-
         $newPersonalKey = PersonalKeys::query()->create([
             'user_id' => $userID,
-            'key' => $newKey,
+            'key' => $this->generateUniqueKey(),
             'max_count' => $maxCount,
             'permissions' => json_decode($permissions),
             'activated_at' => Carbon::now(),
-            'expires_at' => $expireDate
-        ]);
+            'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
+        ])->toArray();
 
-        $newPersonalKey = $newPersonalKey->toArray();
-
-        return response()->json([
-            'user_id' => $newPersonalKey['user_id'],
-            'key' => $newPersonalKey['key'],
-            'monthly_usage' => $newPersonalKey['max_count'],
-            'permissions' => $newPersonalKey['permissions'],
-            'subscription' => [
-                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
-                'activated_at' => $newPersonalKey['activated_at'],
-                'expires_at' => $newPersonalKey['expires_at']
-            ]
-        ]);
+        return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
     public function UpdateInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:update');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:update');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
@@ -108,11 +78,19 @@ class AdminController extends BaseController
         $activatedAt = $request->input('activated_at', '');
         $expiresAt = $request->input('expires_at', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -133,7 +111,6 @@ class AdminController extends BaseController
                 $newPersonalKey->max_count = $maxCount;
             }
 
-
             if (!empty($permissions)) {
                 if ($this->isJson($permissions) === FALSE) {
                     return response()->json([
@@ -147,14 +124,14 @@ class AdminController extends BaseController
                 $newPersonalKey->permissions = json_decode($permissions);
             }
 
-            if (!empty($activatedAt) && $this->isValidDate($activatedAt, 'Y-m-d H:i:s')) {
+            if (!empty($activatedAt) && $this->isValidDate($activatedAt)) {
                 $newPersonalKey->activated_at = $activatedAt;
             }
 
             if (!empty($expiresAt)) {
                 if ($expiresAt == 'null') {
                     $newPersonalKey->expires_at = null;
-                } else if ($this->isValidDate($expiresAt, 'Y-m-d H:i:s')) {
+                } else if ($this->isValidDate($expiresAt)) {
                     $newPersonalKey->expires_at = $expiresAt;
                 }
             }
@@ -164,40 +141,29 @@ class AdminController extends BaseController
 
         $newPersonalKey = $newPersonalKey->toArray();
 
-        return response()->json([
-            'user_id' => $newPersonalKey['user_id'],
-            'key' => $newPersonalKey['key'],
-            'monthly_usage' => $newPersonalKey['max_count'],
-            'permissions' => $newPersonalKey['permissions'],
-            'subscription' => [
-                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
-                'activated_at' => $newPersonalKey['activated_at'],
-                'expires_at' => $newPersonalKey['expires_at']
-            ]
-        ]);
+        return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
     public function ResetInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:reset');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:reset');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -220,40 +186,29 @@ class AdminController extends BaseController
 
         $newPersonalKey = $newPersonalKey->toArray();
 
-        return response()->json([
-            'user_id' => $newPersonalKey['user_id'],
-            'key' => $newPersonalKey['key'],
-            'monthly_usage' => $newPersonalKey['max_count'],
-            'permissions' => $newPersonalKey['permissions'],
-            'subscription' => [
-                'is_expired' => $newPersonalKey['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($newPersonalKey['expires_at'])),
-                'activated_at' => $newPersonalKey['activated_at'],
-                'expires_at' => $newPersonalKey['expires_at']
-            ]
-        ]);
+        return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
     public function DeleteInfo(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:delete');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:delete');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -280,25 +235,24 @@ class AdminController extends BaseController
 
     public function GetLogs(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:logs');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:logs');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -314,7 +268,7 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at','DESC')->paginate(25);
+        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at', 'DESC')->paginate(25);
 
         $buildResponse = [
             'pagination' => [
@@ -330,24 +284,21 @@ class AdminController extends BaseController
 
     public function GetTokens(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:list');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:list');
 
         $userID = $request->input('user_id', '');
 
-        if (empty($userID)) {
+        $validator = Validator::make([
+            'user_id' => $userID
+        ], [
+            'user_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -357,43 +308,33 @@ class AdminController extends BaseController
         $reconstructedArray = [];
 
         foreach ($personalKey as $item) {
-            $reconstructedArray[] = [
-                'user_id' => $item['user_id'],
-                'key' => $item['key'],
-                'monthly_usage' => $item['max_count'],
-                'permissions' => $item['permissions'],
-                'subscription' => [
-                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                    'activated_at' => $item['activated_at'],
-                    'expires_at' => $item['expires_at']
-                ]
-            ];
+            $reconstructedArray[] = $this->convertItemToArray($item);
         }
+
         return response()->json($reconstructedArray);
     }
 
     public function Stats(Request $request)
     {
-        $permissionCheck = $this->checkPermission($request->bearerToken(), 'key:stats');
-
-        if ($permissionCheck === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
-        }
+        $this->checkPermissionShared($request->bearerToken(), 'key:stats');
 
         $userID = $request->input('user_id', '');
         $userToken = $request->input('user_token', '');
         $dateCo = $request->input('date', '');
 
-        if (empty($userID) || empty($userToken)) {
+        $validator = Validator::make([
+            'user_id' => $userID,
+            'user_token' => $userToken,
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'error' => [
                     'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in.'
+                    'info' => 'The required parameters are not filled in or invalid format.'
                 ]
             ], 400);
         }
@@ -466,9 +407,30 @@ class AdminController extends BaseController
         ]);
     }
 
-    private function isJson($string) {
-        json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
+    private function convertItemToArray($item)
+    {
+        return [
+            'user_id' => $item['user_id'],
+            'key' => $item['key'],
+            'monthly_usage' => $item['max_count'],
+            'permissions' => $item['permissions'],
+            'subscription' => [
+                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                'activated_at' => $item['activated_at'],
+                'expires_at' => $item['expires_at']
+            ]
+        ];
+    }
+
+    private function isJson($inputString)
+    {
+        $validator = Validator::make([
+            'inputString' => $inputString
+        ], [
+            'inputString' => 'required|json'
+        ]);
+
+        return !$validator->fails();
     }
 
     private function isValidDate($string, $format = 'Y-m-d H:i:s')
@@ -477,12 +439,28 @@ class AdminController extends BaseController
         return $d && $d->format($format) == $string;
     }
 
+    private function checkPermissionShared($token, $permissionName)
+    {
+        $permissionCheck = $this->checkPermission($token, $permissionName);
+
+        if ($permissionCheck === FALSE) {
+            response()->json([
+                'error' => [
+                    'type' => 'xInvalidToken',
+                    'info' => 'Invalid token was specified or do not have permission.'
+                ]
+            ], 403)->send();
+
+            exit();
+        }
+    }
+
     private function generateUniqueKey()
     {
         $factory = new Factory;
         $generator = $factory->getGenerator(new Strength(Strength::HIGH));
 
-        $generatedToken = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
         $nonExistConfirmed = false;
 
         while ($nonExistConfirmed == false) {
@@ -491,7 +469,7 @@ class AdminController extends BaseController
             if (empty($checkDB)) {
                 $nonExistConfirmed = true;
             } else {
-                $generatedToken = $generator->generateString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
             }
         }
 
