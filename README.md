@@ -50,3 +50,5 @@ If you want the Swoole server to run after reboot, add the following line to you
 ```
 @reboot php /path/to/artisan swoole:http start
 ```
+
+For more information, please go to https://docs.cln.volistx.io/vskeleton/introduction
