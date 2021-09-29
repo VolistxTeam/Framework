@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PersonalKeys;
 use Carbon\Carbon;
 
 if (!function_exists('config_path')) {
@@ -57,4 +58,23 @@ if (! function_exists('resolve')) {
 function now($timezone = null)
 {
     return Carbon::now($timezone);
+}
+
+function checkUserKeyPermission($token, $name): bool
+{
+    $accessKey = PersonalKeys::query()->where('key', $token)->first();
+
+    if (empty($accessKey)) {
+        return false;
+    }
+
+    if (in_array('*', $accessKey->permissions)) {
+        return true;
+    }
+
+    if (in_array($name, $accessKey->permissions)) {
+        return true;
+    }
+
+    return false;
 }
