@@ -55,7 +55,3 @@ if (! function_exists('resolve')) {
     }
 }
 
-function now($timezone = null)
-{
-    return Carbon::now($timezone);
-}
