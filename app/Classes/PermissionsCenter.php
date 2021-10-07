@@ -6,7 +6,7 @@ use App\Models\PersonalKeys;
 
 class PermissionsCenter
 {
-    public static function checkPermission($token,$key): bool
+    public static function checkUserPermission($token,$key): bool
     {
         $accessKey = PersonalKeys::query()->where('key', $token)->first();
 

@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ParametersSanitizerMiddleware;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
+use LumenRateLimiting\ThrottleRequests;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Torann\GeoIP\GeoIPServiceProvider;
 
@@ -49,8 +50,8 @@ $app->routeMiddleware([
     'auth.user' => App\Http\Middleware\UserAuthMiddleware::class,
     'auth.admin' => App\Http\Middleware\AdminAuthMiddleware::class,
     'cacheResponse' => CacheResponse::class,
-    'throttle' => \LumenRateLimiting\ThrottleRequests::class,
-    'sanitizer' =>    ParametersSanitizerMiddleware::class
+    'throttle' => ThrottleRequests::class,
+    'sanitizer' => ParametersSanitizerMiddleware::class
 ]);
 
 $app->router->group([

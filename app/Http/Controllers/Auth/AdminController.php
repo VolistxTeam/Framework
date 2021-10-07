@@ -67,20 +67,18 @@ class AdminController extends BaseController
         return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
-    public function UpdateInfo(Request $request)
+    public function UpdateInfo(Request $request, $id, $token)
     {
         $this->checkPermissionShared($request->bearerToken(), 'key:update');
 
-        $userID = $request->input('user_id', '');
-        $userToken = $request->input('user_token', '');
         $maxCount = $request->input('monthly_usage', '');
         $permissions = $request->input('permissions', '');
         $activatedAt = $request->input('activated_at', '');
         $expiresAt = $request->input('expires_at', '');
 
         $validator = Validator::make([
-            'user_id' => $userID,
-            'user_token' => $userToken
+            'user_id' => $id,
+            'user_token' => $token
         ], [
             'user_id' => 'required|integer',
             'user_token' => 'required'
@@ -95,7 +93,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($newPersonalKey)) {
             return response()->json([
@@ -144,16 +142,13 @@ class AdminController extends BaseController
         return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
-    public function ResetInfo(Request $request)
+    public function ResetInfo(Request $request, $id, $token)
     {
         $this->checkPermissionShared($request->bearerToken(), 'key:reset');
 
-        $userID = $request->input('user_id', '');
-        $userToken = $request->input('user_token', '');
-
         $validator = Validator::make([
-            'user_id' => $userID,
-            'user_token' => $userToken,
+            'user_id' => $id,
+            'user_token' => $token,
         ], [
             'user_id' => 'required|integer',
             'user_token' => 'required'
@@ -168,7 +163,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($newPersonalKey)) {
             return response()->json([
@@ -189,16 +184,13 @@ class AdminController extends BaseController
         return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
-    public function DeleteInfo(Request $request)
+    public function DeleteInfo(Request $request, $id, $token)
     {
         $this->checkPermissionShared($request->bearerToken(), 'key:delete');
 
-        $userID = $request->input('user_id', '');
-        $userToken = $request->input('user_token', '');
-
         $validator = Validator::make([
-            'user_id' => $userID,
-            'user_token' => $userToken,
+            'user_id' => $id,
+            'user_token' => $token,
         ], [
             'user_id' => 'required|integer',
             'user_token' => 'required'
@@ -213,7 +205,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($newPersonalKey)) {
             return response()->json([
@@ -233,16 +225,13 @@ class AdminController extends BaseController
         ]);
     }
 
-    public function GetLogs(Request $request)
+    public function GetLogs(Request $request, $id, $token)
     {
         $this->checkPermissionShared($request->bearerToken(), 'key:logs');
 
-        $userID = $request->input('user_id', '');
-        $userToken = $request->input('user_token', '');
-
         $validator = Validator::make([
-            'user_id' => $userID,
-            'user_token' => $userToken,
+            'user_id' => $id,
+            'user_token' => $token,
         ], [
             'user_id' => 'required|integer',
             'user_token' => 'required'
@@ -257,7 +246,7 @@ class AdminController extends BaseController
             ], 400);
         }
 
-        $personalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($personalKey)) {
             return response()->json([
@@ -282,49 +271,13 @@ class AdminController extends BaseController
         return response()->json($buildResponse);
     }
 
-    public function GetTokens(Request $request)
+    public function GetToken(Request $request, $id, $token)
     {
         $this->checkPermissionShared($request->bearerToken(), 'key:list');
 
-        $userID = $request->input('user_id', '');
-
         $validator = Validator::make([
-            'user_id' => $userID
-        ], [
-            'user_id' => 'required|integer'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
-        }
-
-        $personalKey = PersonalKeys::query()->where('user_id', $userID)->get()->toArray();
-
-        $reconstructedArray = [];
-
-        foreach ($personalKey as $item) {
-            $reconstructedArray[] = $this->convertItemToArray($item);
-        }
-
-        return response()->json($reconstructedArray);
-    }
-
-    public function Stats(Request $request)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:stats');
-
-        $userID = $request->input('user_id', '');
-        $userToken = $request->input('user_token', '');
-        $dateCo = $request->input('date', '');
-
-        $validator = Validator::make([
-            'user_id' => $userID,
-            'user_token' => $userToken,
+            'user_id' => $id,
+            'user_token' => $token
         ], [
             'user_id' => 'required|integer',
             'user_token' => 'required'
@@ -339,11 +292,83 @@ class AdminController extends BaseController
             ], 400);
         }
 
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+
+        if (empty($personalKey)) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidItem',
+                    'info' => 'No item found with provided parameters.'
+                ]
+            ], 404);
+        }
+
+        return response()->json($this->convertItemToArray($personalKey));
+    }
+
+    public function GetTokens(Request $request, $id)
+    {
+        $this->checkPermissionShared($request->bearerToken(), 'key:list');
+
+        $validator = Validator::make([
+            'user_id' => $id
+        ], [
+            'user_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidParameters',
+                    'info' => 'The required parameters are not filled in or invalid format.'
+                ]
+            ], 400);
+        }
+
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->get()->toArray();
+
+        $reconstructedArray = [];
+
+        foreach ($personalKey as $item) {
+            $reconstructedArray[] = $this->convertItemToArray($item);
+        }
+
+        return response()->json($reconstructedArray);
+    }
+
+    public function GetStats(Request $request, $id, $token)
+    {
+        $this->checkPermissionShared($request->bearerToken(), 'key:stats');
+
+        $dateCo = $request->input('date', '');
+        $showUnusedDate = $request->input('show', false);
+
+        $validator = Validator::make([
+            'user_id' => $id,
+            'user_token' => $token,
+            'show' => $showUnusedDate
+        ], [
+            'user_id' => 'required|integer',
+            'user_token' => 'required',
+            'show' => 'boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xInvalidParameters',
+                    'info' => 'The required parameters are not filled in or invalid format.'
+                ]
+            ], 400);
+        }
+
+        $showUnusedDate = (boolean) $showUnusedDate;
+
         if (empty($dateCo)) {
             $dateCo = Carbon::now()->format('Y-m');
         }
 
-        $personalKey = PersonalKeys::query()->where('user_id', $userID)->where('key', $userToken)->first();
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($personalKey)) {
             return response()->json([
@@ -390,10 +415,12 @@ class AdminController extends BaseController
                     'count' => $statCount[$i]
                 ];
             } else {
-                $statArr[] = [
-                    'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
-                    'count' => 0
-                ];
+                if ($showUnusedDate) {
+                    $statArr[] = [
+                        'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
+                        'count' => 0
+                    ];
+                }
             }
         }
 

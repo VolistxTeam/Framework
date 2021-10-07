@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\PersonalKeys;
 use Carbon\Carbon;
 
 if (!function_exists('config_path')) {
@@ -20,7 +19,7 @@ if (!function_exists('public_path')) {
     /**
      * Get the path to the public folder.
      *
-     * @param  string $path
+     * @param string $path
      * @return string
      */
     function public_path($path = '')
@@ -33,7 +32,7 @@ if (!function_exists('app_path')) {
     /**
      * Get the path to the application folder.
      *
-     * @param  string $path
+     * @param string $path
      * @return string
      */
     function app_path($path = '')
@@ -42,11 +41,11 @@ if (!function_exists('app_path')) {
     }
 }
 
-if (! function_exists('resolve')) {
+if (!function_exists('resolve')) {
     /**
      * Resolve a service from the container.
      *
-     * @param  string  $name
+     * @param string $name
      * @return mixed
      */
     function resolve($name)

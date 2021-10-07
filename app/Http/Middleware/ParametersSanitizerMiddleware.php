@@ -13,9 +13,9 @@ class ParametersSanitizerMiddleware
 
     public function handle(Request $request, Closure $next, $emptyToNull, $trim, $lowerCase)
     {
-        $this->lowerCase =filter_var($lowerCase, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        $this->emptyToNull =filter_var($emptyToNull, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        $this->trim =filter_var($trim, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $this->lowerCase = filter_var($lowerCase, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $this->emptyToNull = filter_var($emptyToNull, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $this->trim = filter_var($trim, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         $inputs = $request->all();
         $this->Sanitize($inputs);
@@ -39,5 +39,4 @@ class ParametersSanitizerMiddleware
             }
         });
     }
-
 }
