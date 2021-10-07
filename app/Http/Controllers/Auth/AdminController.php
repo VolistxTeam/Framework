@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Classes\MessagesCenter;
 use App\Models\AccessKeys;
 use App\Models\Logs;
 use App\Models\PersonalKeys;
@@ -50,22 +51,12 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         foreach (json_decode($whitelistRange, true) as $item) {
             if (!filter_var($item, FILTER_VALIDATE_IP)) {
-                return response()->json([
-                    'error' => [
-                        'type' => 'xInvalidParameters',
-                        'info' => 'The required parameters are not filled in or invalid format.'
-                    ]
-                ], 400);
+                return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
             }
         }
 
@@ -101,23 +92,13 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($newPersonalKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidItem',
-                    'info' => 'No item found with provided parameters.'
-                ]
-            ], 404);
+            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
         }
 
         if (!empty($maxCount) || !empty($permissions) || !empty($activatedAt) || !empty($expiresAt) || !empty($whitelistRange)) {
@@ -127,12 +108,7 @@ class AdminController extends BaseController
 
             if (!empty($permissions)) {
                 if ($this->isJson($permissions) === FALSE) {
-                    return response()->json([
-                        'error' => [
-                            'type' => 'xInvalidPermissions',
-                            'info' => 'The permission format is invalid. It should be in JSON array format.'
-                        ]
-                    ], 400);
+                    return response()->json(MessagesCenter::Error('xInvalidPermissions', 'The permission format is invalid. It should be in JSON array format.'), 400);
                 }
 
                 $newPersonalKey->permissions = json_decode($permissions);
@@ -140,22 +116,12 @@ class AdminController extends BaseController
 
             if (!empty($whitelistRange)) {
                 if ($this->isJson($whitelistRange) === FALSE) {
-                    return response()->json([
-                        'error' => [
-                            'type' => 'xInvalidWhitelistRange',
-                            'info' => 'The whitelist_range format is invalid. It should be in JSON array format.'
-                        ]
-                    ], 400);
+                    return response()->json(MessagesCenter::Error('xInvalidWhitelistRange', 'The whitelist_range format is invalid. It should be in JSON array format with valid IPs.'), 400);
                 }
 
                 foreach (json_decode($whitelistRange, true) as $item) {
                     if (!filter_var($item, FILTER_VALIDATE_IP)) {
-                        return response()->json([
-                            'error' => [
-                                'type' => 'xInvalidParameters',
-                                'info' => 'The required parameters are not filled in or invalid format.'
-                            ]
-                        ], 400);
+                        return response()->json(MessagesCenter::Error('xInvalidWhitelistRange', 'The whitelist_range format is invalid. It should be in JSON array format with valid IPs.'), 400);
                     }
                 }
 
@@ -195,23 +161,13 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($newPersonalKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidItem',
-                    'info' => 'No item found with provided parameters.'
-                ]
-            ], 404);
+            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
         }
 
         $newKey = $this->generateUniqueKey();
@@ -237,23 +193,13 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($newPersonalKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidItem',
-                    'info' => 'No item found with provided parameters.'
-                ]
-            ], 404);
+            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
         }
 
         Logs::query()->where('key_id', $newPersonalKey->id)->delete();
@@ -278,23 +224,13 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($personalKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidItem',
-                    'info' => 'No item found with provided parameters.'
-                ]
-            ], 404);
+            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
         }
 
         $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at', 'DESC')->paginate(25);
@@ -324,23 +260,13 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($personalKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidItem',
-                    'info' => 'No item found with provided parameters.'
-                ]
-            ], 404);
+            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
         }
 
         return response()->json($this->convertItemToArray($personalKey->toArray()));
@@ -357,12 +283,7 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $personalKey = PersonalKeys::query()->where('user_id', $id)->get()->toArray();
@@ -394,12 +315,7 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidParameters',
-                    'info' => 'The required parameters are not filled in or invalid format.'
-                ]
-            ], 400);
+            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
         $showUnusedDate = (boolean) $showUnusedDate;
@@ -411,12 +327,7 @@ class AdminController extends BaseController
         $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($personalKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidItem',
-                    'info' => 'No item found with provided parameters.'
-                ]
-            ], 404);
+            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
         }
 
         $specifiedDate = Carbon::parse($dateCo);
@@ -512,12 +423,7 @@ class AdminController extends BaseController
         $permissionCheck = $this->checkPermission($token, $permissionName);
 
         if ($permissionCheck === FALSE) {
-            response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403)->send();
+            response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403)->send();
 
             exit();
         }

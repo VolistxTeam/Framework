@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Classes\MessagesCenter;
 use App\Models\Logs;
 use App\Models\PersonalKeys;
 use Carbon\Carbon;
@@ -19,43 +20,23 @@ class UserAuthMiddleware
         $personalKeys = PersonalKeys::query()->where('key', $request->bearerToken())->first();
 
         if (empty($personalKeys)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'No token was specified or an invalid token was specified.'
-                ]
-            ], 403);
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
         $logs = Logs::query()->where('key_id', $personalKeys->id)->whereMonth('created_at', Carbon::now()->month)->get()->toArray();
 
         if ($personalKeys->expires_at != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($personalKeys->expires_at))) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xSubscriptionExpired',
-                    'info' => 'Your subscription is already expired. Please renew or upgrade your plan.'
-                ]
-            ], 403);
+            return response()->json(MessagesCenter::Error('xSubscriptionExpired', 'Your subscription is already expired. Please renew or upgrade your plan.'), 403);
         }
 
         if ($personalKeys->max_count != -1 && count($logs) >= $personalKeys->max_count) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xUsageLimitReached',
-                    'info' => 'The maximum allowed amount of monthly API requests has been reached. Please upgrade your plan.'
-                ]
-            ], 429);
+            return response()->json(MessagesCenter::Error('xUsageLimitReached', 'The maximum allowed amount of monthly API requests has been reached. Please upgrade your plan.'), 429);
         }
 
         $ipSet = new IPSet($personalKeys->whitelist_range);
 
         if (!$ipSet->match($request->getClientIp())) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xUserFirewallBlocked',
-                    'info' => 'This IP is not listed on a whitelist IP list.'
-                ]
-            ], 403);
+            return response()->json(MessagesCenter::Error('xUserFirewallBlocked', 'This IP is not listed on a whitelist IP list.'), 403);
         }
 
         $randomRayID = Str::uuid();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Classes\MessagesCenter;
 use App\Models\AccessKeys;
 use Closure;
 use Illuminate\Http\Request;
@@ -14,23 +15,13 @@ class AdminAuthMiddleware
         $accessKey = AccessKeys::query()->where('token', $request->bearerToken())->first();
 
         if (empty($accessKey)) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
         $clientIPRange = $this->checkIPRange($request->getClientIp(), $accessKey->whitelist_range);
 
         if ($clientIPRange === FALSE) {
-            return response()->json([
-                'error' => [
-                    'type' => 'xInvalidToken',
-                    'info' => 'Invalid token was specified or do not have permission.'
-                ]
-            ], 403);
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
         return $next($request);
