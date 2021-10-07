@@ -32,17 +32,20 @@ class AdminController extends BaseController
         $userID = $request->input('user_id', ''); // user id (integer)
         $maxCount = $request->input('monthly_usage', ''); // monthly api call usages (integer)
         $permissions = $request->input('permissions', ''); // permissions (json, default one should be [])
+        $whitelistRange = $request->input('whitelist_range', ''); // IP whitelist range (json, default one should be [])
         $hoursToExpire = $request->input('hours', ''); // subscription (integer, count as hours | -1 means unlimited subscription)
 
         $validator = Validator::make([
             'user_id' => $userID,
             'monthly_usage' => $maxCount,
             'permissions' => $permissions,
+            'whitelist_range' => $whitelistRange,
             'hours' => $hoursToExpire
         ], [
             'user_id' => 'required|integer',
             'monthly_usage' => 'required|integer',
             'permissions' => 'required|json',
+            'whitelist_range' => 'required|json',
             'hours' => 'required|integer'
         ]);
 
@@ -55,11 +58,23 @@ class AdminController extends BaseController
             ], 400);
         }
 
+        foreach (json_decode($whitelistRange, true) as $item) {
+            if (!filter_var($item, FILTER_VALIDATE_IP)) {
+                return response()->json([
+                    'error' => [
+                        'type' => 'xInvalidParameters',
+                        'info' => 'The required parameters are not filled in or invalid format.'
+                    ]
+                ], 400);
+            }
+        }
+
         $newPersonalKey = PersonalKeys::query()->create([
             'user_id' => $userID,
             'key' => $this->generateUniqueKey(),
             'max_count' => $maxCount,
             'permissions' => json_decode($permissions),
+            'whitelist_range' => json_decode($whitelistRange),
             'activated_at' => Carbon::now(),
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
         ])->toArray();
@@ -73,6 +88,7 @@ class AdminController extends BaseController
 
         $maxCount = $request->input('monthly_usage', '');
         $permissions = $request->input('permissions', '');
+        $whitelistRange = $request->input('whitelist_range', '');
         $activatedAt = $request->input('activated_at', '');
         $expiresAt = $request->input('expires_at', '');
 
@@ -104,7 +120,7 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        if (!empty($maxCount) || !empty($permissions) || !empty($activatedAt) || !empty($expiresAt)) {
+        if (!empty($maxCount) || !empty($permissions) || !empty($activatedAt) || !empty($expiresAt) || !empty($whitelistRange)) {
             if (!empty($maxCount)) {
                 $newPersonalKey->max_count = $maxCount;
             }
@@ -120,6 +136,30 @@ class AdminController extends BaseController
                 }
 
                 $newPersonalKey->permissions = json_decode($permissions);
+            }
+
+            if (!empty($whitelistRange)) {
+                if ($this->isJson($whitelistRange) === FALSE) {
+                    return response()->json([
+                        'error' => [
+                            'type' => 'xInvalidWhitelistRange',
+                            'info' => 'The whitelist_range format is invalid. It should be in JSON array format.'
+                        ]
+                    ], 400);
+                }
+
+                foreach (json_decode($whitelistRange, true) as $item) {
+                    if (!filter_var($item, FILTER_VALIDATE_IP)) {
+                        return response()->json([
+                            'error' => [
+                                'type' => 'xInvalidParameters',
+                                'info' => 'The required parameters are not filled in or invalid format.'
+                            ]
+                        ], 400);
+                    }
+                }
+
+                $newPersonalKey->whitelist_range = json_decode($whitelistRange);
             }
 
             if (!empty($activatedAt) && $this->isValidDate($activatedAt)) {
@@ -303,7 +343,7 @@ class AdminController extends BaseController
             ], 404);
         }
 
-        return response()->json($this->convertItemToArray($personalKey));
+        return response()->json($this->convertItemToArray($personalKey->toArray()));
     }
 
     public function GetTokens(Request $request, $id)
@@ -441,6 +481,7 @@ class AdminController extends BaseController
             'key' => $item['key'],
             'monthly_usage' => $item['max_count'],
             'permissions' => $item['permissions'],
+            'whitelist_ip' => $item['whitelist_range'],
             'subscription' => [
                 'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
                 'activated_at' => $item['activated_at'],

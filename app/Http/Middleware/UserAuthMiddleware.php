@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use RandomLib\Factory;
 use SecurityLib\Strength;
+use Wikimedia\IPSet;
 
 class UserAuthMiddleware
 {
@@ -44,6 +45,17 @@ class UserAuthMiddleware
                     'info' => 'The maximum allowed amount of monthly API requests has been reached. Please upgrade your plan.'
                 ]
             ], 429);
+        }
+
+        $ipSet = new IPSet($personalKeys->whitelist_range);
+
+        if (!$ipSet->match($request->getClientIp())) {
+            return response()->json([
+                'error' => [
+                    'type' => 'xUserFirewallBlocked',
+                    'info' => 'This IP is not listed on a whitelist IP list.'
+                ]
+            ], 403);
         }
 
         $randomRayID = Str::uuid();

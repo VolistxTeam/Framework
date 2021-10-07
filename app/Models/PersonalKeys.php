@@ -30,6 +30,7 @@ class PersonalKeys extends Model
         'key',
         'max_count',
         'permissions',
+        'whitelist_range',
         'activated_at',
         'expires_at'
     ];
@@ -37,6 +38,7 @@ class PersonalKeys extends Model
     protected $casts = [
         'max_count' => 'integer',
         'permissions' => 'array',
+        'whitelist_range' => 'array',
         'activated_at'  => 'date:Y-m-d H:i:s',
         'expires_at'  => 'date:Y-m-d H:i:s',
         'created_at'  => 'date:Y-m-d H:i:s',

@@ -19,6 +19,7 @@ class CreatePersonalKeysTable extends Migration
             $table->string('key', 100)->nullable()->index('key');
             $table->integer('max_count')->nullable();
             $table->json('permissions')->default('[]');
+            $table->json('whitelist_range')->default('[]');
             $table->dateTime('activated_at')->nullable();
             $table->dateTime('expires_at')->nullable();
             $table->dateTime('created_at')->nullable()->useCurrent();
