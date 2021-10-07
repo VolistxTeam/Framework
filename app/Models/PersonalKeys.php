@@ -10,19 +10,17 @@ class PersonalKeys extends Model
     use HasFactory;
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'personal_keys';
-
-    /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
     public $timestamps = true;
-
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'personal_keys';
     protected $hidden = ['id'];
 
     protected $fillable = [
@@ -39,9 +37,9 @@ class PersonalKeys extends Model
         'max_count' => 'integer',
         'permissions' => 'array',
         'whitelist_range' => 'array',
-        'activated_at'  => 'date:Y-m-d H:i:s',
-        'expires_at'  => 'date:Y-m-d H:i:s',
-        'created_at'  => 'date:Y-m-d H:i:s',
-        'updated_at'  => 'date:Y-m-d H:i:s',
+        'activated_at' => 'date:Y-m-d H:i:s',
+        'expires_at' => 'date:Y-m-d H:i:s',
+        'created_at' => 'date:Y-m-d H:i:s',
+        'updated_at' => 'date:Y-m-d H:i:s',
     ];
 }

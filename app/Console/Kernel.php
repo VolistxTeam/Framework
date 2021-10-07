@@ -5,8 +5,8 @@ namespace App\Console;
 use Illuminate\Console\KeyGenerateCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
-use Spatie\ResponseCache\Commands\ClearCommand;
 use Mlntn\Console\Commands\Serve;
+use Spatie\ResponseCache\Commands\ClearCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)

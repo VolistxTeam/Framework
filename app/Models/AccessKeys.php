@@ -10,19 +10,17 @@ class AccessKeys extends Model
     use HasFactory;
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'access_keys';
-
-    /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
     public $timestamps = true;
-
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'access_keys';
     /**
      * The attributes that are mass assignable.
      *

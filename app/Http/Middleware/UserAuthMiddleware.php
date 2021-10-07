@@ -9,8 +9,6 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use RandomLib\Factory;
-use SecurityLib\Strength;
 use Wikimedia\IPSet;
 
 class UserAuthMiddleware

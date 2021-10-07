@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 
 class ExampleService extends Controller
 {
-    public function Example(Request $request) {
+    public function Example(Request $request)
+    {
         return response()->json(['hehe']);
     }
 }

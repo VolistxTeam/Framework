@@ -10,12 +10,13 @@ class SHA256Hasher implements RequestHasher
 {
     public function __construct(
         protected CacheProfile $cacheProfile,
-    ) {
+    )
+    {
         //
     }
 
     public function getHashFor(Request $request): string
     {
-        return 'volistx-caching:' . hash('sha256',"{$request->getHost()}-{$request->getRequestUri()}-{$request->getMethod()}/".$this->cacheProfile->useCacheNameSuffix($request));
+        return 'volistx-caching:' . hash('sha256', "{$request->getHost()}-{$request->getRequestUri()}-{$request->getMethod()}/" . $this->cacheProfile->useCacheNameSuffix($request));
     }
 }

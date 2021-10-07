@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Models\AccessKeys;
 use App\Models\Logs;
 use App\Models\PersonalKeys;
 use Carbon\Carbon;
@@ -72,6 +71,54 @@ class AdminController extends BaseController
         ])->toArray();
 
         return response()->json($this->convertItemToArray($newPersonalKey));
+    }
+
+    private function checkPermissionShared($token, $permissionName)
+    {
+        $permissionCheck = PermissionsCenter::checkAdminPermission($token, $permissionName);
+
+        if ($permissionCheck === FALSE) {
+            response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403)->send();
+
+            exit();
+        }
+    }
+
+    private function generateUniqueKey()
+    {
+        $factory = new Factory;
+        $generator = $factory->getGenerator(new Strength(Strength::HIGH));
+
+        $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        $nonExistConfirmed = false;
+
+        while ($nonExistConfirmed == false) {
+            $checkDB = PersonalKeys::query()->where('key', $generatedToken)->first();
+
+            if (empty($checkDB)) {
+                $nonExistConfirmed = true;
+            } else {
+                $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            }
+        }
+
+        return $generatedToken;
+    }
+
+    private function convertItemToArray($item)
+    {
+        return [
+            'user_id' => $item['user_id'],
+            'key' => $item['key'],
+            'monthly_usage' => $item['max_count'],
+            'permissions' => $item['permissions'],
+            'whitelist_ip' => $item['whitelist_range'],
+            'subscription' => [
+                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                'activated_at' => $item['activated_at'],
+                'expires_at' => $item['expires_at']
+            ]
+        ];
     }
 
     public function UpdateInfo(Request $request, $id, $token)
@@ -147,6 +194,23 @@ class AdminController extends BaseController
         $newPersonalKey = $newPersonalKey->toArray();
 
         return response()->json($this->convertItemToArray($newPersonalKey));
+    }
+
+    private function isJson($inputString)
+    {
+        $validator = Validator::make([
+            'inputString' => $inputString
+        ], [
+            'inputString' => 'required|json'
+        ]);
+
+        return !$validator->fails();
+    }
+
+    private function isValidDate($string, $format = 'Y-m-d H:i:s')
+    {
+        $d = DateTime::createFromFormat($format, $string);
+        return $d && $d->format($format) == $string;
     }
 
     public function ResetInfo(Request $request, $id, $token)
@@ -319,7 +383,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
         }
 
-        $showUnusedDate = (boolean) $showUnusedDate;
+        $showUnusedDate = (boolean)$showUnusedDate;
 
         if (empty($dateCo)) {
             $dateCo = Carbon::now()->format('Y-m');
@@ -384,70 +448,5 @@ class AdminController extends BaseController
             ],
             'details' => $statArr
         ]);
-    }
-
-    private function convertItemToArray($item)
-    {
-        return [
-            'user_id' => $item['user_id'],
-            'key' => $item['key'],
-            'monthly_usage' => $item['max_count'],
-            'permissions' => $item['permissions'],
-            'whitelist_ip' => $item['whitelist_range'],
-            'subscription' => [
-                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                'activated_at' => $item['activated_at'],
-                'expires_at' => $item['expires_at']
-            ]
-        ];
-    }
-
-    private function isJson($inputString)
-    {
-        $validator = Validator::make([
-            'inputString' => $inputString
-        ], [
-            'inputString' => 'required|json'
-        ]);
-
-        return !$validator->fails();
-    }
-
-    private function isValidDate($string, $format = 'Y-m-d H:i:s')
-    {
-        $d = DateTime::createFromFormat($format, $string);
-        return $d && $d->format($format) == $string;
-    }
-
-    private function checkPermissionShared($token, $permissionName)
-    {
-        $permissionCheck = PermissionsCenter::checkAdminPermission($token, $permissionName);
-
-        if ($permissionCheck === FALSE) {
-            response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403)->send();
-
-            exit();
-        }
-    }
-
-    private function generateUniqueKey()
-    {
-        $factory = new Factory;
-        $generator = $factory->getGenerator(new Strength(Strength::HIGH));
-
-        $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-        $nonExistConfirmed = false;
-
-        while ($nonExistConfirmed == false) {
-            $checkDB = PersonalKeys::query()->where('key', $generatedToken)->first();
-
-            if (empty($checkDB)) {
-                $nonExistConfirmed = true;
-            } else {
-                $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-            }
-        }
-
-        return $generatedToken;
     }
 }

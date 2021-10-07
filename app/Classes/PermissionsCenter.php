@@ -30,11 +30,7 @@ class PermissionsCenter
             return false;
         }
 
-        if (in_array("*", $accessKey->permissions)) {
-            return true;
-        }
-
-        if (in_array($permissionName, $accessKey->permissions)) {
+        if (in_array($permissionName, $accessKey->permissions) || in_array('*', $accessKey->permissions)) {
             return true;
         }
 
