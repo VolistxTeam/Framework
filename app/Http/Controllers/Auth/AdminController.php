@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
+use App\Classes\PermissionsCenter;
 use App\Models\AccessKeys;
 use App\Models\Logs;
 use App\Models\PersonalKeys;
@@ -420,7 +421,7 @@ class AdminController extends BaseController
 
     private function checkPermissionShared($token, $permissionName)
     {
-        $permissionCheck = $this->checkPermission($token, $permissionName);
+        $permissionCheck = PermissionsCenter::checkAdminPermission($token, $permissionName);
 
         if ($permissionCheck === FALSE) {
             response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403)->send();
@@ -448,24 +449,5 @@ class AdminController extends BaseController
         }
 
         return $generatedToken;
-    }
-
-    private function checkPermission($token, $permissionName)
-    {
-        $accessKey = AccessKeys::query()->where('token', $token)->first();
-
-        if (empty($accessKey)) {
-            return false;
-        }
-
-        if (in_array("*", $accessKey->permissions)) {
-            return true;
-        }
-
-        if (in_array($permissionName, $accessKey->permissions)) {
-            return true;
-        }
-
-        return false;
     }
 }
