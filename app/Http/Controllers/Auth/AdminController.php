@@ -26,45 +26,39 @@ class AdminController extends BaseController
         //
     }
 
+    //Post
     public function CreateInfo(Request $request)
     {
-        $this->checkPermissionShared($request->bearerToken(), 'key:create');
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:create')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
 
-        $userID = $request->input('user_id', ''); // user id (integer)
-        $maxCount = $request->input('monthly_usage', ''); // monthly api call usages (integer)
-        $permissions = $request->input('permissions', ''); // permissions (json, default one should be [])
-        $whitelistRange = $request->input('whitelist_range', ''); // IP whitelist range (json, default one should be [])
-        $hoursToExpire = $request->input('hours', ''); // subscription (integer, count as hours | -1 means unlimited subscription)
-
-        $validator = Validator::make([
-            'user_id' => $userID,
-            'monthly_usage' => $maxCount,
-            'permissions' => $permissions,
-            'whitelist_range' => $whitelistRange,
-            'hours' => $hoursToExpire
-        ], [
-            'user_id' => 'required|integer',
-            'monthly_usage' => 'required|integer',
-            'permissions' => 'required|json',
-            'whitelist_range' => 'required|json',
-            'hours' => 'required|integer'
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['bail', 'required', 'integer'],
+            'monthly_usage' => ['bail', 'required', 'integer'],
+            'permissions' => ['bail', 'required', 'json'],
+            'whitelist_range' => ['bail', 'required', 'json'],
+            'hours' => ['bail', 'required', 'integer'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
+
+        $whitelistRange = $request->input('whitelist_range');
+        $hoursToExpire = $request->input('hours');
 
         foreach (json_decode($whitelistRange, true) as $item) {
             if (!filter_var($item, FILTER_VALIDATE_IP)) {
-                return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
+                return response()->json(MessagesCenter::E400('an IP in White List is not in correct format.'), 400);
             }
         }
 
         $newPersonalKey = PersonalKeys::query()->create([
-            'user_id' => $userID,
+            'user_id' => $request->input('user_id'),
             'key' => $this->generateUniqueKey(),
-            'max_count' => $maxCount,
-            'permissions' => json_decode($permissions),
+            'max_count' => $request->input('monthly_usage'),
+            'permissions' => json_decode($request->input('permissions')),
             'whitelist_range' => json_decode($whitelistRange),
             'activated_at' => Carbon::now(),
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
@@ -73,20 +67,311 @@ class AdminController extends BaseController
         return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
-    private function checkPermissionShared($token, $permissionName)
+    //Post
+    public function UpdateInfo(Request $request)
     {
-        $permissionCheck = PermissionsCenter::checkAdminPermission($token, $permissionName);
-
-        if ($permissionCheck === FALSE) {
-            response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403)->send();
-
-            exit();
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:update')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required'],
+            'monthly_usage' => ['bail', 'sometimes', 'numeric'],
+            '$permissions' => ['bail', 'sometimes', 'json'],
+            '$whitelistRange' => ['bail', 'sometimes', 'json'],
+            '$activatedAt' => ['bail', 'sometimes', 'numeric'],
+            'expires_at' => ['bail', 'sometimes', 'numeric'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $request->input('user_id'))->where('key', $request->input('user_token'))->first();
+        if (empty($newPersonalKey)) {
+            return response()->json(MessagesCenter::E404(), 404);
+        }
+
+        $monthlyUsage = $request->input('monthly_usage');
+        $permissions = $request->input('permissions');
+        $whitelistRange = $request->input('whitelist_range');
+        $activatedAt = $request->input('activated_at');
+        $expiresAt = $request->input('expires_at');
+
+
+
+        if (!$monthlyUsage && !$permissions && !$activatedAt && !$expiresAt && !$whitelistRange) {
+            return response()->json($this->convertItemToArray($newPersonalKey));
+        }
+
+        if ($monthlyUsage) $newPersonalKey->max_count = $monthlyUsage;
+
+        if ($permissions) $newPersonalKey->permissions = json_decode($permissions);
+
+        if ($whitelistRange) {
+            foreach (json_decode($whitelistRange, true) as $item) {
+                if (!filter_var($item, FILTER_VALIDATE_IP)) {
+                    return response()->json(MessagesCenter::E400('an IP in White List is not in correct format.'), 400);
+                }
+            }
+            $newPersonalKey->whitelist_range = json_decode($whitelistRange);
+        }
+
+        if ($activatedAt && $this->isValidDate($activatedAt)) $newPersonalKey->activated_at = $activatedAt;
+
+        if ($expiresAt) {
+            if ($expiresAt == '-1') {
+                $newPersonalKey->expires_at = null;
+            } else if ($this->isValidDate($expiresAt)) {
+                $newPersonalKey->expires_at = $expiresAt;
+            }
+        }
+
+        $newPersonalKey->save();
+
+        return response()->json($this->convertItemToArray($newPersonalKey->toArray()));
     }
 
+    //Post
+    public function ResetInfo(Request $request)
+    {
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:reset')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $toBeResetKey = PersonalKeys::query()->where('user_id', $request->input('user_id'))->where('key', $request->input('user_token'))->first();
+        if (empty($toBeResetKey)) {
+            return response()->json(MessagesCenter::E404(), 404);
+        }
+
+        $newKey = $this->generateUniqueKey();
+
+        $toBeResetKey->key = $newKey;
+
+        $toBeResetKey->save();
+
+        return response()->json($this->convertItemToArray($toBeResetKey->toArray()));
+    }
+
+    //DELETE -> Not sure if can do cascade delete, to avoid extra query for logs, it should be possible, google later
+    public function DeleteInfo(Request $request)
+    {
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $toBeDeletedKey = PersonalKeys::query()->where('user_id', $request->input('user_id'))->where('key', $request->input('user_token'))->first();
+
+        if (empty($toBeDeletedKey)) {
+            return response()->json(MessagesCenter::E404(), 404);
+        }
+
+        Logs::query()->where('key_id', $toBeDeletedKey->id)->delete();
+
+        $toBeDeletedKey->delete();
+
+        return response()->json([
+            'result' => 'true'
+        ]);
+    }
+
+
+    //GET
+    public function GetLogs(Request $request, $id, $token)
+    {
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:logs')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
+
+        $validator = Validator::make([
+            'user_id' => $id,
+            'user_token' => $token
+        ], [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+
+        if (empty($personalKey)) {
+            return response()->json(MessagesCenter::E404(), 404);
+        }
+
+        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at', 'DESC')->paginate(25);
+
+        $buildResponse = [
+            'pagination' => [
+                'per_page' => $logs->perPage(),
+                'current' => $logs->currentPage(),
+                'total' => $logs->lastPage(),
+            ],
+            'items' => $logs->items()
+        ];
+
+        return response()->json($buildResponse);
+    }
+
+    //GET
+    public function GetToken(Request $request, $id, $token)
+    {
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
+
+        $validator = Validator::make([
+            'user_id' => $id,
+            'user_token' => $token
+        ], [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+
+        if (empty($personalKey)) {
+            return response()->json(MessagesCenter::E404(), 404);
+        }
+
+        return response()->json($this->convertItemToArray($personalKey->toArray()));
+    }
+
+    //GET
+    public function GetTokens(Request $request, $id)
+    {
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
+
+        $validator = Validator::make([
+            'user_id' => $id,
+        ], [
+            'user_id' => ['bail', 'required', 'integer'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $keys = PersonalKeys::query()->where('user_id', $id)->get()->toArray();
+
+        $reconstructedArray = [];
+
+        foreach ($keys as $item) {
+            $reconstructedArray[] = $this->convertItemToArray($item);
+        }
+
+        return response()->json($reconstructedArray);
+    }
+
+    //GET -> trying to make date an option parameter, so it works when id and token is only available, google later. This function could be written better, but i cant understand it, please lets discuss
+    public function GetStats(Request $request, $id, $token, $date)
+    {
+        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:stats')) {
+            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+        }
+        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+
+        if (empty($personalKey)) {
+            return response()->json(MessagesCenter::E404(), 404);
+        }
+
+        $validator = Validator::make([
+            'user_id' => $id,
+            'user_token' => $token,
+            'date' => $date ?? Carbon::now()->format('Y-m'),
+        ], [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required'],
+            'date' => ['bail', 'sometimes', 'date','nullable'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        $specifiedDate = Carbon::parse($date);
+
+        $thisDate = Carbon::now();
+
+        $lastDay = $specifiedDate->format('Y-m') == $thisDate->format('Y-m') ? $thisDate->day : (int)$specifiedDate->format('t');
+
+
+        $logMonth = Logs::query()->where('key_id', $personalKey->id)
+            ->whereYear('created_at', $specifiedDate->format('Y'))
+            ->whereMonth('created_at', $specifiedDate->format('m'))
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('d'); // grouping by months
+            })->toArray();
+
+        $totalCount = Logs::query()->where('key_id', $personalKey->id)
+            ->whereYear('created_at', $specifiedDate->format('Y'))
+            ->whereMonth('created_at', $specifiedDate->format('m'))
+            ->count();
+
+        $statCount = [];
+        $statArr = [];
+
+        foreach ($logMonth as $key => $value) {
+            $statCount[(int)$key] = count($value);
+        }
+
+        for ($i = 1; $i <= $lastDay; $i++) {
+            if (!empty($statCount[$i])) {
+                $statArr[] = [
+                    'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
+                    'count' => $statCount[$i]
+                ];
+            } else {
+                $statArr[] = [
+                    'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
+                    'count' => 0
+                ];
+            }
+        }
+
+        return response()->json([
+            'usage' => [
+                'current' => $totalCount,
+                'max' => $personalKey->max_count,
+                'percent' => (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
+            ],
+            'details' => $statArr
+        ]);
+    }
+
+
+    //MUST BE REFACTORED LATER, SECURITY ISSUES.
     private function generateUniqueKey()
     {
-        $factory = new Factory;
+        $factory = new Factory();
         $generator = $factory->getGenerator(new Strength(Strength::HIGH));
 
         $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
@@ -121,332 +406,10 @@ class AdminController extends BaseController
         ];
     }
 
-    public function UpdateInfo(Request $request, $id, $token)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:update');
-
-        $maxCount = $request->input('monthly_usage', '');
-        $permissions = $request->input('permissions', '');
-        $whitelistRange = $request->input('whitelist_range', '');
-        $activatedAt = $request->input('activated_at', '');
-        $expiresAt = $request->input('expires_at', '');
-
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
-        ], [
-            'user_id' => 'required|integer',
-            'user_token' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
-
-        if (empty($newPersonalKey)) {
-            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
-        }
-
-        if (!empty($maxCount) || !empty($permissions) || !empty($activatedAt) || !empty($expiresAt) || !empty($whitelistRange)) {
-            if (!empty($maxCount)) {
-                $newPersonalKey->max_count = $maxCount;
-            }
-
-            if (!empty($permissions)) {
-                if ($this->isJson($permissions) === FALSE) {
-                    return response()->json(MessagesCenter::Error('xInvalidPermissions', 'The permission format is invalid. It should be in JSON array format.'), 400);
-                }
-
-                $newPersonalKey->permissions = json_decode($permissions);
-            }
-
-            if (!empty($whitelistRange)) {
-                if ($this->isJson($whitelistRange) === FALSE) {
-                    return response()->json(MessagesCenter::Error('xInvalidWhitelistRange', 'The whitelist_range format is invalid. It should be in JSON array format with valid IPs.'), 400);
-                }
-
-                foreach (json_decode($whitelistRange, true) as $item) {
-                    if (!filter_var($item, FILTER_VALIDATE_IP)) {
-                        return response()->json(MessagesCenter::Error('xInvalidWhitelistRange', 'The whitelist_range format is invalid. It should be in JSON array format with valid IPs.'), 400);
-                    }
-                }
-
-                $newPersonalKey->whitelist_range = json_decode($whitelistRange);
-            }
-
-            if (!empty($activatedAt) && $this->isValidDate($activatedAt)) {
-                $newPersonalKey->activated_at = $activatedAt;
-            }
-
-            if (!empty($expiresAt)) {
-                if ($expiresAt == 'null') {
-                    $newPersonalKey->expires_at = null;
-                } else if ($this->isValidDate($expiresAt)) {
-                    $newPersonalKey->expires_at = $expiresAt;
-                }
-            }
-
-            $newPersonalKey->save();
-        }
-
-        $newPersonalKey = $newPersonalKey->toArray();
-
-        return response()->json($this->convertItemToArray($newPersonalKey));
-    }
-
-    private function isJson($inputString)
-    {
-        $validator = Validator::make([
-            'inputString' => $inputString
-        ], [
-            'inputString' => 'required|json'
-        ]);
-
-        return !$validator->fails();
-    }
-
     private function isValidDate($string, $format = 'Y-m-d H:i:s')
     {
         $d = DateTime::createFromFormat($format, $string);
         return $d && $d->format($format) == $string;
     }
 
-    public function ResetInfo(Request $request, $id, $token)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:reset');
-
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token,
-        ], [
-            'user_id' => 'required|integer',
-            'user_token' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
-
-        if (empty($newPersonalKey)) {
-            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
-        }
-
-        $newKey = $this->generateUniqueKey();
-
-        $newPersonalKey->key = $newKey;
-        $newPersonalKey->save();
-
-        $newPersonalKey = $newPersonalKey->toArray();
-
-        return response()->json($this->convertItemToArray($newPersonalKey));
-    }
-
-    public function DeleteInfo(Request $request, $id, $token)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:delete');
-
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token,
-        ], [
-            'user_id' => 'required|integer',
-            'user_token' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
-
-        if (empty($newPersonalKey)) {
-            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
-        }
-
-        Logs::query()->where('key_id', $newPersonalKey->id)->delete();
-
-        $newPersonalKey->delete();
-
-        return response()->json([
-            'result' => 'true'
-        ]);
-    }
-
-    public function GetLogs(Request $request, $id, $token)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:logs');
-
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token,
-        ], [
-            'user_id' => 'required|integer',
-            'user_token' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
-
-        if (empty($personalKey)) {
-            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
-        }
-
-        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at', 'DESC')->paginate(25);
-
-        $buildResponse = [
-            'pagination' => [
-                'per_page' => $logs->perPage(),
-                'current' => $logs->currentPage(),
-                'total' => $logs->lastPage(),
-            ],
-            'items' => $logs->items()
-        ];
-
-        return response()->json($buildResponse);
-    }
-
-    public function GetToken(Request $request, $id, $token)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:list');
-
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
-        ], [
-            'user_id' => 'required|integer',
-            'user_token' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
-
-        if (empty($personalKey)) {
-            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
-        }
-
-        return response()->json($this->convertItemToArray($personalKey->toArray()));
-    }
-
-    public function GetTokens(Request $request, $id)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:list');
-
-        $validator = Validator::make([
-            'user_id' => $id
-        ], [
-            'user_id' => 'required|integer'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->get()->toArray();
-
-        $reconstructedArray = [];
-
-        foreach ($personalKey as $item) {
-            $reconstructedArray[] = $this->convertItemToArray($item);
-        }
-
-        return response()->json($reconstructedArray);
-    }
-
-    public function GetStats(Request $request, $id, $token)
-    {
-        $this->checkPermissionShared($request->bearerToken(), 'key:stats');
-
-        $dateCo = $request->input('date', '');
-        $showUnusedDate = $request->input('show', false);
-
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token,
-            'show' => $showUnusedDate
-        ], [
-            'user_id' => 'required|integer',
-            'user_token' => 'required',
-            'show' => 'boolean'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::Error('xInvalidParameters', 'The required parameters are not filled in or invalid format.'), 400);
-        }
-
-        $showUnusedDate = (boolean)$showUnusedDate;
-
-        if (empty($dateCo)) {
-            $dateCo = Carbon::now()->format('Y-m');
-        }
-
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
-
-        if (empty($personalKey)) {
-            return response()->json(MessagesCenter::Error('xInvalidItem', 'No item found with provided parameters.'), 404);
-        }
-
-        $specifiedDate = Carbon::parse($dateCo);
-        $thisDate = Carbon::now();
-
-        if ($specifiedDate->format('Y-m') == $thisDate->format('Y-m')) {
-            $lastDay = $thisDate->day;
-        } else {
-            $lastDay = (int)$specifiedDate->format('t');
-        }
-
-        $logMonth = Logs::query()->where('key_id', $personalKey->id)
-            ->whereYear('created_at', $specifiedDate->format('Y'))
-            ->whereMonth('created_at', $specifiedDate->format('m'))
-            ->get()
-            ->groupBy(function ($date) {
-                return Carbon::parse($date->created_at)->format('d'); // grouping by months
-            })->toArray();
-
-        $totalCount = Logs::query()->where('key_id', $personalKey->id)
-            ->whereYear('created_at', $specifiedDate->format('Y'))
-            ->whereMonth('created_at', $specifiedDate->format('m'))
-            ->count();
-
-        $statCount = [];
-        $statArr = [];
-
-        foreach ($logMonth as $key => $value) {
-            $statCount[(int)$key] = count($value);
-        }
-
-        for ($i = 1; $i <= $lastDay; $i++) {
-            if (!empty($statCount[$i])) {
-                $statArr[] = [
-                    'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
-                    'count' => $statCount[$i]
-                ];
-            } else {
-                if ($showUnusedDate) {
-                    $statArr[] = [
-                        'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
-                        'count' => 0
-                    ];
-                }
-            }
-        }
-
-        return response()->json([
-            'usage' => [
-                'current' => $totalCount,
-                'max' => $personalKey->max_count,
-                'percent' => (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
-            ],
-            'details' => $statArr
-        ]);
-    }
 }
