@@ -15,7 +15,7 @@ $router->group(['prefix' => 'sys-bin/load-balancer'], function () use ($router) 
 $router->group(['prefix' => 'sys-bin/admin', 'middleware' => 'auth.admin'], function () use ($router) {
     $router->post('/', 'Auth\AdminController@CreateInfo');
     $router->post('/{id}/{token}', 'Auth\AdminController@UpdateInfo');
-    $router->put('/{id}/{token}', 'Auth\AdminController@ResetInfo');
+    $router->patch('/{id}/{token}', 'Auth\AdminController@ResetInfo');
 
     $router->delete('/{id}/{token}', 'Auth\AdminController@DeleteInfo');
     $router->get('/{id}', 'Auth\AdminController@GetTokens');

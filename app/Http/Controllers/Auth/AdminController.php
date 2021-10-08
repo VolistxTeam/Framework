@@ -50,7 +50,7 @@ class AdminController extends BaseController
 
         foreach (json_decode($whitelistRange, true) as $item) {
             if (!filter_var($item, FILTER_VALIDATE_IP)) {
-                return response()->json(MessagesCenter::E400('an IP in White List is not in correct format.'), 400);
+                return response()->json(MessagesCenter::E400('IP in the whitelist range field is invalid.'), 400);
             }
         }
 
@@ -64,26 +64,25 @@ class AdminController extends BaseController
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
         ])->toArray();
 
-        return response()->json($this->convertItemToArray($newPersonalKey));
+        return response()->json($this->convertItemToArray($newPersonalKey), 201);
     }
 
-    //Put
-    public function UpdateInfo(Request $request,$id,$token)
+    public function UpdateInfo(Request $request, $id, $token): \Illuminate\Http\JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:update')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make(array_merge($request->all(),[
-            'user_id'=>$id,
-            'user_token'=>$token
+        $validator = Validator::make(array_merge($request->all(), [
+            'user_id' => $id,
+            'user_token' => $token
         ]), [
             'user_id' => ['bail', 'required', 'integer'],
             'user_token' => ['bail', 'required'],
             'monthly_usage' => ['bail', 'sometimes', 'numeric'],
             'permissions' => ['bail', 'sometimes', 'json'],
             'whitelistRange' => ['bail', 'sometimes', 'json'],
-            'activatedAt' => ['bail', 'sometimes', 'numeric'],
+            'activated_at' => ['bail', 'sometimes', 'numeric'],
             'expires_at' => ['bail', 'sometimes', 'numeric'],
         ]);
 
@@ -92,6 +91,7 @@ class AdminController extends BaseController
         }
 
         $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+
         if (empty($newPersonalKey)) {
             return response()->json(MessagesCenter::E404(), 404);
         }
@@ -101,7 +101,6 @@ class AdminController extends BaseController
         $whitelistRange = $request->input('whitelist_range');
         $activatedAt = $request->input('activated_at');
         $expiresAt = $request->input('expires_at');
-
 
         if (!$monthlyUsage && !$permissions && !$activatedAt && !$expiresAt && !$whitelistRange) {
             return response()->json($this->convertItemToArray($newPersonalKey));
@@ -114,7 +113,7 @@ class AdminController extends BaseController
         if ($whitelistRange) {
             foreach (json_decode($whitelistRange, true) as $item) {
                 if (!filter_var($item, FILTER_VALIDATE_IP)) {
-                    return response()->json(MessagesCenter::E400('an IP in White List is not in correct format.'), 400);
+                    return response()->json(MessagesCenter::E400('IP in the whitelist range field is invalid.'), 400);
                 }
             }
             $newPersonalKey->whitelist_range = json_decode($whitelistRange);
@@ -155,6 +154,7 @@ class AdminController extends BaseController
         }
 
         $toBeResetKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+
         if (empty($toBeResetKey)) {
             return response()->json(MessagesCenter::E404(), 404);
         }
@@ -174,6 +174,7 @@ class AdminController extends BaseController
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
+
         $validator = Validator::make([
             'user_id' => $id,
             'user_token' => $token
@@ -200,7 +201,6 @@ class AdminController extends BaseController
             'result' => 'true'
         ]);
     }
-
 
     //GET
     public function GetLogs(Request $request, $id, $token)
