@@ -13,13 +13,13 @@ $router->group(['prefix' => 'sys-bin/load-balancer'], function () use ($router) 
 });
 
 $router->group(['prefix' => 'sys-bin/admin', 'middleware' => 'auth.admin'], function () use ($router) {
-    $router->post('/create', 'Auth\AdminController@CreateInfo');
-    $router->post('/update', 'Auth\AdminController@UpdateInfo');
-    $router->post('/reset', 'Auth\AdminController@ResetInfo');
-    $router->delete('/delete', 'Auth\AdminController@DeleteInfo');
-    //
+    $router->post('/', 'Auth\AdminController@CreateInfo');
+    $router->post('/{id}/{token}', 'Auth\AdminController@UpdateInfo');
+    $router->put('/{id}/{token}', 'Auth\AdminController@ResetInfo');
+
+    $router->delete('/{id}/{token}', 'Auth\AdminController@DeleteInfo');
     $router->get('/{id}', 'Auth\AdminController@GetTokens');
     $router->get('/{id}/{token}', 'Auth\AdminController@GetToken');
-    $router->get('/stats/{id}/{token}/{date}', 'Auth\AdminController@GetStats');
-    $router->get('/logs/{id}/{token}', 'Auth\AdminController@GetLogs');
+    $router->get('/{id}/{token}/stats', 'Auth\AdminController@GetStats');
+    $router->get('/{id}/{token}/logs', 'Auth\AdminController@GetLogs');
 });

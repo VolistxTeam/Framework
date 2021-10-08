@@ -67,20 +67,23 @@ class AdminController extends BaseController
         return response()->json($this->convertItemToArray($newPersonalKey));
     }
 
-    //Post
-    public function UpdateInfo(Request $request)
+    //Put
+    public function UpdateInfo(Request $request,$id,$token)
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:update')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(array_merge($request->all(),[
+            'user_id'=>$id,
+            'user_token'=>$token
+        ]), [
             'user_id' => ['bail', 'required', 'integer'],
             'user_token' => ['bail', 'required'],
             'monthly_usage' => ['bail', 'sometimes', 'numeric'],
-            '$permissions' => ['bail', 'sometimes', 'json'],
-            '$whitelistRange' => ['bail', 'sometimes', 'json'],
-            '$activatedAt' => ['bail', 'sometimes', 'numeric'],
+            'permissions' => ['bail', 'sometimes', 'json'],
+            'whitelistRange' => ['bail', 'sometimes', 'json'],
+            'activatedAt' => ['bail', 'sometimes', 'numeric'],
             'expires_at' => ['bail', 'sometimes', 'numeric'],
         ]);
 
@@ -88,7 +91,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $request->input('user_id'))->where('key', $request->input('user_token'))->first();
+        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
         if (empty($newPersonalKey)) {
             return response()->json(MessagesCenter::E404(), 404);
         }
@@ -98,7 +101,6 @@ class AdminController extends BaseController
         $whitelistRange = $request->input('whitelist_range');
         $activatedAt = $request->input('activated_at');
         $expiresAt = $request->input('expires_at');
-
 
 
         if (!$monthlyUsage && !$permissions && !$activatedAt && !$expiresAt && !$whitelistRange) {
@@ -133,14 +135,17 @@ class AdminController extends BaseController
         return response()->json($this->convertItemToArray($newPersonalKey->toArray()));
     }
 
-    //Post
-    public function ResetInfo(Request $request)
+    //Put
+    public function ResetInfo(Request $request, $id, $token)
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:reset')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make([
+            'user_id' => $id,
+            'user_token' => $token
+        ], [
             'user_id' => ['bail', 'required', 'integer'],
             'user_token' => ['bail', 'required'],
         ]);
@@ -149,7 +154,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $toBeResetKey = PersonalKeys::query()->where('user_id', $request->input('user_id'))->where('key', $request->input('user_token'))->first();
+        $toBeResetKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
         if (empty($toBeResetKey)) {
             return response()->json(MessagesCenter::E404(), 404);
         }
@@ -164,13 +169,15 @@ class AdminController extends BaseController
     }
 
     //DELETE -> Not sure if can do cascade delete, to avoid extra query for logs, it should be possible, google later
-    public function DeleteInfo(Request $request)
+    public function DeleteInfo(Request $request, $id, $token)
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
-
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make([
+            'user_id' => $id,
+            'user_token' => $token
+        ], [
             'user_id' => ['bail', 'required', 'integer'],
             'user_token' => ['bail', 'required'],
         ]);
@@ -179,7 +186,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $toBeDeletedKey = PersonalKeys::query()->where('user_id', $request->input('user_id'))->where('key', $request->input('user_token'))->first();
+        $toBeDeletedKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
         if (empty($toBeDeletedKey)) {
             return response()->json(MessagesCenter::E404(), 404);
@@ -290,8 +297,8 @@ class AdminController extends BaseController
         return response()->json($reconstructedArray);
     }
 
-    //GET -> trying to make date an option parameter, so it works when id and token is only available, google later. This function could be written better, but i cant understand it, please lets discuss
-    public function GetStats(Request $request, $id, $token, $date)
+    //GET
+    public function GetStats(Request $request, $id, $token)
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:stats')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -301,15 +308,16 @@ class AdminController extends BaseController
         if (empty($personalKey)) {
             return response()->json(MessagesCenter::E404(), 404);
         }
+        $date = $request->input('date', Carbon::now()->format('Y-m'));
 
         $validator = Validator::make([
             'user_id' => $id,
             'user_token' => $token,
-            'date' => $date ?? Carbon::now()->format('Y-m'),
+            'date' => $date
         ], [
             'user_id' => ['bail', 'required', 'integer'],
             'user_token' => ['bail', 'required'],
-            'date' => ['bail', 'sometimes', 'date','nullable'],
+            'date' => ['bail', 'date'],
         ]);
 
         if ($validator->fails()) {
