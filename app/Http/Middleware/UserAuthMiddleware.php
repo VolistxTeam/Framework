@@ -33,7 +33,7 @@ class UserAuthMiddleware
 
         $ipSet = new IPSet($personalKeys->whitelist_range);
 
-        if (!$ipSet->match($request->getClientIp())) {
+        if (!empty($personalKeys->whitelist_range) && !$ipSet->match($request->getClientIp())) {
             return response()->json(MessagesCenter::Error('xUserFirewallBlocked', 'This IP is not listed on a whitelist IP list.'), 403);
         }
 
