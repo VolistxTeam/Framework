@@ -354,8 +354,8 @@ class AdminController extends BaseController
         return response()->json([
             'usage' => [
                 'current' => $totalCount,
-                'max' => $personalKey->max_count,
-                'percent' => (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
+                'max' => $personalKey->expires_at == null ? null :  $personalKey->max_count,
+                'percent' => $personalKey->expires_at == null ? null : (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
             ],
             'details' => $statArr
         ]);
