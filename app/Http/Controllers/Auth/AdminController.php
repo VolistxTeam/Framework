@@ -334,7 +334,7 @@ class AdminController extends BaseController
             ->whereMonth('created_at', $specifiedDate->format('m'))
             ->get()
             ->groupBy(function ($date) {
-                return Carbon::parse($date->created_at)->format('d'); // grouping by days
+                return Carbon::parse($date->created_at)->format('j'); // grouping by days without leading zeros
             })->toArray();
 
         $totalCount = Logs::query()->where('key_id', $personalKey->id)
@@ -347,7 +347,7 @@ class AdminController extends BaseController
         for ($i = 1; $i <= $lastDay; $i++) {
             $statArr[] = [
                 'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
-                'count' => isset($logMonth[$i]) && !empty($logMonth[$i]) ? count($logMonth[$i]) : 0
+                'count' => isset($logMonth[$i])  ? count($logMonth[$i]) : 0
             ];
         }
 
