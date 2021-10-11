@@ -24,9 +24,11 @@ class PersonalKeys extends Model
     protected $hidden = ['id'];
 
     protected $fillable = [
+        'key_id',
         'user_id',
         'key',
         'secret',
+        'secret_salt',
         'max_count',
         'permissions',
         'whitelist_range',

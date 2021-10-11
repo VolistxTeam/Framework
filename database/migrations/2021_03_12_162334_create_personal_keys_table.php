@@ -15,9 +15,11 @@ class CreatePersonalKeysTable extends Migration
     {
         Schema::create('personal_keys', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('user_id')->nullable()->index('user_id');
-            $table->string('key', 32)->nullable()->index('key');
-            $table->string('secret', 60)->nullable()->index('secret');
+            $table->string('key_id', 36)->index('key_id');
+            $table->integer('user_id')->index('user_id');
+            $table->string('key', 32)->index('key');
+            $table->string('secret', 64);
+            $table->string('secret_salt', 16);
             $table->integer('max_count')->nullable();
             $table->json('permissions')->default('[]');
             $table->json('whitelist_range')->default('[]');

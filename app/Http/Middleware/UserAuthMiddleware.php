@@ -19,8 +19,8 @@ class UserAuthMiddleware
         $token = $request->bearerToken();
 
         $key = PersonalKeys::query()->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v,$k) use ($token){
-                return Hash::check(substr($token, 32), $v->secret);
+            ->get()->filter(function ($v) use ($token){
+                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
             })->first();
 
         if (!$key) {
@@ -38,7 +38,7 @@ class UserAuthMiddleware
         }
 
         $ipSet = new IPSet($key->whitelist_range);
-        if (!$ipSet->match($request->getClientIp())) {
+        if (!empty($personalKeys->whitelist_range) && !$ipSet->match($request->getClientIp())) {
             return response()->json(MessagesCenter::Error('xUserFirewallBlocked', 'This IP is not listed on a whitelist IP list.'), 403);
         }
 

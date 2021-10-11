@@ -11,9 +11,8 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Laravel\Lumen\Routing\Controller as BaseController;
-use RandomLib\Factory;
-use SecurityLib\Strength;
 
 class AdminController extends BaseController
 {
@@ -54,12 +53,17 @@ class AdminController extends BaseController
                 return response()->json(MessagesCenter::E400('IP in the whitelist range field is invalid.'), 400);
             }
         }
+
         $key = $this->generateAPIKey();
 
+        $salt = Str::random(16);
+
         $newPersonalKey = PersonalKeys::query()->create([
+            'key_id' => Str::uuid(),
             'user_id' => $request->input('user_id'),
             'key' => substr($key, 0, 32),
-            'secret' => Hash::make(substr($key, 32)),
+            'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
+            'secret_salt' => $salt,
             'max_count' => $request->input('monthly_usage'),
             'permissions' => json_decode($request->input('permissions')),
             'whitelist_range' => json_decode($whitelistRange),
@@ -67,9 +71,7 @@ class AdminController extends BaseController
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
         ])->toArray();
 
-        $userKey = $this->generateUserKey($newPersonalKey);
-        $userKey["key"] = $key;
-
+        $userKey = $this->generateUserKey($newPersonalKey, $key);
 
         return response()->json($userKey, 201);
     }
@@ -85,12 +87,12 @@ class AdminController extends BaseController
             'user_token' => $token
         ]), [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
+            'user_token' => ['bail', 'required', 'uuid'],
             'monthly_usage' => ['bail', 'sometimes', 'numeric'],
             'permissions' => ['bail', 'sometimes', 'json'],
             'whitelistRange' => ['bail', 'sometimes', 'json'],
-            'activated_at' => ['bail', 'sometimes', 'numeric'],
-            'expires_at' => ['bail', 'sometimes', 'numeric'],
+            'activated_at' => ['bail', 'sometimes', 'date'],
+            'expires_at' => ['bail', 'sometimes', 'date'],
         ]);
 
         if ($validator->fails()) {
@@ -153,7 +155,7 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
+            'user_token' => ['bail', 'required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
@@ -167,13 +169,14 @@ class AdminController extends BaseController
         }
 
         $newKey = $this->generateAPIKey();
+        $salt = Str::random(16);
 
         $toBeResetKey->key = substr($newKey, 0, 32);
-        $toBeResetKey->secret = Hash::make(substr($newKey, 32));
+        $toBeResetKey->secret = Hash::make(substr($newKey, 32), ['salt' => $salt]);
+        $toBeResetKey->secret_salt = $salt;
         $toBeResetKey->save();
 
-        $userKey = $this->generateUserKey($toBeResetKey->toArray());
-        $userKey["key"] = $newKey;
+        $userKey = $this->generateUserKey($toBeResetKey->toArray(), $newKey);
 
         return response()->json($userKey);
     }
@@ -189,7 +192,7 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
+            'user_token' => ['bail', 'required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
@@ -223,7 +226,7 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
+            'user_token' => ['bail', 'required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
@@ -262,7 +265,7 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
+            'user_token' => ['bail', 'required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
@@ -327,7 +330,7 @@ class AdminController extends BaseController
             'date' => $date
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
+            'user_token' => ['bail', 'required', 'uuid'],
             'date' => ['bail', 'date'],
         ]);
 
@@ -338,7 +341,6 @@ class AdminController extends BaseController
         $specifiedDate = Carbon::parse($date);
         $thisDate = Carbon::now();
         $lastDay = $specifiedDate->format('Y-m') == $thisDate->format('Y-m') ? $thisDate->day : (int)$specifiedDate->format('t');
-
 
         $logMonth = Logs::query()->where('key_id', $personalKey->id)
             ->whereYear('created_at', $specifiedDate->format('Y'))
@@ -365,8 +367,8 @@ class AdminController extends BaseController
         return response()->json([
             'usage' => [
                 'current' => $totalCount,
-                'max' => $personalKey->max_count,
-                'percent' => (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
+                'max' => $personalKey->max_count == -1 ? null : $personalKey->max_count,
+                'percent' => $personalKey->max_count == -1 ? null : (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
             ],
             'details' => $statArr
         ]);
@@ -374,31 +376,48 @@ class AdminController extends BaseController
 
     private function generateAPIKey()
     {
-        return bin2hex(random_bytes(32));
+        return Str::random(64);
     }
 
     private function retrievePersonalKey($id, $token)
     {
-        return PersonalKeys::query()->where('user_id', $id)
-            ->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v,$k) use ($token){
-                return Hash::check(substr($token, 32), $v->secret);
-            })->first();
+        return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
     }
 
-    private function generateUserKey($item)
+    private function generateUserKey($item, $key = null)
     {
-        return [
-            'user_id' => $item['user_id'],
-            'monthly_usage' => $item['max_count'],
-            'permissions' => $item['permissions'],
-            'whitelist_ip' => $item['whitelist_range'],
-            'subscription' => [
-                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                'activated_at' => $item['activated_at'],
-                'expires_at' => $item['expires_at']
-            ]
-        ];
+        if ($key == null) {
+            return [
+                'id' => $item['key_id'],
+                'user_id' => $item['user_id'],
+                'monthly_usage' => $item['max_count'],
+                'permissions' => $item['permissions'],
+                'whitelist_ip' => $item['whitelist_range'],
+                'subscription' => [
+                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                    'activated_at' => $item['activated_at'],
+                    'expires_at' => $item['expires_at']
+                ],
+                'created_at' => $item['created_at'],
+                'updated_at' => $item['updated_at']
+            ];
+        } else {
+            return [
+                'id' => $item['key_id'],
+                'user_id' => $item['user_id'],
+                'key' => $key,
+                'monthly_usage' => $item['max_count'],
+                'permissions' => $item['permissions'],
+                'whitelist_ip' => $item['whitelist_range'],
+                'subscription' => [
+                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                    'activated_at' => $item['activated_at'],
+                    'expires_at' => $item['expires_at']
+                ],
+                'created_at' => $item['created_at'],
+                'updated_at' => $item['updated_at']
+            ];
+        }
     }
 
     private function isValidDate($string, $format = 'Y-m-d H:i:s')
