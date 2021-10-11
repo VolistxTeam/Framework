@@ -16,12 +16,15 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\ExampleCommand::class,
-        Commands\AccessKeyCommand::class,
+        Commands\AccessKey\GenerateCommand::class,
+        Commands\AccessKey\DeleteCommand::class,
         Commands\DeleteLogsCommand::class,
         ClearCommand::class,
         KeyGenerateCommand::class,
         Serve::class,
+
+        // Custom Commands Here
+        Commands\ExampleCommand::class,
     ];
 
     /**

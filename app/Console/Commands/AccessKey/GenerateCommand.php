@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\AccessKey;
 
+use App\Classes\MessagesCenter;
 use App\Models\AccessKeys;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class AccessKeyCommand extends Command
+class GenerateCommand extends Command
 {
     protected $signature = "access-key:generate";
 
@@ -22,8 +24,8 @@ class AccessKeyCommand extends Command
             'key' => substr($key, 0, 32),
             'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
             'secret_salt' => $salt,
-            'permissions' => empty($permissionLists) ? array('*') : json_decode($permissionLists),
-            'whitelist_range' => empty($whitelistRange) ? array() : json_decode($whitelistRange)
+            'permissions' => array('*'),
+            'whitelist_range' => array()
         ));
 
         $this->info('Your access key is created: ' . $key);
