@@ -26,6 +26,7 @@ class PersonalKeys extends Model
     protected $fillable = [
         'user_id',
         'key',
+        'secret',
         'max_count',
         'permissions',
         'whitelist_range',

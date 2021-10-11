@@ -9,6 +9,7 @@ use App\Models\PersonalKeys;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use RandomLib\Factory;
@@ -53,10 +54,12 @@ class AdminController extends BaseController
                 return response()->json(MessagesCenter::E400('IP in the whitelist range field is invalid.'), 400);
             }
         }
+        $key = $this->generateAPIKey();
 
         $newPersonalKey = PersonalKeys::query()->create([
             'user_id' => $request->input('user_id'),
-            'key' => $this->generateUniqueKey(),
+            'key' => substr($key, 0, 32),
+            'secret' => Hash::make(substr($key, 32)),
             'max_count' => $request->input('monthly_usage'),
             'permissions' => json_decode($request->input('permissions')),
             'whitelist_range' => json_decode($whitelistRange),
@@ -64,7 +67,11 @@ class AdminController extends BaseController
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
         ])->toArray();
 
-        return response()->json($this->convertItemToArray($newPersonalKey), 201);
+        $userKey = $this->generateUserKey($newPersonalKey);
+        $userKey["key"] = $key;
+
+
+        return response()->json($userKey, 201);
     }
 
     public function UpdateInfo(Request $request, $id, $token): \Illuminate\Http\JsonResponse
@@ -78,7 +85,7 @@ class AdminController extends BaseController
             'user_token' => $token
         ]), [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required'],
+            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
             'monthly_usage' => ['bail', 'sometimes', 'numeric'],
             'permissions' => ['bail', 'sometimes', 'json'],
             'whitelistRange' => ['bail', 'sometimes', 'json'],
@@ -90,9 +97,9 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $newPersonalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+        $personalKey = $this->retrievePersonalKey($id, $token);
 
-        if (empty($newPersonalKey)) {
+        if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
 
@@ -103,12 +110,12 @@ class AdminController extends BaseController
         $expiresAt = $request->input('expires_at');
 
         if (!$monthlyUsage && !$permissions && !$activatedAt && !$expiresAt && !$whitelistRange) {
-            return response()->json($this->convertItemToArray($newPersonalKey));
+            return response()->json($this->generateUserKey($personalKey));
         }
 
-        if ($monthlyUsage) $newPersonalKey->max_count = $monthlyUsage;
+        if ($monthlyUsage) $personalKey->max_count = $monthlyUsage;
 
-        if ($permissions) $newPersonalKey->permissions = json_decode($permissions);
+        if ($permissions) $personalKey->permissions = json_decode($permissions);
 
         if ($whitelistRange) {
             foreach (json_decode($whitelistRange, true) as $item) {
@@ -116,22 +123,22 @@ class AdminController extends BaseController
                     return response()->json(MessagesCenter::E400('IP in the whitelist range field is invalid.'), 400);
                 }
             }
-            $newPersonalKey->whitelist_range = json_decode($whitelistRange);
+            $personalKey->whitelist_range = json_decode($whitelistRange);
         }
 
-        if ($activatedAt && $this->isValidDate($activatedAt)) $newPersonalKey->activated_at = $activatedAt;
+        if ($activatedAt && $this->isValidDate($activatedAt)) $personalKey->activated_at = $activatedAt;
 
         if ($expiresAt) {
             if ($expiresAt == '-1') {
-                $newPersonalKey->expires_at = null;
+                $personalKey->expires_at = null;
             } else if ($this->isValidDate($expiresAt)) {
-                $newPersonalKey->expires_at = $expiresAt;
+                $personalKey->expires_at = $expiresAt;
             }
         }
 
-        $newPersonalKey->save();
+        $personalKey->save();
 
-        return response()->json($this->convertItemToArray($newPersonalKey->toArray()));
+        return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
     //Put
@@ -146,29 +153,31 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required'],
+            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $toBeResetKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+        $toBeResetKey = $this->retrievePersonalKey($id, $token);
 
-        if (empty($toBeResetKey)) {
+        if (!$toBeResetKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
 
-        $newKey = $this->generateUniqueKey();
+        $newKey = $this->generateAPIKey();
 
-        $toBeResetKey->key = $newKey;
-
+        $toBeResetKey->key = substr($newKey, 0, 32);
+        $toBeResetKey->secret = Hash::make(substr($newKey, 32));
         $toBeResetKey->save();
 
-        return response()->json($this->convertItemToArray($toBeResetKey->toArray()));
+        $userKey = $this->generateUserKey($toBeResetKey->toArray());
+        $userKey["key"] = $newKey;
+
+        return response()->json($userKey);
     }
 
-    //DELETE -> Not sure if can do cascade delete, to avoid extra query for logs, it should be possible, google later
     public function DeleteInfo(Request $request, $id, $token)
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
@@ -180,16 +189,16 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required'],
+            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $toBeDeletedKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+        $toBeDeletedKey = $this->retrievePersonalKey($id, $token);
 
-        if (empty($toBeDeletedKey)) {
+        if (!$toBeDeletedKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
 
@@ -214,16 +223,16 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required'],
+            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+        $personalKey = $this->retrievePersonalKey($id, $token);
 
-        if (empty($personalKey)) {
+        if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
 
@@ -253,20 +262,20 @@ class AdminController extends BaseController
             'user_token' => $token
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required'],
+            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
+        $personalKey = $this->retrievePersonalKey($id, $token);
 
-        if (empty($personalKey)) {
+        if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
 
-        return response()->json($this->convertItemToArray($personalKey->toArray()));
+        return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
     //GET
@@ -291,7 +300,7 @@ class AdminController extends BaseController
         $reconstructedArray = [];
 
         foreach ($keys as $item) {
-            $reconstructedArray[] = $this->convertItemToArray($item);
+            $reconstructedArray[] = $this->generateUserKey($item);
         }
 
         return response()->json($reconstructedArray);
@@ -303,9 +312,11 @@ class AdminController extends BaseController
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:stats')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
-        $personalKey = PersonalKeys::query()->where('user_id', $id)->where('key', $token)->first();
 
-        if (empty($personalKey)) {
+
+        $personalKey = $this->retrievePersonalKey($id, $token);
+
+        if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
         $date = $request->input('date', Carbon::now()->format('Y-m'));
@@ -316,7 +327,7 @@ class AdminController extends BaseController
             'date' => $date
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required'],
+            'user_token' => ['bail', 'required', 'min:64', 'max:64'],
             'date' => ['bail', 'date'],
         ]);
 
@@ -334,7 +345,7 @@ class AdminController extends BaseController
             ->whereMonth('created_at', $specifiedDate->format('m'))
             ->get()
             ->groupBy(function ($date) {
-                return Carbon::parse($date->created_at)->format('j'); // grouping by days without leading zeros
+                return Carbon::parse($date->created_at)->format('j'); // grouping by days
             })->toArray();
 
         $totalCount = Logs::query()->where('key_id', $personalKey->id)
@@ -347,48 +358,38 @@ class AdminController extends BaseController
         for ($i = 1; $i <= $lastDay; $i++) {
             $statArr[] = [
                 'date' => $specifiedDate->format('Y-m-') . sprintf("%02d", $i),
-                'count' => isset($logMonth[$i])  ? count($logMonth[$i]) : 0
+                'count' => isset($logMonth[$i]) ? count($logMonth[$i]) : 0
             ];
         }
 
         return response()->json([
             'usage' => [
                 'current' => $totalCount,
-                'max' => $personalKey->expires_at == null ? null :  $personalKey->max_count,
-                'percent' => $personalKey->expires_at == null ? null : (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
+                'max' => $personalKey->max_count,
+                'percent' => (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
             ],
             'details' => $statArr
         ]);
     }
 
-
-    //MUST BE REFACTORED LATER, SECURITY ISSUES.
-    private function generateUniqueKey()
+    private function generateAPIKey()
     {
-        $factory = new Factory();
-        $generator = $factory->getGenerator(new Strength(Strength::HIGH));
-
-        $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-        $nonExistConfirmed = false;
-
-        while ($nonExistConfirmed == false) {
-            $checkDB = PersonalKeys::query()->where('key', $generatedToken)->first();
-
-            if (empty($checkDB)) {
-                $nonExistConfirmed = true;
-            } else {
-                $generatedToken = $generator->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-            }
-        }
-
-        return $generatedToken;
+        return bin2hex(random_bytes(32));
     }
 
-    private function convertItemToArray($item)
+    private function retrievePersonalKey($id, $token)
+    {
+        return PersonalKeys::query()->where('user_id', $id)
+            ->where('key', substr($token, 0, 32))
+            ->get()->filter(function ($v,$k) use ($token){
+                return Hash::check(substr($token, 32), $v->secret);
+            })->first();
+    }
+
+    private function generateUserKey($item)
     {
         return [
             'user_id' => $item['user_id'],
-            'key' => $item['key'],
             'monthly_usage' => $item['max_count'],
             'permissions' => $item['permissions'],
             'whitelist_ip' => $item['whitelist_range'],
@@ -405,5 +406,4 @@ class AdminController extends BaseController
         $d = DateTime::createFromFormat($format, $string);
         return $d && $d->format($format) == $string;
     }
-
 }
