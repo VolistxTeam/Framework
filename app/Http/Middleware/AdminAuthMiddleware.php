@@ -16,7 +16,7 @@ class AdminAuthMiddleware
         $token = $request->bearerToken();
 
         $accessKey = AccessKeys::query()->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v) use ($token){
+            ->get()->filter(function ($v) use ($token) {
                 return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
             })->first();
 

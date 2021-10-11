@@ -8,6 +8,7 @@ use App\Models\Logs;
 use App\Models\PersonalKeys;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -26,8 +27,7 @@ class AdminController extends BaseController
         //
     }
 
-    //Post
-    public function CreateInfo(Request $request)
+    public function CreateInfo(Request $request): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:create')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -76,7 +76,48 @@ class AdminController extends BaseController
         return response()->json($userKey, 201);
     }
 
-    public function UpdateInfo(Request $request, $id, $token): \Illuminate\Http\JsonResponse
+    private function generateAPIKey(): string
+    {
+        return Str::random(64);
+    }
+
+    private function generateUserKey($item, $key = null): array
+    {
+        if ($key == null) {
+            return [
+                'id' => $item['key_id'],
+                'user_id' => $item['user_id'],
+                'monthly_usage' => $item['max_count'],
+                'permissions' => $item['permissions'],
+                'whitelist_ip' => $item['whitelist_range'],
+                'subscription' => [
+                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                    'activated_at' => $item['activated_at'],
+                    'expires_at' => $item['expires_at']
+                ],
+                'created_at' => $item['created_at'],
+                'updated_at' => $item['updated_at']
+            ];
+        } else {
+            return [
+                'id' => $item['key_id'],
+                'user_id' => $item['user_id'],
+                'key' => $key,
+                'monthly_usage' => $item['max_count'],
+                'permissions' => $item['permissions'],
+                'whitelist_ip' => $item['whitelist_range'],
+                'subscription' => [
+                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                    'activated_at' => $item['activated_at'],
+                    'expires_at' => $item['expires_at']
+                ],
+                'created_at' => $item['created_at'],
+                'updated_at' => $item['updated_at']
+            ];
+        }
+    }
+
+    public function UpdateInfo(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:update')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -143,8 +184,18 @@ class AdminController extends BaseController
         return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
-    //Put
-    public function ResetInfo(Request $request, $id, $token)
+    private function retrievePersonalKey($id, $token)
+    {
+        return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
+    }
+
+    private function isValidDate($string): bool
+    {
+        $d = DateTime::createFromFormat('Y-m-d H:i:s', $string);
+        return $d && $d->format('Y-m-d H:i:s') == $string;
+    }
+
+    public function ResetInfo(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:reset')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -181,7 +232,9 @@ class AdminController extends BaseController
         return response()->json($userKey);
     }
 
-    public function DeleteInfo(Request $request, $id, $token)
+    //GET
+
+    public function DeleteInfo(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -214,8 +267,7 @@ class AdminController extends BaseController
         ]);
     }
 
-    //GET
-    public function GetLogs(Request $request, $id, $token)
+    public function GetLogs(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:logs')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -253,8 +305,7 @@ class AdminController extends BaseController
         return response()->json($buildResponse);
     }
 
-    //GET
-    public function GetToken(Request $request, $id, $token)
+    public function GetToken(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -281,8 +332,7 @@ class AdminController extends BaseController
         return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
-    //GET
-    public function GetTokens(Request $request, $id)
+    public function GetTokens(Request $request, $id): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -309,13 +359,11 @@ class AdminController extends BaseController
         return response()->json($reconstructedArray);
     }
 
-    //GET
-    public function GetStats(Request $request, $id, $token)
+    public function GetStats(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:stats')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
-
 
         $personalKey = $this->retrievePersonalKey($id, $token);
 
@@ -372,57 +420,5 @@ class AdminController extends BaseController
             ],
             'details' => $statArr
         ]);
-    }
-
-    private function generateAPIKey()
-    {
-        return Str::random(64);
-    }
-
-    private function retrievePersonalKey($id, $token)
-    {
-        return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
-    }
-
-    private function generateUserKey($item, $key = null)
-    {
-        if ($key == null) {
-            return [
-                'id' => $item['key_id'],
-                'user_id' => $item['user_id'],
-                'monthly_usage' => $item['max_count'],
-                'permissions' => $item['permissions'],
-                'whitelist_ip' => $item['whitelist_range'],
-                'subscription' => [
-                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                    'activated_at' => $item['activated_at'],
-                    'expires_at' => $item['expires_at']
-                ],
-                'created_at' => $item['created_at'],
-                'updated_at' => $item['updated_at']
-            ];
-        } else {
-            return [
-                'id' => $item['key_id'],
-                'user_id' => $item['user_id'],
-                'key' => $key,
-                'monthly_usage' => $item['max_count'],
-                'permissions' => $item['permissions'],
-                'whitelist_ip' => $item['whitelist_range'],
-                'subscription' => [
-                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                    'activated_at' => $item['activated_at'],
-                    'expires_at' => $item['expires_at']
-                ],
-                'created_at' => $item['created_at'],
-                'updated_at' => $item['updated_at']
-            ];
-        }
-    }
-
-    private function isValidDate($string, $format = 'Y-m-d H:i:s')
-    {
-        $d = DateTime::createFromFormat($format, $string);
-        return $d && $d->format($format) == $string;
     }
 }
