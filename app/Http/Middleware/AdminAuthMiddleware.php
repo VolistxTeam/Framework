@@ -6,13 +6,19 @@ use App\Classes\MessagesCenter;
 use App\Models\AccessKeys;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Wikimedia\IPSet;
 
 class AdminAuthMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $accessKey = AccessKeys::query()->where('token', $request->bearerToken())->first();
+        $token = $request->bearerToken();
+
+        $accessKey = AccessKeys::query()->where('key', substr($token, 0, 32))
+            ->get()->filter(function ($v) use ($token){
+                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
+            })->first();
 
         if (empty($accessKey)) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);

@@ -15,7 +15,9 @@ class CreateAccessKeysTable extends Migration
     {
         Schema::create('access_keys', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('token', 100)->default('')->index('token');
+            $table->string('key', 32)->index('key');
+            $table->string('secret', 64);
+            $table->string('secret_salt', 16);
             $table->json('whitelist_range')->default('[]');
             $table->json('permissions')->default('[]');
             $table->dateTime('created_at')->useCurrent();
