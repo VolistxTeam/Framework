@@ -5,13 +5,12 @@ namespace App\Console\Commands\AccessKey;
 use App\Models\AccessKeys;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DeleteCommand extends Command
 {
     protected $signature = "access-key:delete {--key=}";
 
-    protected $description = "Delete an access key from the system.";
+    protected $description = "Delete an access key";
 
     public function handle()
     {

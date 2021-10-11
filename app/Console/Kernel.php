@@ -18,7 +18,6 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\AccessKey\GenerateCommand::class,
         Commands\AccessKey\DeleteCommand::class,
-        Commands\DeleteLogsCommand::class,
         ClearCommand::class,
         KeyGenerateCommand::class,
         Serve::class,
@@ -35,7 +34,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('geoip:update')->daily();
-        $schedule->command('logs:purge')->daily();
+        $schedule->command('geoip:update')->monthly();
     }
 }

@@ -13,7 +13,7 @@ class GenerateCommand extends Command
 {
     protected $signature = "access-key:generate";
 
-    protected $description = "Create an access key to the system.";
+    protected $description = "Create an access key";
 
     public function handle()
     {
