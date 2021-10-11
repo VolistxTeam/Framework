@@ -60,7 +60,7 @@ return [
      * This class is responsible for generating a hash for a request. This hash
      * is used to look up an cached response.
      */
-    'hasher' => \App\Classes\Spatie\ResponseCache\Hasher\SHA256Hasher::class,
+    'hasher' =>\Spatie\ResponseCache\Hasher\DefaultHasher::class,
 
     /*
      * This class is responsible for serializing responses.
