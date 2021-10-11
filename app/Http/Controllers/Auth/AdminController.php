@@ -17,15 +17,6 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 
 class AdminController extends BaseController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
 
     public function CreateInfo(Request $request): JsonResponse
     {
@@ -55,7 +46,6 @@ class AdminController extends BaseController
         }
 
         $key = $this->generateAPIKey();
-
         $salt = Str::random(16);
 
         $newPersonalKey = PersonalKeys::query()->create([
@@ -76,46 +66,6 @@ class AdminController extends BaseController
         return response()->json($userKey, 201);
     }
 
-    private function generateAPIKey(): string
-    {
-        return Str::random(64);
-    }
-
-    private function generateUserKey($item, $key = null): array
-    {
-        if ($key == null) {
-            return [
-                'id' => $item['key_id'],
-                'user_id' => $item['user_id'],
-                'monthly_usage' => $item['max_count'],
-                'permissions' => $item['permissions'],
-                'whitelist_ip' => $item['whitelist_range'],
-                'subscription' => [
-                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                    'activated_at' => $item['activated_at'],
-                    'expires_at' => $item['expires_at']
-                ],
-                'created_at' => $item['created_at'],
-                'updated_at' => $item['updated_at']
-            ];
-        } else {
-            return [
-                'id' => $item['key_id'],
-                'user_id' => $item['user_id'],
-                'key' => $key,
-                'monthly_usage' => $item['max_count'],
-                'permissions' => $item['permissions'],
-                'whitelist_ip' => $item['whitelist_range'],
-                'subscription' => [
-                    'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                    'activated_at' => $item['activated_at'],
-                    'expires_at' => $item['expires_at']
-                ],
-                'created_at' => $item['created_at'],
-                'updated_at' => $item['updated_at']
-            ];
-        }
-    }
 
     public function UpdateInfo(Request $request, $id, $token): JsonResponse
     {
@@ -172,7 +122,7 @@ class AdminController extends BaseController
         if ($activatedAt && $this->isValidDate($activatedAt)) $personalKey->activated_at = $activatedAt;
 
         if ($expiresAt) {
-            if ($expiresAt == '-1') {
+            if ($expiresAt == -1) {
                 $personalKey->expires_at = null;
             } else if ($this->isValidDate($expiresAt)) {
                 $personalKey->expires_at = $expiresAt;
@@ -189,25 +139,13 @@ class AdminController extends BaseController
         return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
     }
 
-    private function isValidDate($string): bool
-    {
-        $d = DateTime::createFromFormat('Y-m-d H:i:s', $string);
-        return $d && $d->format('Y-m-d H:i:s') == $string;
-    }
-
     public function ResetInfo(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:reset')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
-        ], [
-            'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
-        ]);
+        $validator = $this->getDefaultValidator($id,$token);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
@@ -232,21 +170,13 @@ class AdminController extends BaseController
         return response()->json($userKey);
     }
 
-    //GET
-
     public function DeleteInfo(Request $request, $id, $token): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
-        ], [
-            'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
-        ]);
+        $validator = $this->getDefaultValidator($id,$token);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
@@ -273,13 +203,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
-        ], [
-            'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
-        ]);
+        $validator = $this->getDefaultValidator($id,$token);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
@@ -311,13 +235,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
-        ], [
-            'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
-        ]);
+        $validator = $this->getDefaultValidator($id,$token);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
@@ -419,6 +337,52 @@ class AdminController extends BaseController
                 'percent' => $personalKey->max_count == -1 ? null : (float)number_format(($totalCount * 100) / $personalKey->max_count, 2),
             ],
             'details' => $statArr
+        ]);
+    }
+
+    //Help Functions
+
+    private function generateAPIKey(): string
+    {
+        return Str::random(64);
+    }
+
+    private function generateUserKey($item, $key = null): array
+    {
+        $result =  [
+            'id' => $item['key_id'],
+            'user_id' => $item['user_id'],
+            'monthly_usage' => $item['max_count'],
+            'permissions' => $item['permissions'],
+            'whitelist_ip' => $item['whitelist_range'],
+            'subscription' => [
+                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                'activated_at' => $item['activated_at'],
+                'expires_at' => $item['expires_at']
+            ],
+            'created_at' => $item['created_at'],
+            'updated_at' => $item['updated_at']
+        ];
+
+        if($key) $result['key'] = $key;
+
+        return $result;
+    }
+
+    private function isValidDate($string): bool
+    {
+        $d = DateTime::createFromFormat('Y-m-d H:i:s', $string);
+        return $d && $d->format('Y-m-d H:i:s') == $string;
+    }
+
+    private  function getDefaultValidator($id,$token): \Illuminate\Contracts\Validation\Validator
+    {
+       return Validator::make([
+            'user_id' => $id,
+            'user_token' => $token
+        ], [
+            'user_id' => ['bail', 'required', 'integer'],
+            'user_token' => ['bail', 'required', 'uuid'],
         ]);
     }
 }
