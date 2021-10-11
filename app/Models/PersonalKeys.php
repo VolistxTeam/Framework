@@ -37,6 +37,7 @@ class PersonalKeys extends Model
     ];
 
     protected $casts = [
+        'user_id' => 'integer',
         'max_count' => 'integer',
         'permissions' => 'array',
         'whitelist_range' => 'array',
