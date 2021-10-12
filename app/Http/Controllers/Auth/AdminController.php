@@ -7,6 +7,9 @@ use App\Classes\PermissionsCenter;
 use App\Models\PersonalKey;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -162,12 +165,14 @@ class AdminController extends BaseController
         return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
-    private function retrievePersonalKey($userID, $keyID)
+    private function retrievePersonalKey($userID, $keyID): Model|Collection|Builder|array|null
     {
-        $key = PersonalKey::find($keyID);
+        $key = PersonalKey::query()->find($keyID);
+
         if ($key && $key->user_id == $userID) {
             return $key;
         }
+
         return null;
     }
 
@@ -218,8 +223,6 @@ class AdminController extends BaseController
             'user_token' => ['bail', 'required', 'integer'],
         ]);
     }
-
-    //Helper Functions
 
     public function DeleteInfo(Request $request, $userID, $keyID): JsonResponse
     {
