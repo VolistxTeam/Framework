@@ -164,7 +164,11 @@ class AdminController extends BaseController
 
     private function retrievePersonalKey($userID, $keyID)
     {
-        return PersonalKey::query()->where('id', $keyID)->where('user_id', $userID)->first();
+        $key = PersonalKey::find($keyID);
+        if ($key && $key->user_id == $userID) {
+            return $key;
+        }
+        return null;
     }
 
     private function isValidDate($string): bool
