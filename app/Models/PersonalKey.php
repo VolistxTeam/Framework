@@ -16,6 +16,8 @@ class PersonalKey extends Model
      */
     public $timestamps = true;
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'id',
         'user_id',
@@ -30,6 +32,7 @@ class PersonalKey extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'user_id' => 'integer',
         'max_count' => 'integer',
         'permissions' => 'array',

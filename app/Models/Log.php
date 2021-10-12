@@ -32,5 +32,5 @@ class Log extends Model
         'request_info',
         'access_ip'
     ];
-    protected $hidden = ['id', 'key_id'];
+    protected $hidden = ['id', 'personal_key_id'];
 }

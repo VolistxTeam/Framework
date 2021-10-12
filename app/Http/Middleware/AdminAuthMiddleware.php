@@ -4,10 +4,8 @@ namespace App\Http\Middleware;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Models\AccessKeys;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Wikimedia\IPSet;
 
 class AdminAuthMiddleware

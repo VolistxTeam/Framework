@@ -3,9 +3,7 @@
 namespace App\Console\Commands\AccessKey;
 
 use App\Classes\PermissionsCenter;
-use App\Models\AccessKeys;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 
 class DeleteCommand extends Command
 {
