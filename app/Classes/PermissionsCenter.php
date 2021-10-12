@@ -43,6 +43,11 @@ class PermissionsCenter
 
         return false;
     }
+
+    public static function getUserAuthKey($token)
+    {
+
+}
 }
 
 

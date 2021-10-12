@@ -134,10 +134,6 @@ class AdminController extends BaseController
         return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
-    private function retrievePersonalKey($id, $token)
-    {
-        return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
-    }
 
     public function ResetInfo(Request $request, $id, $token): JsonResponse
     {
@@ -341,6 +337,10 @@ class AdminController extends BaseController
     }
 
     //Help Functions
+    private function retrievePersonalKey($id, $token)
+    {
+        return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
+    }
 
     private function generateAPIKey(): string
     {
