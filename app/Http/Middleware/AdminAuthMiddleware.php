@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Classes\MessagesCenter;
+use App\Classes\PermissionsCenter;
 use App\Models\AccessKeys;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,12 +14,7 @@ class AdminAuthMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $token = $request->bearerToken();
-
-        $accessKey = AccessKeys::query()->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v) use ($token) {
-                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
-            })->first();
+        $accessKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
 
         if (empty($accessKey)) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
@@ -33,7 +29,7 @@ class AdminAuthMiddleware
         return $next($request);
     }
 
-    protected function checkIPRange($ip, $range)
+    protected function checkIPRange($ip, $range): bool
     {
         if (empty($range)) {
             return true;

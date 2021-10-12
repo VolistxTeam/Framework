@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\AccessKey;
 
+use App\Classes\PermissionsCenter;
 use App\Models\AccessKeys;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
@@ -21,10 +22,7 @@ class DeleteCommand extends Command
             return;
         }
 
-        $accessKey = AccessKeys::query()->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v) use ($token) {
-                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
-            })->first();
+        $accessKey = PermissionsCenter::getAdminAuthKey($token);
 
         if (empty($accessKey)) {
             $this->error('The specified access key is invalid.');

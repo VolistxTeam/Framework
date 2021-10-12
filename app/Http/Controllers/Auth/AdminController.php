@@ -336,7 +336,7 @@ class AdminController extends BaseController
         ]);
     }
 
-    //Help Functions
+    //Helper Functions
     private function retrievePersonalKey($id, $token)
     {
         return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
