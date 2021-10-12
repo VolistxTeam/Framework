@@ -12,13 +12,13 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
     });
 
     $router->group(['prefix' => 'admin', 'middleware' => 'auth.admin'], function () use ($router) {
-        $router->get('/{id}', 'Auth\AdminController@GetTokens');
-        $router->get('/{id}/{token}', 'Auth\AdminController@GetToken');
-        $router->get('/{id}/{token}/stats', 'Auth\AdminController@GetStats');
-        $router->get('/{id}/{token}/logs', 'Auth\AdminController@GetLogs');
+        $router->get('/{userID}', 'Auth\AdminController@GetTokens');
+        $router->get('/{userID}/{keyID}', 'Auth\AdminController@GetToken');
+        $router->get('/{userID}/{keyID}/stats', 'Auth\AdminController@GetStats');
+        $router->get('/{userID}/{keyID}/logs', 'Auth\AdminController@GetLogs');
         $router->post('/', 'Auth\AdminController@CreateInfo');
-        $router->post('/{id}/{token}', 'Auth\AdminController@UpdateInfo');
-        $router->patch('/{id}/{token}', 'Auth\AdminController@ResetInfo');
-        $router->delete('/{id}/{token}', 'Auth\AdminController@DeleteInfo');
+        $router->post('/{userID}/{keyID}', 'Auth\AdminController@UpdateInfo');
+        $router->patch('/{userID}/{keyID}', 'Auth\AdminController@ResetInfo');
+        $router->delete('/{userID}/{keyID}', 'Auth\AdminController@DeleteInfo');
     });
 });

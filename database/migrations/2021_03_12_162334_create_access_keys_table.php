@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Log;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ class CreateAccessKeysTable extends Migration
     public function up()
     {
         Schema::create('access_keys', function (Blueprint $table) {
-            $table->integer('id', true);
+            $table->bigIncrements('id');
             $table->string('key', 32)->index('key');
             $table->string('secret', 64);
             $table->string('secret_salt', 16);

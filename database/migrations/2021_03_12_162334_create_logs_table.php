@@ -14,8 +14,8 @@ class CreateLogsTable extends Migration
     public function up()
     {
         Schema::create('logs', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->integer('key_id')->index('key_id');
+            $table->bigIncrements('id');
+            $table->foreignId('personal_key_id')->constrained()->onDelete('cascade');
             $table->string('request_id', 36);
             $table->string('access_ip', 45);
             $table->text('request_info');

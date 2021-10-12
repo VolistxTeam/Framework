@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AccessKeys extends Model
+class AccessKey extends Model
 {
     use HasFactory;
 
@@ -15,12 +15,7 @@ class AccessKeys extends Model
      * @var bool
      */
     public $timestamps = true;
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'access_keys';
+
     /**
      * The attributes that are mass assignable.
      *

@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Models\Logs;
-use App\Models\PersonalKeys;
+use App\Models\AccessKey;
+use App\Models\Log;
+use App\Models\PersonalKey;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\JsonResponse;
@@ -48,8 +49,7 @@ class AdminController extends BaseController
         $key = $this->generateAPIKey();
         $salt = Str::random(16);
 
-        $newPersonalKey = PersonalKeys::query()->create([
-            'key_id' => Str::uuid(),
+        $newPersonalKey = PersonalKey::query()->create([
             'user_id' => $request->input('user_id'),
             'key' => substr($key, 0, 32),
             'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
@@ -60,25 +60,23 @@ class AdminController extends BaseController
             'activated_at' => Carbon::now(),
             'expires_at' => $hoursToExpire != -1 ? Carbon::now()->addHours($hoursToExpire) : null
         ])->toArray();
-
         $userKey = $this->generateUserKey($newPersonalKey, $key);
 
         return response()->json($userKey, 201);
     }
 
-
-    public function UpdateInfo(Request $request, $id, $token): JsonResponse
+    public function UpdateInfo(Request $request, $userID, $keyID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:update')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
-            'user_id' => $id,
-            'user_token' => $token
+            'user_id' => $userID,
+            'user_token' => $keyID
         ]), [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
+            'user_token' => ['bail', 'required', 'numeric','gt:0'],
             'monthly_usage' => ['bail', 'sometimes', 'numeric'],
             'permissions' => ['bail', 'sometimes', 'json'],
             'whitelistRange' => ['bail', 'sometimes', 'json'],
@@ -90,7 +88,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $personalKey = $this->retrievePersonalKey($id, $token);
+        $personalKey = $this->retrievePersonalKey($userID, $keyID);
 
         if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
@@ -134,20 +132,19 @@ class AdminController extends BaseController
         return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
-
-    public function ResetInfo(Request $request, $id, $token): JsonResponse
+    public function ResetInfo(Request $request, $userID, $keyID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:reset')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = $this->getDefaultValidator($id,$token);
+        $validator = $this->getDefaultValidator($userID, $keyID);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $toBeResetKey = $this->retrievePersonalKey($id, $token);
+        $toBeResetKey = $this->retrievePersonalKey($userID, $keyID);
 
         if (!$toBeResetKey) {
             return response()->json(MessagesCenter::E404(), 404);
@@ -166,25 +163,23 @@ class AdminController extends BaseController
         return response()->json($userKey);
     }
 
-    public function DeleteInfo(Request $request, $id, $token): JsonResponse
+    public function DeleteInfo(Request $request,$userID, $keyID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = $this->getDefaultValidator($id,$token);
+        $validator = $this->getDefaultValidator($userID, $keyID);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $toBeDeletedKey = $this->retrievePersonalKey($id, $token);
+        $toBeDeletedKey = $this->retrievePersonalKey($userID, $keyID);
 
         if (!$toBeDeletedKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
-
-        Logs::query()->where('key_id', $toBeDeletedKey->id)->delete();
 
         $toBeDeletedKey->delete();
 
@@ -193,25 +188,25 @@ class AdminController extends BaseController
         ]);
     }
 
-    public function GetLogs(Request $request, $id, $token): JsonResponse
+    public function GetLogs(Request $request,$userID, $keyID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:logs')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = $this->getDefaultValidator($id,$token);
+        $validator = $this->getDefaultValidator($userID, $keyID);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $personalKey = $this->retrievePersonalKey($id, $token);
+        $personalKey = $this->retrievePersonalKey($userID, $keyID);
 
         if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
 
-        $logs = Logs::query()->where('key_id', $personalKey->id)->orderBy('created_at', 'DESC')->paginate(25);
+        $logs = $personalKey->logs()->orderBy('created_at', 'DESC')->paginate(25);
 
         $buildResponse = [
             'pagination' => [
@@ -225,19 +220,19 @@ class AdminController extends BaseController
         return response()->json($buildResponse);
     }
 
-    public function GetToken(Request $request, $id, $token): JsonResponse
+    public function GetToken(Request $request, $userID, $keyID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $validator = $this->getDefaultValidator($id,$token);
+        $validator = $this->getDefaultValidator($userID, $keyID);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $personalKey = $this->retrievePersonalKey($id, $token);
+        $personalKey = $this->retrievePersonalKey($userID, $keyID);
 
         if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
@@ -246,14 +241,14 @@ class AdminController extends BaseController
         return response()->json($this->generateUserKey($personalKey->toArray()));
     }
 
-    public function GetTokens(Request $request, $id): JsonResponse
+    public function GetTokens(Request $request, $userID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
         $validator = Validator::make([
-            'user_id' => $id,
+            'user_id' => $userID,
         ], [
             'user_id' => ['bail', 'required', 'integer'],
         ]);
@@ -262,7 +257,7 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-        $keys = PersonalKeys::query()->where('user_id', $id)->get()->toArray();
+        $keys = PersonalKey::query()->where('user_id', $userID)->get()->toArray();
 
         $reconstructedArray = [];
 
@@ -273,26 +268,27 @@ class AdminController extends BaseController
         return response()->json($reconstructedArray);
     }
 
-    public function GetStats(Request $request, $id, $token): JsonResponse
+    public function GetStats(Request $request, $userID, $keyID): JsonResponse
     {
         if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:stats')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
-        $personalKey = $this->retrievePersonalKey($id, $token);
+        $personalKey = $this->retrievePersonalKey($userID, $keyID);
 
         if (!$personalKey) {
             return response()->json(MessagesCenter::E404(), 404);
         }
+
         $date = $request->input('date', Carbon::now()->format('Y-m'));
 
         $validator = Validator::make([
-            'user_id' => $id,
-            'user_token' => $token,
+            'user_id' => $userID,
+            'user_token' => $keyID,
             'date' => $date
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
+            'user_token' => ['bail', 'required', 'numeric','gt:0'],
             'date' => ['bail', 'date'],
         ]);
 
@@ -304,7 +300,8 @@ class AdminController extends BaseController
         $thisDate = Carbon::now();
         $lastDay = $specifiedDate->format('Y-m') == $thisDate->format('Y-m') ? $thisDate->day : (int)$specifiedDate->format('t');
 
-        $logMonth = Logs::query()->where('key_id', $personalKey->id)
+        $logMonth = $personalKey
+            ->logs()
             ->whereYear('created_at', $specifiedDate->format('Y'))
             ->whereMonth('created_at', $specifiedDate->format('m'))
             ->get()
@@ -312,7 +309,8 @@ class AdminController extends BaseController
                 return Carbon::parse($date->created_at)->format('j'); // grouping by days
             })->toArray();
 
-        $totalCount = Logs::query()->where('key_id', $personalKey->id)
+        $totalCount = $personalKey
+            ->logs()
             ->whereYear('created_at', $specifiedDate->format('Y'))
             ->whereMonth('created_at', $specifiedDate->format('m'))
             ->count();
@@ -337,9 +335,9 @@ class AdminController extends BaseController
     }
 
     //Helper Functions
-    private function retrievePersonalKey($id, $token)
+    private function retrievePersonalKey($userID,$keyID)
     {
-        return PersonalKeys::query()->where('user_id', $id)->where('key_id', $token)->first();
+        return PersonalKey::find($keyID)->where('user_id', $userID)->first();
     }
 
     private function generateAPIKey(): string
@@ -350,7 +348,7 @@ class AdminController extends BaseController
     private function generateUserKey($item, $key = null): array
     {
         $result =  [
-            'id' => $item['key_id'],
+            'id' => $item['id'],
             'user_id' => $item['user_id'],
             'monthly_usage' => $item['max_count'],
             'permissions' => $item['permissions'],
@@ -375,14 +373,14 @@ class AdminController extends BaseController
         return $d && $d->format('Y-m-d H:i:s') == $string;
     }
 
-    private  function getDefaultValidator($id,$token): \Illuminate\Contracts\Validation\Validator
+    private  function getDefaultValidator($userID,$keyID): \Illuminate\Contracts\Validation\Validator
     {
-       return Validator::make([
-            'user_id' => $id,
-            'user_token' => $token
+        return Validator::make([
+            'user_id' => $userID,
+            'user_token' => $keyID
         ], [
             'user_id' => ['bail', 'required', 'integer'],
-            'user_token' => ['bail', 'required', 'uuid'],
+            'user_token' => ['bail', 'required', 'numeric','gt:0'],
         ]);
     }
 }

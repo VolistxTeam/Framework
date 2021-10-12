@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PersonalKeys extends Model
+class PersonalKey extends Model
 {
     use HasFactory;
 
@@ -15,16 +15,9 @@ class PersonalKeys extends Model
      * @var bool
      */
     public $timestamps = true;
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'personal_keys';
-    protected $hidden = ['id'];
 
     protected $fillable = [
-        'key_id',
+        'id',
         'user_id',
         'key',
         'secret',
@@ -46,4 +39,9 @@ class PersonalKeys extends Model
         'created_at' => 'date:Y-m-d H:i:s',
         'updated_at' => 'date:Y-m-d H:i:s',
     ];
+
+    public function logs()
+    {
+        return $this->hasMany(Log::class);
+    }
 }

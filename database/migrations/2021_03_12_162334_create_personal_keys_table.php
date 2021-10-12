@@ -14,8 +14,7 @@ class CreatePersonalKeysTable extends Migration
     public function up()
     {
         Schema::create('personal_keys', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('key_id', 36)->index('key_id');
+            $table->bigIncrements('id');
             $table->integer('user_id')->index('user_id');
             $table->string('key', 32)->index('key');
             $table->string('secret', 64);
