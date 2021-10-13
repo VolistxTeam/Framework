@@ -8,15 +8,13 @@ use Illuminate\Support\Facades\Hash;
 
 class PermissionsCenter
 {
-    public static function checkUserPermission($token, $permissionName): bool
+    public static function checkPermission($key, $permissionName): bool
     {
-        $accessKey = self::getUserAuthKey($token);
-
-        if (empty($accessKey)) {
+        if (empty($key)) {
             return false;
         }
 
-        if (in_array($permissionName, $accessKey->permissions) || in_array('*', $accessKey->permissions)) {
+        if (in_array($permissionName, $key->permissions) || in_array('*', $key->permissions)) {
             return true;
         }
 
@@ -29,21 +27,6 @@ class PermissionsCenter
             ->get()->filter(function ($v) use ($token) {
                 return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
             })->first();
-    }
-
-    public static function checkAdminPermission($token, $permissionName): bool
-    {
-        $accessKey = self::getAdminAuthKey($token);
-
-        if (empty($accessKey)) {
-            return false;
-        }
-
-        if (in_array($permissionName, $accessKey->permissions) || in_array('*', $accessKey->permissions)) {
-            return true;
-        }
-
-        return false;
     }
 
     public static function getAdminAuthKey($token)

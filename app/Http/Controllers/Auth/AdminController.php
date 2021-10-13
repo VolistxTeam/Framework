@@ -21,7 +21,8 @@ class AdminController extends BaseController
 {
     public function CreateInfo(Request $request): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:create')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:create')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -100,7 +101,9 @@ class AdminController extends BaseController
 
     public function UpdateInfo(Request $request, $userID, $keyID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:update')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:update')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -184,7 +187,9 @@ class AdminController extends BaseController
 
     public function ResetInfo(Request $request, $userID, $keyID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:reset')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:reset')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -226,7 +231,8 @@ class AdminController extends BaseController
 
     public function DeleteInfo(Request $request, $userID, $keyID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:delete')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:delete')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -251,7 +257,9 @@ class AdminController extends BaseController
 
     public function GetLogs(Request $request, $userID, $keyID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:logs')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:logs')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -283,7 +291,8 @@ class AdminController extends BaseController
 
     public function GetToken(Request $request, $userID, $keyID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -304,7 +313,9 @@ class AdminController extends BaseController
 
     public function GetTokens(Request $request, $userID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:list')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+
+        if (!PermissionsCenter::checkPermission($adminKey->bearerToken(), 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
@@ -331,7 +342,9 @@ class AdminController extends BaseController
 
     public function GetStats(Request $request, $userID, $keyID): JsonResponse
     {
-        if (!PermissionsCenter::checkAdminPermission($request->bearerToken(), 'key:stats')) {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:stats')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
