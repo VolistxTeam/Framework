@@ -30,7 +30,7 @@ class FirewallMiddleware
         }
 
         $response = $next($request);
-        $response->header('Server', 'WebShield/2.84-stable');
+        $response->header('X-Protected-By', 'WebShield/3.16');
 
         return $response;
     }
