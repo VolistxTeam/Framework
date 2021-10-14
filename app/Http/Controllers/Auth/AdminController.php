@@ -315,7 +315,7 @@ class AdminController extends BaseController
     {
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
 
-        if (!PermissionsCenter::checkPermission($adminKey->bearerToken(), 'key:list')) {
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
             return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
         }
 
