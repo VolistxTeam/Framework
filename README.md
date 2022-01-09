@@ -8,7 +8,7 @@ Let's make some awesome thing together!
 Confirmed to work with LiteSpeed + Laravel Swoole + APCu + MySQL.
 
 ### Requirements
-- PHP 8.0 or Higher
+- PHP 8.1 or Higher
 - Swoole Extension
 - MaxmindDB Extension
 - All Extensions for Lumen

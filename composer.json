@@ -1,10 +1,10 @@
 {
     "name": "cryental/volistx-skeleton",
-    "description": "Reusable Framework for Volistx API Based Lumen PHP.",
+    "description": "Skeleton for Volistx API",
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-json": "*",
         "cryental/laravel-hashing-sha256": "^1.0",
         "cryental/lumen-artisan-serve": "^1.5",
