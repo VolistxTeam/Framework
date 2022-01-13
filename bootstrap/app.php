@@ -52,7 +52,8 @@ $app->routeMiddleware([
     'auth.admin' => App\Http\Middleware\AdminAuthMiddleware::class,
     'cacheResponse' => CacheResponse::class,
     'throttle' => ThrottleRequests::class,
-    'sanitizer' => ParametersSanitizerMiddleware::class
+    'sanitizer' => ParametersSanitizerMiddleware::class,
+    'filter.json' => \App\Http\Middleware\JsonBodyValidationFilteringMiddleware::class
 ]);
 
 $app->router->group([

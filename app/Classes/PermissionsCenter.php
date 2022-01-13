@@ -3,7 +3,7 @@
 namespace App\Classes;
 
 use App\Models\AccessKey;
-use App\Models\PersonalKey;
+use App\Models\PersonalToken;
 use Illuminate\Support\Facades\Hash;
 
 class PermissionsCenter
@@ -23,7 +23,7 @@ class PermissionsCenter
 
     public static function getUserAuthKey($token)
     {
-        return PersonalKey::query()->where('key', substr($token, 0, 32))
+        return PersonalToken::query()->where('key', substr($token, 0, 32))
             ->get()->filter(function ($v) use ($token) {
                 return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
             })->first();
