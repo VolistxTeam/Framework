@@ -5,17 +5,17 @@ This is a pre-made skeleton for Volistx API platform using Lumen PHP Framework.
 
 Let's make some awesome thing together!
 
-Confirmed to work with LiteSpeed + Laravel Swoole + APCu + MySQL.
-
 ### Requirements
 - PHP 8.1 or Higher
-- Swoole Extension
 - MaxmindDB Extension
 - All Extensions for Lumen
 
+### Optional Requirements
+- Swoole Extension
+
 ### Installation
 ```
-composer create-project --prefer-dist cryental/volistx-skeleton blog
+composer create-project --prefer-dist cryental/volistx-skeleton myproject
 ```
 
 ### Usage
@@ -29,6 +29,7 @@ composer install
 php artisan key:generate
 php artisan migrate
 php artisan geoip:update
+php artisan cloudflare:reload
 ```
 
 Do not forget to set a cronjob for production:

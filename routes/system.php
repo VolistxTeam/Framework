@@ -1,10 +1,12 @@
 <?php
 
-/** @var \Laravel\Lumen\Routing\Router $router */
+/** @var Router $router */
 
 /*
 Please DO NOT touch any routes here!!
 */
+
+use Laravel\Lumen\Routing\Router;
 
 $router->group(['prefix' => 'sys-bin'], function () use ($router) {
     $router->get('/ping', function () {

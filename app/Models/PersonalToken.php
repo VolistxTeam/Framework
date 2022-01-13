@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PersonalToken extends Model
 {
@@ -43,8 +44,8 @@ class PersonalToken extends Model
         'updated_at' => 'date:Y-m-d H:i:s',
     ];
 
-    public function logs()
+    public function logs(): HasMany
     {
-        return $this->hasMany(Log::class);
+        return $this->hasMany(Log::class, 'personal_key_id', 'id');
     }
 }

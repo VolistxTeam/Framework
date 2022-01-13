@@ -10,29 +10,31 @@ class PersonalTokenRepository
 {
     public function Create($inputs)
     {
-         return PersonalToken::query()->create([
+        return PersonalToken::query()->create([
             'user_id' => $inputs['user_id'],
             'key' => substr($inputs['key'], 0, 32),
             'secret' => Hash::make(substr($inputs['key'], 32), ['salt' => $inputs['salt']]),
             'secret_salt' => $inputs['salt'],
             'max_count' => $inputs['max_count'],
             'permissions' => json_decode($inputs['permissions']),
-            'whitelist_range' =>json_decode($inputs['whitelist_range']),
+            'whitelist_range' => json_decode($inputs['whitelist_range']),
             'activated_at' => Carbon::now(),
-            'expires_at' =>  $inputs['hours_to_expire'] != -1 ? Carbon::now()->addHours($inputs['hours_to_expire']) : null
+            'expires_at' => $inputs['hours_to_expire'] != -1 ? Carbon::now()->addHours($inputs['hours_to_expire']) : null
         ]);
     }
-    public function Update($token_id ,$inputs){
+
+    public function Update($token_id, $inputs)
+    {
         $token = $this->Find($token_id);
 
         if (!$token) {
             return null;
         }
 
-        $permissions = $inputs['permissions']?? null;
-        $max_count = $inputs['max_count']?? null;
-        $whitelistRange = $inputs['whitelist_range']?? null;
-        $hoursToExpire = $inputs['hoursToExpire']?? null;
+        $permissions = $inputs['permissions'] ?? null;
+        $max_count = $inputs['max_count'] ?? null;
+        $whitelistRange = $inputs['whitelist_range'] ?? null;
+        $hoursToExpire = $inputs['hoursToExpire'] ?? null;
 
         if (!$permissions && !$whitelistRange && !$hoursToExpire && !$max_count) {
             return $token;
@@ -41,7 +43,7 @@ class PersonalTokenRepository
 
         if ($permissions) $token->permissions = json_decode($permissions);
 
-        if($max_count) $token->max_count = $max_count;
+        if ($max_count) $token->max_count = $max_count;
 
         if ($whitelistRange) $token->whitelist_range = json_decode($whitelistRange);
 
@@ -52,7 +54,8 @@ class PersonalTokenRepository
         return $token;
     }
 
-    public function Reset($token_id,$inputs){
+    public function Reset($token_id, $inputs)
+    {
         $token = $this->Find($token_id);
 
         if (!$token) {
@@ -73,7 +76,8 @@ class PersonalTokenRepository
         return PersonalToken::query()->where('id', $token_id)->first();
     }
 
-    public function FindAll(){
+    public function FindAll()
+    {
         return PersonalToken::query()->get();
     }
 
@@ -91,5 +95,4 @@ class PersonalTokenRepository
             'result' => 'true'
         ];
     }
-
 }

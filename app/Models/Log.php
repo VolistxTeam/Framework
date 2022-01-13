@@ -26,11 +26,13 @@ class Log extends Model
         'request_info' => 'array',
         'created_at' => 'date:Y-m-d H:i:s'
     ];
+
     protected $fillable = [
         'personal_key_id',
         'request_id',
         'request_info',
         'access_ip'
     ];
+
     protected $hidden = ['id', 'personal_key_id'];
 }

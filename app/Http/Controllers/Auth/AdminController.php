@@ -4,17 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Models\PersonalToken;
 use App\Repositories\PersonalTokenRepository;
 use Carbon\Carbon;
-use DateTime;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Routing\Controller as BaseController;
@@ -65,6 +59,38 @@ class AdminController extends BaseController
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
+    }
+
+    private function generateAPIKey(): string
+    {
+        return Str::random(64);
+    }
+
+    private function getUserToken(array $item, $key = null): array
+    {
+        $result = [
+            'id' => $item['id'],
+            'user_id' => $item['user_id'],
+            'key' => null,
+            'monthly_usage' => $item['max_count'],
+            'permissions' => $item['permissions'],
+            'whitelist_ip' => $item['whitelist_range'],
+            'subscription' => [
+                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
+                'activated_at' => $item['activated_at'],
+                'expires_at' => $item['expires_at']
+            ],
+            'created_at' => $item['created_at'],
+            'updated_at' => $item['updated_at']
+        ];
+
+        if ($key) {
+            $result['key'] = $key;
+        } else {
+            unset($result['key']);
+        }
+
+        return $result;
     }
 
     public function UpdatePersonalToken(Request $request, $token_id): JsonResponse
@@ -122,9 +148,9 @@ class AdminController extends BaseController
             $newKey = $this->generateAPIKey();
             $newSalt = Str::random(16);
 
-            $resetToken = $this->personalTokenRepository->Reset($token_id,[
-                'key'=>$newKey,
-                'salt'=>$newSalt
+            $resetToken = $this->personalTokenRepository->Reset($token_id, [
+                'key' => $newKey,
+                'salt' => $newSalt
             ])->toArray();
 
             if (!$resetToken) {
@@ -136,13 +162,14 @@ class AdminController extends BaseController
         }
     }
 
+    // check if pagination needed
+
     public function DeletePersonalToken(Request $request, $token_id): JsonResponse
     {
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
         if (!PermissionsCenter::checkPermission($adminKey, 'key:delete')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
-
 
         $validator = Validator::make(array_merge($request->all(), [
             'token_id' => $token_id
@@ -194,7 +221,6 @@ class AdminController extends BaseController
         }
     }
 
-    // check if pagination needed
     public function GetPersonalTokens(Request $request): JsonResponse
     {
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
@@ -204,7 +230,7 @@ class AdminController extends BaseController
         }
 
         try {
-            $tokens =$this->personalTokenRepository->FindAll()->toArray();
+            $tokens = $this->personalTokenRepository->FindAll()->toArray();
             if (!$tokens) {
                 return response()->json([]);
             }
@@ -253,7 +279,7 @@ class AdminController extends BaseController
                 'items' => $logs->items()
             ];
             return response()->json($buildResponse);
-        } catch (Exception $ex) {
+        } catch (Exception) {
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
@@ -318,42 +344,8 @@ class AdminController extends BaseController
                 ],
                 'details' => $statArr
             ]);
-        } catch (Exception $ex) {
+        } catch (Exception) {
             return response()->json(MessagesCenter::E500(), 500);
         }
-    }
-
-
-
-    private function generateAPIKey(): string
-    {
-        return Str::random(64);
-    }
-
-    private function getUserToken(array $item, $key = null): array
-    {
-        $result = [
-            'id' => $item['id'],
-            'user_id' => $item['user_id'],
-            'key' => null,
-            'monthly_usage' => $item['max_count'],
-            'permissions' => $item['permissions'],
-            'whitelist_ip' => $item['whitelist_range'],
-            'subscription' => [
-                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                'activated_at' => $item['activated_at'],
-                'expires_at' => $item['expires_at']
-            ],
-            'created_at' => $item['created_at'],
-            'updated_at' => $item['updated_at']
-        ];
-
-        if ($key) {
-            $result['key'] = $key;
-        } else {
-            unset($result['key']);
-        }
-
-        return $result;
     }
 }

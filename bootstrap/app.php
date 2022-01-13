@@ -28,6 +28,7 @@ $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
+$app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -44,6 +45,7 @@ $app->configure('app');
 $app->middleware([
     App\Http\Middleware\TrustProxies::class,
     CloudfrontProxies::class,
+    \Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
     App\Http\Middleware\FirewallMiddleware::class,
 ]);
 
@@ -58,10 +60,15 @@ $app->routeMiddleware([
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
-//    'middleware' => 'throttle:global',
+    'middleware' => 'throttle:global',
+], function ($router) {
+    require __DIR__ . '/../routes/api.php';
+});
+
+$app->router->group([
+    'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__ . '/../routes/system.php';
-    require __DIR__ . '/../routes/api.php';
 });
 
 collect(scandir(__DIR__ . '/../config'))->each(function ($item) use ($app) {

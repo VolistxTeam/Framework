@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         ClearCommand::class,
         KeyGenerateCommand::class,
         Serve::class,
+        \Monicahq\Cloudflare\Commands\Reload::class,
 
         // Custom Commands Here
         Commands\ExampleCommand::class,
