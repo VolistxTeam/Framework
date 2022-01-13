@@ -6,7 +6,7 @@ This is a pre-made skeleton for Volistx API platform using Lumen PHP Framework.
 Let's make some awesome thing together!
 
 ### Requirements
-- PHP 8.1 or Higher
+- PHP 8.1
 - MaxmindDB Extension
 - All Extensions for Lumen
 
