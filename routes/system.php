@@ -12,13 +12,16 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
     });
 
     $router->group(['prefix' => 'admin', 'middleware' => 'auth.admin'], function () use ($router) {
-        $router->get('/{userID}', 'Auth\AdminController@GetTokens');
-        $router->get('/{userID}/{keyID}', 'Auth\AdminController@GetToken');
-        $router->get('/{userID}/{keyID}/stats', 'Auth\AdminController@GetStats');
-        $router->get('/{userID}/{keyID}/logs', 'Auth\AdminController@GetLogs');
-        $router->post('/', 'Auth\AdminController@CreateInfo');
-        $router->post('/{userID}/{keyID}', 'Auth\AdminController@UpdateInfo');
-        $router->patch('/{userID}/{keyID}', 'Auth\AdminController@ResetInfo');
-        $router->delete('/{userID}/{keyID}', 'Auth\AdminController@DeleteInfo');
+        $router->group(['middleware' => 'json.filter'], function () use ($router) {
+            $router->post('/', 'Auth\AdminController@CreatePersonalToken');
+            $router->patch('/{token_id}', 'Auth\AdminController@UpdatePersonalToken');
+        });
+
+        $router->patch('/{token_id}/reset', 'Auth\AdminController@ResetPersonalToken');
+        $router->delete('/{token_id}', 'Auth\AdminController@DeletePersonalToken');
+        $router->get('/', 'Auth\AdminController@GetPersonalTokens');
+        $router->get('/{token_id}', 'Auth\AdminController@GetPersonalToken');
+        $router->get('/{token_id}/stats', 'Auth\AdminController@GetPersonalTokenStats');
+        $router->get('/{token_id}/logs', 'Auth\AdminController@GetPersonalTokenLogs');
     });
 });
