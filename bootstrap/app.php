@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Middleware\JsonBodyValidationFilteringMiddleware;
 use App\Http\Middleware\ParametersSanitizerMiddleware;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use LumenRateLimiting\ThrottleRequests;
+use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Torann\GeoIP\GeoIPServiceProvider;
 
@@ -45,7 +47,7 @@ $app->configure('app');
 $app->middleware([
     App\Http\Middleware\TrustProxies::class,
     CloudfrontProxies::class,
-    \Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
+    TrustProxies::class,
     App\Http\Middleware\FirewallMiddleware::class,
 ]);
 
@@ -55,7 +57,7 @@ $app->routeMiddleware([
     'cacheResponse' => CacheResponse::class,
     'throttle' => ThrottleRequests::class,
     'sanitizer' => ParametersSanitizerMiddleware::class,
-    'filter.json' => \App\Http\Middleware\JsonBodyValidationFilteringMiddleware::class
+    'filter.json' => JsonBodyValidationFilteringMiddleware::class
 ]);
 
 $app->router->group([
