@@ -6,6 +6,7 @@
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
+        "ext-apcu": "*",
         "cryental/laravel-hashing-sha256": "^1.0",
         "cryental/lumen-artisan-serve": "^1.5",
         "fideloper/proxy": "^4.4",
