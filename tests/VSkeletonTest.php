@@ -7,15 +7,14 @@ use Illuminate\Support\Str;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 
-class AdminControllerShould extends BaseTestCase
+class VSkeletonTest extends BaseTestCase
 {
     use DatabaseMigrations;
 
     public function createApplication(): \Laravel\Lumen\Application
     {
-        return require __DIR__.'/../bootstrap/app.php';
+        return require __DIR__ . '/../bootstrap/app.php';
     }
-
 
     /** @test */
     public function AuthorizeCreatePersonalTokenPermissions()
@@ -31,8 +30,8 @@ class AdminControllerShould extends BaseTestCase
             "user_id" => 1,
             "max_count" => 1,
             "permissions" => array('*'),
-            "whitelist_range"=> array('127.0.0.1'),
-            "hours_to_expire"=> 720,
+            "whitelist_range" => array('127.0.0.1'),
+            "hours_to_expire" => 720,
         ]);
     }
 
@@ -46,8 +45,8 @@ class AdminControllerShould extends BaseTestCase
             "user_id" => 1,
             "max_count" => 1,
             "permissions" => array('*'),
-            "whitelist_range"=> array('127.0.0.1'),
-            "hours_to_expire"=> 720,
+            "whitelist_range" => array('127.0.0.1'),
+            "hours_to_expire" => 720,
         ], [
             'Authorization' => "Bearer $key",
             'Accept' => 'application/json'
@@ -58,7 +57,6 @@ class AdminControllerShould extends BaseTestCase
         self::assertSame(["*"], json_decode($request->response->getContent())->permissions);
         self::assertSame(["127.0.0.1"], json_decode($request->response->getContent())->whitelist_range);
     }
-
 
 
     /** @test */
@@ -73,7 +71,7 @@ class AdminControllerShould extends BaseTestCase
             'key:update' => 200,
             '' => 401
         ], [
-            'max_count' =>5
+                'max_count' => 5
             ]
         );
     }
@@ -87,8 +85,8 @@ class AdminControllerShould extends BaseTestCase
 
         $request = $this->json('PATCH', "/sys-bin/admin/{$personalToken->id}", [
             'max_count' => 5,
-            'permissions' =>array('key:create'),
-            'whitelist_range' =>array('127.0.0.5')
+            'permissions' => array('key:create'),
+            'whitelist_range' => array('127.0.0.5')
         ], [
             'Authorization' => "Bearer $key",
             'Accept' => 'application/json'
@@ -98,7 +96,6 @@ class AdminControllerShould extends BaseTestCase
         self::assertSame(['key:create'], json_decode($request->response->getContent())->permissions);
         self::assertSame(['127.0.0.5'], json_decode($request->response->getContent())->whitelist_range);
     }
-
 
 
     /** @test */
@@ -135,13 +132,12 @@ class AdminControllerShould extends BaseTestCase
     }
 
 
-
     /** @test */
     public function AuthorizeDeletePersonalTokenPermissions()
     {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
-        $personalToken =  $this->GeneratePersonalToken(0);
+        $personalToken = $this->GeneratePersonalToken(0);
 
         $this->TestPermissions($accessToken, $key, 'DELETE', "/sys-bin/admin/{$personalToken->id}", [
             '*' => 204,
@@ -172,7 +168,6 @@ class AdminControllerShould extends BaseTestCase
 
         self::assertResponseStatus(204);
     }
-
 
 
     /** @test */
@@ -261,9 +256,9 @@ class AdminControllerShould extends BaseTestCase
     }
 
 
-
-    /** @test  */
-    public function AuthorizeGetPersonalTokenLogs(){
+    /** @test */
+    public function AuthorizeGetPersonalTokenLogs()
+    {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
         $personalToken = $this->GeneratePersonalToken(0);
@@ -277,8 +272,9 @@ class AdminControllerShould extends BaseTestCase
         );
     }
 
-    /** @test  */
-    public function GetPersonalTokenLogs(){
+    /** @test */
+    public function GetPersonalTokenLogs()
+    {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
         $personalToken = $this->GeneratePersonalToken(0);
@@ -293,8 +289,9 @@ class AdminControllerShould extends BaseTestCase
     }
 
 
-    /** @test  */
-    public function GetPersonalTokenStats(){
+    /** @test */
+    public function GetPersonalTokenStats()
+    {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
         $personalToken = $this->GeneratePersonalToken(0);
@@ -307,8 +304,9 @@ class AdminControllerShould extends BaseTestCase
         self::assertResponseStatus(200);
     }
 
-    /** @test  */
-    public function AuthorizeGetPersonalTokenStatsPermissions(){
+    /** @test */
+    public function AuthorizeGetPersonalTokenStatsPermissions()
+    {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
         $personalToken = $this->GeneratePersonalToken(0);
@@ -323,8 +321,6 @@ class AdminControllerShould extends BaseTestCase
     }
 
 
-
-
     /** @test */
     private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
     {
@@ -335,7 +331,7 @@ class AdminControllerShould extends BaseTestCase
             $request = $this->json($verb, $route, $input, [
                 'Authorization' => "Bearer $key",
                 'Accept' => 'application/json',
-                'Content_Type'=> 'application/json'
+                'Content_Type' => 'application/json'
             ]);
             self::assertResponseStatus($permissionResult);
         }
@@ -356,11 +352,12 @@ class AdminControllerShould extends BaseTestCase
             );
     }
 
-    private function GeneratePersonalToken($user_id){
+    private function GeneratePersonalToken($user_id)
+    {
         return PersonalToken::factory()
             ->create(
                 [
-                  'user_id' =>$user_id
+                    'user_id' => $user_id
                 ]
             );
     }
