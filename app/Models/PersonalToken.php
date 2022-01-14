@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\UuidForKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PersonalToken extends Model
 {
     use HasFactory;
+    use UuidForKey;
+
 
     /**
      * Indicates if the model should be timestamped.
@@ -20,7 +23,6 @@ class PersonalToken extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id',
         'user_id',
         'key',
         'secret',
@@ -33,7 +35,6 @@ class PersonalToken extends Model
     ];
 
     protected $casts = [
-        'id' => 'integer',
         'user_id' => 'integer',
         'max_count' => 'integer',
         'permissions' => 'array',

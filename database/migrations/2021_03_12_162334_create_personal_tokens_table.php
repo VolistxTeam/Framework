@@ -14,7 +14,7 @@ class CreatePersonalTokensTable extends Migration
     public function up()
     {
         Schema::create('personal_tokens', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->uuid('id')->primary();
             $table->integer('user_id')->index('user_id');
             $table->string('key', 32)->index('personal_token_key');
             $table->string('secret', 64);
