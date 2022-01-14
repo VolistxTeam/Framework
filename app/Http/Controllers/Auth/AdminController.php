@@ -36,7 +36,6 @@ class AdminController extends BaseController
             'permissions.*' => ['bail', 'required_if:permissions,array', 'string'],
             'whitelist_range' => ['bail', 'array'],
             'whitelist_range.*' => ['bail', 'required_if:whitelist_range,array', 'ip'],
-            'hours_to_expire' => ['bail', 'required', 'integer', 'min:-1'],
         ]);
 
         if ($validator->fails()) {
