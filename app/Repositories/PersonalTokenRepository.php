@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Models\PersonalToken;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+
 
 class PersonalTokenRepository
 {
@@ -76,9 +78,15 @@ class PersonalTokenRepository
         return PersonalToken::query()->where('id', $token_id)->first();
     }
 
-    public function FindAll()
+    public function FindAll($needle,$page,$limit)
     {
-        return PersonalToken::query()->get();
+        $columns = Schema::getColumnListing('personal_tokens');
+
+        return PersonalToken::query()->where(function ($query) use ($needle, $columns) {
+            foreach ($columns as $column) {
+                $query->orWhere("personal_tokens.$column", 'LIKE', "%$needle%");
+            }
+        })->paginate($limit, ['*'], 'page', $page);
     }
 
     public function Delete($tokenID)

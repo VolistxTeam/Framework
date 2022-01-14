@@ -229,16 +229,40 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E401(), 401);
         }
 
+        $search = $request->input('search',"");
+        $page =$request->input('page',1);
+        $limit = $request->input('limit',50);
+
+        $validator = Validator::make([
+            'page'=>$page,
+            'limit'=>$limit
+        ], [
+            '$page' => ['bail', 'sometimes', 'numeric'],
+            'limit' => ['bail', 'sometimes', 'numeric'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+
         try {
-            $tokens = $this->personalTokenRepository->FindAll()->toArray();
-            if (!$tokens) {
-                return response()->json([]);
+            $tokens = $this->personalTokenRepository->FindAll($search,$page,$limit);
+
+            $userTokens = [];
+            foreach ($tokens->items() as $item) {
+                $userTokens[] = $this->getUserToken($item->toArray());
             }
-            $reconstructedArray = [];
-            foreach ($tokens as $item) {
-                $reconstructedArray[] = $this->getUserToken($item->toArray());
-            }
-            return response()->json($reconstructedArray);
+
+            $buildResponse = [
+                'pagination' => [
+                    'per_page' => $tokens->perPage(),
+                    'current' => $tokens->currentPage(),
+                    'total' => $tokens->lastPage(),
+                ],
+                'items' => $userTokens
+            ];
+            return response()->json($buildResponse);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
