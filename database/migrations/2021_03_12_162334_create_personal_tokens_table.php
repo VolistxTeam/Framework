@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePersonalKeysTable extends Migration
+class CreatePersonalTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreatePersonalKeysTable extends Migration
      */
     public function up()
     {
-        Schema::create('personal_keys', function (Blueprint $table) {
+        Schema::create('personal_tokens', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('user_id')->index('user_id');
-            $table->string('key', 32)->index('key');
+            $table->string('key', 32)->index('personal_token_key');
             $table->string('secret', 64);
             $table->string('secret_salt', 16);
             $table->integer('max_count')->nullable();
@@ -36,6 +36,6 @@ class CreatePersonalKeysTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('personal_keys');
+        Schema::dropIfExists('personal_tokens');
     }
 }

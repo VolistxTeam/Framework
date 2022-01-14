@@ -15,7 +15,7 @@ class CreateLogsTable extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('personal_key_id')->constrained()->onDelete('cascade');
+            $table->foreignId('personal_token_id')->constrained()->onDelete('cascade');
             $table->string('request_id', 36);
             $table->string('access_ip', 45);
             $table->text('request_info');

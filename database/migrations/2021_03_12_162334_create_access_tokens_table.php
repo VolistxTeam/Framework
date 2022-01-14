@@ -16,7 +16,7 @@ class CreateAccessTokensTable extends Migration
     {
         Schema::create('access_tokens', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('key', 32)->index('key');
+            $table->string('key', 32)->index('access_token_key');
             $table->string('secret', 64);
             $table->string('secret_salt', 16);
             $table->json('whitelist_range')->default('[]');

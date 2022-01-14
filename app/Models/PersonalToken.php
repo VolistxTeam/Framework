@@ -46,6 +46,6 @@ class PersonalToken extends Model
 
     public function logs(): HasMany
     {
-        return $this->hasMany(Log::class, 'personal_key_id', 'id');
+        return $this->hasMany(Log::class);
     }
 }
