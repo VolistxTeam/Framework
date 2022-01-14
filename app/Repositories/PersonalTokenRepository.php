@@ -18,8 +18,8 @@ class PersonalTokenRepository
             'secret' => Hash::make(substr($inputs['key'], 32), ['salt' => $inputs['salt']]),
             'secret_salt' => $inputs['salt'],
             'max_count' => $inputs['max_count'],
-            'permissions' => json_decode($inputs['permissions']),
-            'whitelist_range' => json_decode($inputs['whitelist_range']),
+            'permissions' =>$inputs['permissions'],
+            'whitelist_range' => $inputs['whitelist_range'],
             'activated_at' => Carbon::now(),
             'expires_at' => $inputs['hours_to_expire'] != -1 ? Carbon::now()->addHours($inputs['hours_to_expire']) : null
         ]);
@@ -43,11 +43,11 @@ class PersonalTokenRepository
         }
 
 
-        if ($permissions) $token->permissions = json_decode($permissions);
+        if ($permissions) $token->permissions = $permissions;
 
         if ($max_count) $token->max_count = $max_count;
 
-        if ($whitelistRange) $token->whitelist_range = json_decode($whitelistRange);
+        if ($whitelistRange) $token->whitelist_range = $whitelistRange;
 
         if ($hoursToExpire) $token->expires_at = $hoursToExpire != -1 ? Carbon::createFromTimeString($token->activated_at)->addHours($hoursToExpire) : null;
 
@@ -66,7 +66,7 @@ class PersonalTokenRepository
 
         $token->key = substr($inputs['key'], 0, 32);
         $token->secret = Hash::make(substr($inputs['key'], 32), ['salt' => $inputs['salt']]);
-        $token->salt = $inputs['salt'];
+        $token->secret_salt = $inputs['salt'];
 
         $token->save();
 

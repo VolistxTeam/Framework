@@ -50,13 +50,16 @@ class AdminController extends BaseController
                 [
                     'key' => $key,
                     'salt' => $salt
-                ]))->toArray();
+                ]
+                ))->toArray();
+
 
             if (!$newPersonalToken) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
             return response()->json($this->getUserToken($newPersonalToken), 201);
         } catch (Exception $ex) {
+            ray($ex);
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
@@ -72,9 +75,9 @@ class AdminController extends BaseController
             'id' => $item['id'],
             'user_id' => $item['user_id'],
             'key' => null,
-            'monthly_usage' => $item['max_count'],
+            'max_count' => $item['max_count'],
             'permissions' => $item['permissions'],
-            'whitelist_ip' => $item['whitelist_range'],
+            'whitelist_range' => $item['whitelist_range'],
             'subscription' => [
                 'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
                 'activated_at' => $item['activated_at'],
@@ -104,7 +107,7 @@ class AdminController extends BaseController
         $validator = Validator::make(array_merge($request->all(), [
             'token_id' => $token_id
         ]), [
-            'token_id' => ['bail', 'required', 'numeric', 'exists:personal_tokens'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
             'max_count' => ['bail', 'sometimes', 'numeric'],
             'permissions' => ['bail', 'sometimes', 'array'],
             'whitelist_range' => ['bail', 'sometimes', 'array'],
@@ -113,6 +116,7 @@ class AdminController extends BaseController
         ]);
 
         if ($validator->fails()) {
+            ray($validator->errors()->first());
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
@@ -137,7 +141,7 @@ class AdminController extends BaseController
         $validator = Validator::make(array_merge($request->all(), [
             'token_id' => $token_id
         ]), [
-            'token_id' => ['bail', 'required', 'numeric', 'exists:personal_tokens'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
         ]);
 
         if ($validator->fails()) {
@@ -156,13 +160,11 @@ class AdminController extends BaseController
             if (!$resetToken) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($this->getUserToken($resetToken));
+            return response()->json($this->getUserToken($resetToken,$newKey));
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
-
-    // check if pagination needed
 
     public function DeletePersonalToken(Request $request, $token_id): JsonResponse
     {
@@ -174,7 +176,7 @@ class AdminController extends BaseController
         $validator = Validator::make(array_merge($request->all(), [
             'token_id' => $token_id
         ]), [
-            'token_id' => ['bail', 'required', 'numeric', 'exists:personal_tokens'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
         ]);
 
         if ($validator->fails()) {
@@ -186,7 +188,7 @@ class AdminController extends BaseController
             if (!$result) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($result);
+            return response()->json(null,204);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -196,13 +198,13 @@ class AdminController extends BaseController
     {
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
         if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
-            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+            return response()->json(MessagesCenter::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
             'token_id' => $token_id
         ]), [
-            'token_id' => ['bail', 'required', 'numeric', 'exists:personal_tokens'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
         ]);
 
         if ($validator->fails()) {
@@ -214,7 +216,6 @@ class AdminController extends BaseController
             if (!$personalToken) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-
             return response()->json($this->getUserToken($personalToken));
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
@@ -271,7 +272,6 @@ class AdminController extends BaseController
     public function GetPersonalTokenLogs(Request $request, $token_id): JsonResponse
     {
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
         if (!PermissionsCenter::checkPermission($adminKey, 'key:logs')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
@@ -279,7 +279,7 @@ class AdminController extends BaseController
         $validator = Validator::make(array_merge($request->all(), [
             'token_id' => $token_id
         ]), [
-            'user_token' => ['bail', 'required', 'numeric', 'exists:personal_tokens'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
         ]);
 
         if ($validator->fails()) {
@@ -303,7 +303,7 @@ class AdminController extends BaseController
                 'items' => $logs->items()
             ];
             return response()->json($buildResponse);
-        } catch (Exception) {
+        } catch (Exception $exception) {
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
@@ -321,7 +321,7 @@ class AdminController extends BaseController
             'token_id' => $token_id,
             'date' => $date
         ], [
-            'token_id' => ['bail', 'required', 'numeric', 'exists:personal_tokens'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
             'date' => ['bail', 'date'],
         ]);
 
