@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\AccessKey;
 
-use App\Models\AccessKey;
+use App\Models\AccessToken;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -18,7 +18,7 @@ class GenerateCommand extends Command
         $key = Str::random(64);
         $salt = Str::random(16);
 
-        AccessKey::query()->create(array(
+        AccessToken::query()->create(array(
             'key' => substr($key, 0, 32),
             'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
             'secret_salt' => $salt,

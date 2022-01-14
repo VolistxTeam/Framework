@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAccessKeysTable extends Migration
+class CreateAccessTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateAccessKeysTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_keys', function (Blueprint $table) {
+        Schema::create('access_tokens', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('key', 32)->index('key');
             $table->string('secret', 64);
@@ -33,6 +33,6 @@ class CreateAccessKeysTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_keys');
+        Schema::dropIfExists('access_tokens');
     }
 }
