@@ -48,11 +48,11 @@ class VSkeletonTest extends BaseTestCase
             "whitelist_range" => array('127.0.0.1'),
             "hours_to_expire" => 720,
         ], [
-            'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
+            'Authorization' => "Bearer $key"
         ]);
 
         self::assertResponseStatus(201);
+        self::assertArrayHasKey('key', json_decode($request->response->getContent(), true));
         self::assertSame(1, json_decode($request->response->getContent())->user_id);
         self::assertSame(["*"], json_decode($request->response->getContent())->permissions);
         self::assertSame(["127.0.0.1"], json_decode($request->response->getContent())->whitelist_range);

@@ -12,15 +12,12 @@ class PersonalToken extends Model
     use HasFactory;
     use UuidForKey;
 
-
     /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
     public $timestamps = true;
-
-    protected $primaryKey = 'id';
 
     protected $fillable = [
         'user_id',

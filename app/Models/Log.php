@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Classes\UuidForKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
 {
     use HasFactory;
+    use UuidForKey;
 
     /**
      * The name of the "updated at" column.

@@ -30,12 +30,13 @@ class AdminController extends BaseController
         }
 
         $validator = Validator::make($request->all(), [
-            'user_id' => ['bail', 'required', 'numeric'],
-            'max_count' => ['bail', 'required', 'numeric'],
-            'permissions' => ['bail', 'required', 'array'],
-            'whitelist_range' => ['bail', 'required', 'array'],
+            'user_id' => ['bail', 'required', 'integer'],
+            'max_count' => ['bail', 'required', 'integer', 'min:-1'],
+            'permissions' => ['bail', 'array'],
+            'permissions.*' => ['bail', 'required_if:permissions,array', 'string'],
+            'whitelist_range' => ['bail', 'array'],
             'whitelist_range.*' => ['bail', 'required_if:whitelist_range,array', 'ip'],
-            'hours_to_expire' => ['bail', 'required', 'numeric'],
+            'hours_to_expire' => ['bail', 'required', 'integer', 'min:-1'],
         ]);
 
         if ($validator->fails()) {
@@ -51,15 +52,14 @@ class AdminController extends BaseController
                     'key' => $key,
                     'salt' => $salt
                 ]
-                ))->toArray();
-
+            ))->toArray();
 
             if (!$newPersonalToken) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
-            return response()->json($this->getUserToken($newPersonalToken), 201);
+
+            return response()->json($this->getUserToken($newPersonalToken, $key), 201);
         } catch (Exception $ex) {
-            ray($ex);
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
@@ -108,11 +108,12 @@ class AdminController extends BaseController
             'token_id' => $token_id
         ]), [
             'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
-            'max_count' => ['bail', 'sometimes', 'numeric'],
+            'max_count' => ['bail', 'sometimes', 'integer', 'min:-1'],
             'permissions' => ['bail', 'sometimes', 'array'],
+            'permissions.*' => ['bail', 'required_if:permissions,array', 'string'],
             'whitelist_range' => ['bail', 'sometimes', 'array'],
             'whitelist_range.*' => ['bail', 'required_if:whitelist_range,array', 'ip'],
-            'hours_to_expire' => ['bail', 'sometimes', 'numeric'],
+            'hours_to_expire' => ['bail', 'sometimes', 'integer', 'min:-1'],
         ]);
 
         if ($validator->fails()) {
@@ -160,7 +161,7 @@ class AdminController extends BaseController
             if (!$resetToken) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($this->getUserToken($resetToken,$newKey));
+            return response()->json($this->getUserToken($resetToken, $newKey));
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -188,7 +189,7 @@ class AdminController extends BaseController
             if (!$result) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json(null,204);
+            return response()->json(null, 204);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -230,25 +231,24 @@ class AdminController extends BaseController
             return response()->json(MessagesCenter::E401(), 401);
         }
 
-        $search = $request->input('search',"");
-        $page =$request->input('page',1);
-        $limit = $request->input('limit',50);
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
 
         $validator = Validator::make([
-            'page'=>$page,
-            'limit'=>$limit
+            'page' => $page,
+            'limit' => $limit
         ], [
-            '$page' => ['bail', 'sometimes', 'numeric'],
-            'limit' => ['bail', 'sometimes', 'numeric'],
+            'page' => ['bail', 'sometimes', 'integer'],
+            'limit' => ['bail', 'sometimes', 'integer'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
         }
 
-
         try {
-            $tokens = $this->personalTokenRepository->FindAll($search,$page,$limit);
+            $tokens = $this->personalTokenRepository->FindAll($search, $page, $limit);
 
             $userTokens = [];
             foreach ($tokens->items() as $item) {

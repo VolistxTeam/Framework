@@ -15,9 +15,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Set Rate Limiting
         if (config('ratelimit.enabled', false)) {
-            app(RateLimiter::class)->for('global', function () {
-                return Limit::perMinute(config('ratelimit.global'))->by(request()->getClientIp());
+            app(RateLimiter::class)->for('api', function () {
+                return Limit::perMinute(config('ratelimit.api'))->by(request()->getClientIp());
             });
         }
     }

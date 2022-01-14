@@ -20,6 +20,8 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
+$app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
+
 $app->withFacades();
 $app->withEloquent();
 
@@ -29,7 +31,6 @@ $app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
-$app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
 
 $app->singleton(
@@ -71,10 +72,6 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__ . '/../routes/system.php';
-});
-
-collect(scandir(__DIR__ . '/../config'))->each(function ($item) use ($app) {
-    $app->configure(basename($item, '.php'));
 });
 
 return $app;
