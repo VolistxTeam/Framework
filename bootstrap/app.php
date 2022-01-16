@@ -25,12 +25,13 @@ $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 $app->withFacades();
 $app->withEloquent();
 
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\EventServiceProvider::class);
 $app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
-$app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
 
 $app->singleton(
@@ -63,7 +64,7 @@ $app->routeMiddleware([
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
-    'middleware' => 'throttle:global',
+    'middleware' => 'throttle:api',
 ], function ($router) {
     require __DIR__ . '/../routes/api.php';
 });
