@@ -31,9 +31,9 @@ class Log extends Model
 
     protected $fillable = [
         'personal_token_id',
-        'request_id',
-        'request_info',
-        'access_ip'
+        'key',
+        'value',
+        'type'
     ];
 
     protected $hidden = ['id', 'personal_token_id'];
