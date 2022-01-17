@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
 use App\Models\Log;
+use App\Repositories\LogRepository;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,15 +14,17 @@ use Wikimedia\IPSet;
 
 class UserAuthMiddleware
 {
+    private LogRepository $logRepository;
+    public function __construct(LogRepository $logRepository)
+    {
+        $this->logRepository= $logRepository;
+    }
+
     public function handle(Request $request, Closure $next)
     {
         $key = PermissionsCenter::getUserAuthKey($request->bearerToken());
 
-        if (!$key) {
-            return response()->json(MessagesCenter::E403(), 403);
-        }
-
-        if ($key->expires_at != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($key->expires_at))) {
+        if (!$key || ($key->expires_at && Carbon::now()->greaterThan(Carbon::createFromTimeString($key->expires_at)))) {
             return response()->json(MessagesCenter::E403(), 403);
         }
 
@@ -31,13 +34,12 @@ class UserAuthMiddleware
         }
 
         $requestsMadeCount = $key->logs()->whereMonth('created_at', Carbon::now()->month)->count();
-
-        if ($key->max_count != -1 && $requestsMadeCount >= $key->max_count) {
+        $planRequestsLimit = $key->subscription()->get()->plan()->get()->requests;
+        if ($planRequestsLimit != -1 && $requestsMadeCount >= $planRequestsLimit) {
             return response()->json(MessagesCenter::E429(), 429);
         }
 
-        $randomRayID = Str::uuid();
-
+        //TO CHECK HOW TO WRITE LOGS LATER WITH CRYENTAL
         $log = [
             'url' => $request->getUri(),
             'method' => $request->getMethod(),
@@ -45,16 +47,13 @@ class UserAuthMiddleware
             'body' => $request->all()
         ];
 
-        Log::query()->create([
+        $this->logRepository->Create($key->id,[
             'personal_token_id' => $key->id,
-            'request_id' => $randomRayID,
-            'request_info' => $log,
-            'access_ip' => $request->getClientIp()
+            'key' => "key",
+            'value' =>"value",
+            'type'=>"type"
         ]);
 
-        $response = $next($request);
-        $response->header('X-Request-ID', $randomRayID);
-
-        return $response;
+      return $next($request);
     }
 }
