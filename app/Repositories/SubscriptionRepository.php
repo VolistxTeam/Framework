@@ -28,16 +28,14 @@ class SubscriptionRepository
             return null;
         }
 
-        $user_id = $inputs['user_id'] ?? null;
         $plan_expires_at = $inputs['plan_expires_at'] ?? null;
         $plan_id = $inputs['plan_id'] ?? null;
 
 
-        if (!$user_id && !$plan_expires_at && !$plan_id) {
+        if (!$plan_expires_at && !$plan_id) {
             return $subscription;
         }
 
-        if($user_id) $subscription->user_id = $user_id;
         if($plan_id) $subscription->plan_id = $plan_id;
         if($plan_expires_at) $subscription->plan_expires_at = $plan_expires_at;
 
