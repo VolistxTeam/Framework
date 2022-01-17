@@ -7,58 +7,53 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
-
 class PersonalTokenRepository
 {
-    public function Create($inputs)
+    public function Create($subscriptionID,array $inputs)
     {
         return PersonalToken::query()->create([
-            'user_id' => $inputs['user_id'],
+            'subscription_id' => $subscriptionID,
             'key' => substr($inputs['key'], 0, 32),
             'secret' => Hash::make(substr($inputs['key'], 32), ['salt' => $inputs['salt']]),
             'secret_salt' => $inputs['salt'],
-            'max_count' => $inputs['max_count'],
-            'permissions' =>$inputs['permissions'],
+            'permissions' => $inputs['permissions'],
             'whitelist_range' => $inputs['whitelist_range'],
             'activated_at' => Carbon::now(),
-            'expires_at' => $inputs['hours_to_expire'] != -1 ? Carbon::now()->addHours($inputs['hours_to_expire']) : null
+            'expires_at' => $inputs['hoursToExpire'] != -1 ? Carbon::now()->addHours($inputs['hoursToExpire'])  : null
         ]);
     }
 
-    public function Update($token_id, $inputs)
+    public function Update($subscriptionID, $tokenID, array $inputs)
     {
-        $token = $this->Find($token_id);
+        $token = $this->Find($subscriptionID, $tokenID);
 
         if (!$token) {
             return null;
         }
 
-        $permissions = $inputs['permissions'] ?? null;
-        $max_count = $inputs['max_count'] ?? null;
-        $whitelistRange = $inputs['whitelist_range'] ?? null;
-        $hoursToExpire = $inputs['hoursToExpire'] ?? null;
+        $permissions = $inputs['permissions']?? null;
+        $whitelistRange = $inputs['whitelist_range']?? null;
+        $hours = $inputs['hours']?? null;
 
-        if (!$permissions && !$whitelistRange && !$hoursToExpire && !$max_count) {
+        if (!$permissions && !$whitelistRange && !$hours) {
             return $token;
         }
 
 
-        if ($permissions) $token->permissions = $permissions;
+        if ($permissions) $token->permissions = json_decode($permissions);
 
-        if ($max_count) $token->max_count = $max_count;
+        if ($whitelistRange) $token->whitelist_range = json_decode($whitelistRange);
 
-        if ($whitelistRange) $token->whitelist_range = $whitelistRange;
-
-        if ($hoursToExpire) $token->expires_at = $hoursToExpire != -1 ? Carbon::createFromTimeString($token->activated_at)->addHours($hoursToExpire) : null;
+        if ($hours) $token->expires_at = $hours != -1 ? Carbon::createFromTimeString($token->activated_at)->addHours($hours) : null;
 
         $token->save();
 
         return $token;
     }
 
-    public function Reset($token_id, $inputs)
+    public function Reset($subscriptionID,$tokenID, $inputs)
     {
-        $token = $this->Find($token_id);
+        $token = $this->Find($subscriptionID, $tokenID);
 
         if (!$token) {
             return null;
@@ -67,31 +62,19 @@ class PersonalTokenRepository
         $token->key = substr($inputs['key'], 0, 32);
         $token->secret = Hash::make(substr($inputs['key'], 32), ['salt' => $inputs['salt']]);
         $token->secret_salt = $inputs['salt'];
-
         $token->save();
 
         return $token;
     }
 
-    public function Find($token_id)
+    public function Find($subscriptionID, $tokenID)
     {
-        return PersonalToken::query()->where('id', $token_id)->first();
+        return PersonalToken::query()->where('id', $tokenID)->where('subscription_id', $subscriptionID)->first();
     }
 
-    public function FindAll($needle,$page,$limit)
+    public function Delete($subscriptionID, $tokenID)
     {
-        $columns = Schema::getColumnListing('personal_tokens');
-
-        return PersonalToken::query()->where(function ($query) use ($needle, $columns) {
-            foreach ($columns as $column) {
-                $query->orWhere("personal_tokens.$column", 'LIKE', "%$needle%");
-            }
-        })->paginate($limit, ['*'], 'page', $page);
-    }
-
-    public function Delete($tokenID)
-    {
-        $toBeDeletedToken = $this->Find($tokenID);
+        $toBeDeletedToken = $this->Find($subscriptionID, $tokenID);
 
         if (!$toBeDeletedToken) {
             return null;
@@ -102,5 +85,16 @@ class PersonalTokenRepository
         return [
             'result' => 'true'
         ];
+    }
+
+    public function FindAll($subscription_id,$needle,$page,$limit)
+    {
+        $columns = Schema::getColumnListing('personal_tokens');
+        $query = PersonalToken::query();
+
+        foreach($columns as $column) {
+            $query->orWhere("personal_tokens.$column", 'LIKE', "%$needle%");
+        }
+        return $query->where('subscription_id',$subscription_id)->paginate($limit, ['*'], 'page', $page);
     }
 }
