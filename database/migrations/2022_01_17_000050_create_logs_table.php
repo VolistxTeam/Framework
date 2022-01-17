@@ -15,12 +15,12 @@ class CreateLogsTable extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('personal_token_id')->index('log_personal_token_id');
-            $table->foreign('personal_token_id')->references('id')->on('personal_tokens')->onDelete('cascade');
-            $table->string('request_id', 36);
-            $table->string('access_ip', 45);
-            $table->text('request_info');
-            $table->dateTime('created_at')->useCurrent();
+            $table->uuid('subscription_id')->index('log_subscription_id');
+            $table->foreign('subscription_id')->references('id')->on('subscriptions')->onDelete('cascade');
+            $table->string('key',255);
+            $table->string('value',255);
+            $table->string('type',255);
+            $table->dateTime('created_at')->nullable();
         });
     }
 
