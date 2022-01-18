@@ -19,7 +19,7 @@ class PersonalTokenRepository
             'permissions' => $inputs['permissions'],
             'whitelist_range' => $inputs['whitelist_range'],
             'activated_at' => Carbon::now(),
-            'expires_at' => $inputs['hoursToExpire'] != -1 ? Carbon::now()->addHours($inputs['hoursToExpire'])  : null
+            'expires_at' => $inputs['hours_to_expire'] != -1 ? Carbon::now()->addHours($inputs['hours_to_expire'])  : null
         ]);
     }
 
@@ -33,9 +33,9 @@ class PersonalTokenRepository
 
         $permissions = $inputs['permissions']?? null;
         $whitelistRange = $inputs['whitelist_range']?? null;
-        $hours = $inputs['hours']?? null;
+        $hours_to_expire = $inputs['hours_to_expire']?? null;
 
-        if (!$permissions && !$whitelistRange && !$hours) {
+        if (!$permissions && !$whitelistRange && !$hours_to_expire) {
             return $token;
         }
 
@@ -44,7 +44,7 @@ class PersonalTokenRepository
 
         if ($whitelistRange) $token->whitelist_range = json_decode($whitelistRange);
 
-        if ($hours) $token->expires_at = $hours != -1 ? Carbon::createFromTimeString($token->activated_at)->addHours($hours) : null;
+        if ($hours_to_expire) $token->expires_at = $hours_to_expire != -1 ? Carbon::createFromTimeString($token->activated_at)->addHours($hours_to_expire) : null;
 
         $token->save();
 
