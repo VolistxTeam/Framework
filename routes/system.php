@@ -15,16 +15,21 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
             $router->post('/', 'Auth\SubscriptionController@CreateSubscription');
             $router->put('/{subscription_id}', 'Auth\SubscriptionController@UpdateSubscription');
         });
+        $router->delete('/{subscription_id}', 'Auth\SubscriptionController@DeleteSubscription');
         $router->get('/', 'Auth\SubscriptionController@GetSubscriptions');
         $router->get('/{subscription_id}', 'Auth\SubscriptionController@GetSubscription');
-        $router->delete('/{subscription_id}', 'Auth\SubscriptionController@DeleteSubscription');
+        $router->get('/{subscription_id}/logs', 'Auth\SubscriptionController@GetSubscriptionLogs');
     });
 
-    $router->group(['prefix' => 'admin/token', 'middleware' => ['auth.admin','filter.json']], function () use ($router) {
-        $router->get('/{subscriptionID}', 'Auth\PersonalTokenControllers@GetPersonalTokens');
-        $router->get('/{subscriptionID}/{tokenID}', 'Auth\PersonalTokenControllers@GetPersonalToken');
-        $router->post('/', 'Auth\PersonalTokenControllers@CreatePersonalToken');
-        $router->patch('/{subscriptionID}/{tokenID}', 'Auth\PersonalTokenControllers@UpdatePersonalToken');
-        $router->delete('/{subscriptionID}/{tokenID}', 'Auth\PersonalTokenControllers@DeletePersonalToken');
+    $router->group(['prefix' => 'admin/personal-tokens', 'middleware' => 'auth.admin'], function () use ($router) {
+        $router->group(['middleware' => ['filter.json']], function () use ($router) {
+            $router->post('/{subscription_id}', 'Auth\PersonalTokenController@CreatePersonalToken');
+            $router->put('/{subscription_id}/{token_id}', 'Auth\PersonalTokenController@UpdatePersonalToken');
+        });
+        $router->delete('/{subscription_id}/{token_id}', 'Auth\PersonalTokenController@DeletePersonalToken');
+        $router->put('/{subscription_id}/{token_id}/reset', 'Auth\PersonalTokenController@ResetPersonalToken');
+        $router->get('/{subscription_id}/{token_id}', 'Auth\PersonalTokenController@GetPersonalToken');
+        $router->get('/{subscription_id}', 'Auth\PersonalTokenController@GetPersonalTokens');
+        $router->get('/{subscription_id}/{token_id}/logs', 'Auth\PersonalTokenController@GetPersonalTokenLogs');
     });
 });
