@@ -33,7 +33,8 @@ class UserAuthMiddleware
             return response()->json(MessagesCenter::E403(), 403);
         }
 
-        $requestsMadeCount = $key->logs()->whereMonth('created_at', Carbon::now()->month)->count();
+
+        $requestsMadeCount = $this->logRepository->FindLogsBySubscriptionCount($key->subscription()->get->id,Carbon::now());
         $planRequestsLimit = $key->subscription()->get()->plan()->get()->requests;
         if ($planRequestsLimit != -1 && $requestsMadeCount >= $planRequestsLimit) {
             return response()->json(MessagesCenter::E429(), 429);
