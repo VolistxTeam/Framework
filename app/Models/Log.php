@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Classes\UuidForKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Log extends Model
 {
@@ -37,4 +38,9 @@ class Log extends Model
     ];
 
     protected $hidden = ['id', 'personal_token_id'];
+
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(PersonalToken::class);
+    }
 }
