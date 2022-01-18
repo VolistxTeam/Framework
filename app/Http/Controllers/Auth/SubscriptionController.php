@@ -183,9 +183,4 @@ class SubscriptionController extends BaseController
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
-
-    private function generateSubscriptionKey(): string
-    {
-        return Str::random(64);
-    }
 }
