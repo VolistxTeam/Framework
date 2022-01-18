@@ -24,7 +24,7 @@ class PlanFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->unique()->randomElement(['basic','standard','pro','ultimate']),
+            'name' => $this->faker->randomElement(['basic','standard','pro','ultimate']),
             'description' => $this->faker->text(),
             'requests'=> $this->faker->numberBetween(50,5000),
             'created_at' => Carbon::now()
