@@ -43,12 +43,6 @@ class Subscription extends Model
     ];
 
 
-
-    public function logs(): HasMany
-    {
-        return $this->hasMany(Log::class);
-    }
-
     public function personalTokens(): HasMany
     {
         return $this->hasMany(PersonalToken::class);

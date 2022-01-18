@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
+use App\Repositories\LogRepository;
 use App\Repositories\PersonalTokenRepository;
 use App\Repositories\SubscriptionRepository;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,10 +18,12 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class SubscriptionController extends BaseController
 {
     private SubscriptionRepository $subscriptionRepository;
+    private LogRepository $logRepository;
 
-    public function __construct(SubscriptionRepository $subscriptionRepository)
+    public function __construct(SubscriptionRepository $subscriptionRepository,LogRepository $logRepository)
     {
         $this->subscriptionRepository = $subscriptionRepository;
+        $this->logRepository = $logRepository;
     }
 
     public function CreateSubscription(Request $request): JsonResponse
@@ -180,6 +184,47 @@ class SubscriptionController extends BaseController
             ]);
         } catch (Exception $ex) {
             ray($ex);
+            return response()->json(MessagesCenter::E500(), 500);
+        }
+    }
+
+    public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
+    {
+        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+        if (!PermissionsCenter::checkPermission($adminKey, 'key:logs')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+
+        $search = $request->input('search',"");
+        $page =$request->input('page',1);
+        $limit = $request->input('limit',50);
+
+        $validator = Validator::make(array_merge([
+            'subscription_id' => $subscription_id,
+            'page'=>$page,
+            'limit'=>$limit
+        ]), [
+            'subscription_id' => ['bail', 'required', 'exists:subscriptions,id'],
+            '$page' => ['bail', 'sometimes', 'numeric'],
+            'limit' => ['bail', 'sometimes', 'numeric'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        try {
+            $logs = $this->logRepository->FindLogsBySubscription($subscription_id,$search,$page,$limit);
+
+            return response()->json([
+                'pagination' => [
+                    'per_page' => $logs->perPage(),
+                    'current' => $logs->currentPage(),
+                    'total' => $logs->lastPage(),
+                ],
+                'items' => $logs->items()
+            ]);
+        } catch (Exception $exception) {
             return response()->json(MessagesCenter::E500(), 500);
         }
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AccessToken;
+use App\Models\PersonalToken;
 use App\Models\Plan;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,12 @@ class SubscriptionControllerShould extends BaseTestCase
         return require __DIR__ . '/../bootstrap/app.php';
     }
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Plan::factory()->count(3)->create();
+
+    }
 
 
     /** @test */
@@ -208,6 +215,45 @@ class SubscriptionControllerShould extends BaseTestCase
         self::assertCount(1, json_decode($request->response->getContent())->items);
     }
 
+    /** @test */
+    public function AuthorizeGetSubLogs()
+    {
+        $key = Str::random(64);
+        $token = $this->GenerateAccessToken($key);
+        $sub = $this->GenerateSub(0);
+
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs", [
+            '*' => 200,
+            '' => 401,
+            'key:logs' => 200
+        ]);
+    }
+
+    /** @test */
+    public function GetSubLogs()
+    {
+        $key = Str::random(64);
+        $token = $this->GenerateAccessToken($key);
+        $sub = $this->GenerateSub(0);
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs", [], [
+            'Authorization' => "Bearer $key",
+            'Accept' => 'application/json'
+        ]);
+
+        self::assertResponseStatus(200);
+        self::assertCount(25, json_decode($request->response->getContent())->items);
+
+
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs/?limit=10", [], [
+            'Authorization' => "Bearer $key",
+            'Accept' => 'application/json'
+        ]);
+
+        self::assertResponseStatus(200);
+        self::assertCount(10, json_decode($request->response->getContent())->items);
+    }
+
+
 
     /** @test */
     private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
@@ -227,7 +273,6 @@ class SubscriptionControllerShould extends BaseTestCase
 
     private function GenerateAccessToken($key)
     {
-        Plan::factory()->count(3)->create();
         $salt = Str::random(16);
         return AccessToken::factory()
             ->create(['key' => substr($key, 0, 32),
@@ -238,6 +283,8 @@ class SubscriptionControllerShould extends BaseTestCase
 
     private function GenerateSub($userID)
     {
-        return Subscription::factory()->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
+        return Subscription::factory()
+            ->has(PersonalToken::factory()->count(5)->has(\App\Models\Log::factory()->count(5))
+        )->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 }
