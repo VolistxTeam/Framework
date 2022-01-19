@@ -4,23 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Models\Plan;
-use App\Models\Subscription;
 use App\Repositories\LogRepository;
 use App\Repositories\PersonalTokenRepository;
-use App\Repositories\SubscriptionRepository;
 use Carbon\Carbon;
-use DateTime;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class PersonalTokenController extends BaseController
@@ -66,8 +57,8 @@ class PersonalTokenController extends BaseController
             $newPersonalToken = $this->personalTokenRepository->Create($subscription_id, [
                 'key' => $key,
                 'salt' => $salt,
-                'permissions' => json_decode($request->input('permissions')),
-                'whitelist_range' => json_decode( $request->input('whitelist_range')),
+                'permissions' =>$request->input('permissions'),
+                'whitelist_range' =>  $request->input('whitelist_range'),
                 'activated_at' => Carbon::now(),
                 'hours_to_expire' => $request->input('hours_to_expire')
             ])->toArray();
@@ -181,7 +172,7 @@ class PersonalTokenController extends BaseController
             if (!$result) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($result);
+            return response()->json(null,204);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -191,7 +182,7 @@ class PersonalTokenController extends BaseController
     {
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
         if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
-            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 403);
+            return response()->json(MessagesCenter::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -313,12 +304,11 @@ class PersonalTokenController extends BaseController
     {
         $result = [
             'id' => $item['id'],
-            'user_id' => $item['user_id'],
+            'subscription_id' => $item['subscription_id'],
             'key' => null,
-            'max_count' => $item['max_count'],
             'permissions' => $item['permissions'],
             'whitelist_range' => $item['whitelist_range'],
-            'subscription' => [
+            'status' => [
                 'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
                 'activated_at' => $item['activated_at'],
                 'expires_at' => $item['expires_at']
