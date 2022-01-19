@@ -60,7 +60,7 @@ class SubscriptionController extends BaseController
         $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
 
         if (!PermissionsCenter::checkPermission($adminKey, 'key:update')) {
-            return response()->json(MessagesCenter::Error('xInvalidToken', 'Invalid token was specified or do not have permission.'), 401);
+            return response()->json(MessagesCenter::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -109,7 +109,7 @@ class SubscriptionController extends BaseController
             if (!$result) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($result);
+            return response()->json(null,204);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -183,7 +183,6 @@ class SubscriptionController extends BaseController
                 'items' => $subs->items()
             ]);
         } catch (Exception $ex) {
-            ray($ex);
             return response()->json(MessagesCenter::E500(), 500);
         }
     }

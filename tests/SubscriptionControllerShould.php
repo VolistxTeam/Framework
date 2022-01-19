@@ -58,7 +58,6 @@ class SubscriptionControllerShould extends BaseTestCase
             "plan_expires_at"=> \Carbon\Carbon::now()->addHours(50)
         ], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(201);
@@ -95,7 +94,6 @@ class SubscriptionControllerShould extends BaseTestCase
             'plan_id' => Plan::query()->skip(1)->first()->id,
         ], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(200);
@@ -113,12 +111,12 @@ class SubscriptionControllerShould extends BaseTestCase
 
         $sub = $this->GenerateSub(0);
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
-            '*' => 200,
+            '*' => 204,
         ]);
 
         $sub = $this->GenerateSub(0);
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
-            'key:delete' => 200,
+            'key:delete' => 204,
         ]);
 
         $sub = $this->GenerateSub(0);
@@ -136,11 +134,9 @@ class SubscriptionControllerShould extends BaseTestCase
 
         $request = $this->json('DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
-        self::assertResponseStatus(200);
-        self::assertEquals('true', json_decode($request->response->getContent())->result);
+        self::assertResponseStatus(204);
     }
 
 
@@ -168,7 +164,6 @@ class SubscriptionControllerShould extends BaseTestCase
 
         $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}", [], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(200);
@@ -200,7 +195,6 @@ class SubscriptionControllerShould extends BaseTestCase
 
         $request = $this->json('GET', "/sys-bin/admin/subscriptions/", [], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(200);
@@ -208,7 +202,6 @@ class SubscriptionControllerShould extends BaseTestCase
 
         $request = $this->json('GET', "/sys-bin/admin/subscriptions/?limit=1", [], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(200);
@@ -237,7 +230,6 @@ class SubscriptionControllerShould extends BaseTestCase
         $sub = $this->GenerateSub(0);
         $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs", [], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(200);
@@ -246,7 +238,6 @@ class SubscriptionControllerShould extends BaseTestCase
 
         $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs/?limit=10", [], [
             'Authorization' => "Bearer $key",
-            'Accept' => 'application/json'
         ]);
 
         self::assertResponseStatus(200);
@@ -264,8 +255,6 @@ class SubscriptionControllerShould extends BaseTestCase
 
             $request = $this->json($verb, $route, $input, [
                 'Authorization' => "Bearer $key",
-                'Accept' => 'application/json',
-                'Content_Type'=> 'application/json'
             ]);
             self::assertResponseStatus($permissionResult);
         }
