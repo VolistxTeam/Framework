@@ -32,4 +32,14 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
         $router->get('/{subscription_id}', 'Auth\PersonalTokenController@GetPersonalTokens');
         $router->get('/{subscription_id}/{token_id}/logs', 'Auth\PersonalTokenController@GetPersonalTokenLogs');
     });
+
+    $router->group(['prefix' => 'admin/plans', 'middleware' => 'auth.admin'], function () use ($router) {
+        $router->group(['middleware' => ['filter.json']], function () use ($router) {
+            $router->post('/', 'Auth\PlanController@CreatePlan');
+            $router->put('/{plan_id}', 'Auth\PlanController@UpdatePlan');
+        });
+        $router->delete('/{plan_id}', 'Auth\PlanController@DeletePlan');
+        $router->get('/', 'Auth\PlanController@GetPlans');
+        $router->get('/{plan_id}', 'Auth\PlanController@GetPlan');
+    });
 });
