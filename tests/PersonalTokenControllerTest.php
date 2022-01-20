@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AccessToken;
-use App\Models\Log;
+use App\Models\AdminLog;
 use App\Models\PersonalToken;
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -12,7 +12,7 @@ use Laravel\Lumen\Application;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 
-class PersonalTokenControllerShould extends BaseTestCase
+class PersonalTokenControllerTest extends BaseTestCase
 {
     use DatabaseMigrations;
 
@@ -342,7 +342,7 @@ class PersonalTokenControllerShould extends BaseTestCase
     private function GenerateSub($userID, $tokenCount,$logs = 50)
     {
         return Subscription::factory()
-            ->has(PersonalToken::factory()->count($tokenCount)->has(Log::factory()->count(50)))
+            ->has(PersonalToken::factory()->count($tokenCount)->has(AdminLog::factory()->count(50)))
             ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 }

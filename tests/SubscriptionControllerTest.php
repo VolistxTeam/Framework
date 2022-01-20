@@ -10,7 +10,7 @@ use Laravel\Lumen\Application;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 
-class SubscriptionControllerShould extends BaseTestCase
+class SubscriptionControllerTest extends BaseTestCase
 {
     use DatabaseMigrations;
 
@@ -273,7 +273,7 @@ class SubscriptionControllerShould extends BaseTestCase
     private function GenerateSub($userID)
     {
         return Subscription::factory()
-            ->has(PersonalToken::factory()->count(5)->has(\App\Models\Log::factory()->count(5))
+            ->has(PersonalToken::factory()->count(5)->has(\App\Models\AdminLog::factory()->count(5))
         )->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 }
