@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Repositories\LogRepository;
+use App\Repositories\AdminLogRepository;
 use App\Repositories\PersonalTokenRepository;
 use App\Repositories\PlanRepository;
 use App\Repositories\SubscriptionRepository;
@@ -27,8 +27,7 @@ class PlanController extends BaseController
 
     public function CreatePlan(Request $request): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:create')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:create')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -55,9 +54,7 @@ class PlanController extends BaseController
 
     public function UpdatePlan(Request $request, $plan_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:update')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -88,8 +85,7 @@ class PlanController extends BaseController
 
     public function DeletePlan(Request $request, $plan_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:delete')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -116,8 +112,7 @@ class PlanController extends BaseController
 
     public function GetPlan(Request $request, $plan_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -145,9 +140,7 @@ class PlanController extends BaseController
 
     public function GetPlans(Request $request): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 

@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Repositories\LogRepository;
+use App\Repositories\AdminLogRepository;
 use App\Repositories\PersonalTokenRepository;
+use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -17,10 +18,10 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class PersonalTokenController extends BaseController
 {
     private PersonalTokenRepository $personalTokenRepository;
-    private LogRepository $logRepository;
+    private UserLogRepository $logRepository;
 
 
-    public function __construct(PersonalTokenRepository $personalTokenRepository,LogRepository $logRepository)
+    public function __construct(PersonalTokenRepository $personalTokenRepository, UserLogRepository $logRepository)
     {
         $this->personalTokenRepository = $personalTokenRepository;
         $this->logRepository = $logRepository;
@@ -29,9 +30,7 @@ class PersonalTokenController extends BaseController
 
     public function CreatePersonalToken(Request $request, $subscription_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:create')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:create')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -74,9 +73,7 @@ class PersonalTokenController extends BaseController
 
     public function UpdatePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:update')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -110,9 +107,7 @@ class PersonalTokenController extends BaseController
 
     public function ResetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:reset')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:reset')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -151,8 +146,7 @@ class PersonalTokenController extends BaseController
 
     public function DeletePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:delete')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
         $validator = Validator::make(array_merge($request->all(), [
@@ -180,8 +174,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -207,9 +200,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalTokens(Request $request, $subscription_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -252,8 +243,7 @@ class PersonalTokenController extends BaseController
     }
 
     public  function GetPersonalTokenLogs(Request $request,$subscription_id,$token_id):JsonResponse{
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:logs')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -292,8 +282,6 @@ class PersonalTokenController extends BaseController
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
-
-
 
     private function generateSubscriptionKey()
     {
