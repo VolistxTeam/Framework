@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Log extends Model
+class AdminLog extends Model
 {
     use HasFactory;
     use UuidForKey;
@@ -25,22 +25,24 @@ class Log extends Model
      */
     public $timestamps = true;
 
-    protected $casts = [
-        'request_info' => 'array',
-        'created_at' => 'date:Y-m-d H:i:s'
-    ];
 
     protected $fillable = [
-        'personal_token_id',
-        'key',
-        'value',
-        'type'
+        'access_token_id',
+        'url',
+        'request_method',
+        'request_body',
+        'request_header',
+        'ip',
+        'response_code',
+        'response_body',
     ];
 
-    protected $hidden = ['id', 'personal_token_id'];
+    protected $casts = [
+        'header'=>'array'
+    ];
 
-    public function subscription(): BelongsTo
+    public function accessToken(): BelongsTo
     {
-        return $this->belongsTo(PersonalToken::class);
+        return $this->belongsTo(AccessToken::class);
     }
 }
