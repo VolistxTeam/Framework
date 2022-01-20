@@ -9,8 +9,8 @@ Please DO NOT touch any routes here!!
 use Laravel\Lumen\Routing\Router;
 
 
-$router->group(['prefix' => 'sys-bin'], function () use ($router) {
-    $router->group(['prefix' => 'admin/subscriptions', 'middleware' => 'auth.admin'], function () use ($router) {
+$router->group(['prefix' => 'sys-bin', 'middleware' => 'auth.admin'], function () use ($router) {
+    $router->group(['prefix' => 'admin/subscriptions'], function () use ($router) {
         $router->group(['middleware' => ['filter.json']], function () use ($router) {
             $router->post('/', 'Auth\SubscriptionController@CreateSubscription');
             $router->put('/{subscription_id}', 'Auth\SubscriptionController@UpdateSubscription');
@@ -21,7 +21,7 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
         $router->get('/{subscription_id}/logs', 'Auth\SubscriptionController@GetSubscriptionLogs');
     });
 
-    $router->group(['prefix' => 'admin/personal-tokens', 'middleware' => 'auth.admin'], function () use ($router) {
+    $router->group(['prefix' => 'admin/personal-tokens'], function () use ($router) {
         $router->group(['middleware' => ['filter.json']], function () use ($router) {
             $router->post('/{subscription_id}', 'Auth\PersonalTokenController@CreatePersonalToken');
             $router->put('/{subscription_id}/{token_id}', 'Auth\PersonalTokenController@UpdatePersonalToken');
@@ -33,7 +33,7 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
         $router->get('/{subscription_id}/{token_id}/logs', 'Auth\PersonalTokenController@GetPersonalTokenLogs');
     });
 
-    $router->group(['prefix' => 'admin/plans', 'middleware' => 'auth.admin'], function () use ($router) {
+    $router->group(['prefix' => 'admin/plans'], function () use ($router) {
         $router->group(['middleware' => ['filter.json']], function () use ($router) {
             $router->post('/', 'Auth\PlanController@CreatePlan');
             $router->put('/{plan_id}', 'Auth\PlanController@UpdatePlan');
