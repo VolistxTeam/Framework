@@ -51,6 +51,7 @@ $app->middleware([
     CloudfrontProxies::class,
     TrustProxies::class,
     App\Http\Middleware\FirewallMiddleware::class,
+    \App\Http\Middleware\RequestLoggingMiddleware::class
 ]);
 
 $app->routeMiddleware([
@@ -59,7 +60,7 @@ $app->routeMiddleware([
     'cacheResponse' => CacheResponse::class,
     'throttle' => ThrottleRequests::class,
     'sanitizer' => ParametersSanitizerMiddleware::class,
-    'filter.json' => JsonBodyValidationFilteringMiddleware::class
+    'filter.json' => JsonBodyValidationFilteringMiddleware::class,
 ]);
 
 $app->router->group([
