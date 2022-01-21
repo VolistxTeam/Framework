@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Repositories\LogRepository;
+use App\Repositories\AdminLogRepository;
 use App\Repositories\PersonalTokenRepository;
 use App\Repositories\SubscriptionRepository;
+use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -18,9 +19,9 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class SubscriptionController extends BaseController
 {
     private SubscriptionRepository $subscriptionRepository;
-    private LogRepository $logRepository;
+    private UserLogRepository $logRepository;
 
-    public function __construct(SubscriptionRepository $subscriptionRepository,LogRepository $logRepository)
+    public function __construct(SubscriptionRepository $subscriptionRepository, UserLogRepository $logRepository)
     {
         $this->subscriptionRepository = $subscriptionRepository;
         $this->logRepository = $logRepository;
@@ -28,16 +29,15 @@ class SubscriptionController extends BaseController
 
     public function CreateSubscription(Request $request): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:create')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:create')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
         $validator = Validator::make($request->all(), [
             'user_id' => ['bail', 'required', 'integer'],
             'plan_id' => ['bail', 'required', 'string', 'exists:plans,id'],
-            'plan_activated_at' => ['bail','required','string'],
-            'plan_expires_at' => ['bail','required','string']
+            'plan_activated_at' => ['bail','required','date'],
+            'plan_expires_at' => ['bail','required','date','after:plan_activated_at']
         ]);
 
         if ($validator->fails()) {
@@ -57,9 +57,7 @@ class SubscriptionController extends BaseController
 
     public function UpdateSubscription(Request $request, $subscription_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:update')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -89,8 +87,7 @@ class SubscriptionController extends BaseController
 
     public function DeleteSubscription(Request $request, $subscription_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:delete')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:delete')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -117,8 +114,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscription(Request $request, $subscription_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -146,9 +142,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscriptions(Request $request): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -189,8 +183,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
     {
-        $adminKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
-        if (!PermissionsCenter::checkPermission($adminKey, 'key:logs')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 

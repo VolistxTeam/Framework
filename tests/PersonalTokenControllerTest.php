@@ -5,6 +5,7 @@ use App\Models\AdminLog;
 use App\Models\PersonalToken;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\UserLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -342,7 +343,7 @@ class PersonalTokenControllerTest extends BaseTestCase
     private function GenerateSub($userID, $tokenCount,$logs = 50)
     {
         return Subscription::factory()
-            ->has(PersonalToken::factory()->count($tokenCount)->has(AdminLog::factory()->count(50)))
+            ->has(PersonalToken::factory()->count($tokenCount)->has(UserLog::factory()->count(50)))
             ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 }
