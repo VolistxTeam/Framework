@@ -9,6 +9,7 @@ use App\Repositories\UserLogRepository;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Wikimedia\IPSet;
 
 class RequestLoggingMiddleware
@@ -45,7 +46,7 @@ class RequestLoggingMiddleware
                 'response_body'=>$response->getContent(),
             ]);
         }
-        else{
+        else if($request->input('X-ACCESS-TOKEN')){
             $this->adminLogRepository->Create($request->input('X-ACCESS-TOKEN')->id,[
                 'url' => $request->fullUrl(),
                 'request_method' =>$request->method(),

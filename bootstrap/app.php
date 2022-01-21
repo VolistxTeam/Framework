@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\JsonBodyValidationFilteringMiddleware;
 use App\Http\Middleware\ParametersSanitizerMiddleware;
+use App\Http\Middleware\RequestLoggingMiddleware;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use LumenRateLimiting\ThrottleRequests;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
@@ -51,7 +52,7 @@ $app->middleware([
     CloudfrontProxies::class,
     TrustProxies::class,
     App\Http\Middleware\FirewallMiddleware::class,
-    \App\Http\Middleware\RequestLoggingMiddleware::class
+    RequestLoggingMiddleware::class
 ]);
 
 $app->routeMiddleware([
