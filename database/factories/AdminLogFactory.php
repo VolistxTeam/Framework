@@ -23,6 +23,7 @@ class AdminLogFactory extends Factory
     public function definition()
     {
         return [
+
         ];
     }
 }
