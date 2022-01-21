@@ -68,8 +68,8 @@ class UserLogRepository
     {
         return UserLog::query()->join('personal_tokens', 'personal_tokens.id', '=', 'user_logs.personal_token_id')
             ->where('personal_tokens.subscription_id', $subscription_id)
-            ->whereMonth('created_at', $date->format('m'))
-            ->whereYear('created_at', $date->format('Y'))
+            ->whereMonth('user_logs.created_at', $date->format('m'))
+            ->whereYear('user_logs.created_at', $date->format('Y'))
             ->count();
     }
 }
