@@ -4,6 +4,7 @@ use App\Models\AccessToken;
 use App\Models\PersonalToken;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\UserLog;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Application;
@@ -273,7 +274,7 @@ class SubscriptionControllerTest extends BaseTestCase
     private function GenerateSub($userID)
     {
         return Subscription::factory()
-            ->has(PersonalToken::factory()->count(5)->has(\App\Models\AdminLog::factory()->count(5))
+            ->has(PersonalToken::factory()->count(5)->has(UserLog::factory()->count(5))
         )->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 }
