@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
+use Monicahq\Cloudflare\Commands\Reload;
 use Spatie\ResponseCache\Commands\ClearCommand;
 
 class Kernel extends ConsoleKernel
@@ -17,7 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\AccessKey\GenerateCommand::class,
         Commands\AccessKey\DeleteCommand::class,
         ClearCommand::class,
-        \Monicahq\Cloudflare\Commands\Reload::class,
+        Reload::class,
 
         // Custom Commands Here
         Commands\ExampleCommand::class,
@@ -32,5 +33,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('geoip:update')->monthly();
+        $schedule->command('cloudflare:reload')->monthly();
     }
 }
