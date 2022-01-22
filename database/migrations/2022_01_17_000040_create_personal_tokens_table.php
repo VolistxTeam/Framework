@@ -15,17 +15,17 @@ class CreatePersonalTokensTable extends Migration
     {
         Schema::create('personal_tokens', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->integer('user_id')->index('user_id');
-            $table->string('key', 32)->index('personal_token_key');
+            $table->uuid('subscription_id')->index('personalToken_subscription_id');
+            $table->foreign('subscription_id')->references('id')->on('subscriptions')->onDelete('cascade');
+            $table->string('key', 32);
             $table->string('secret', 64);
             $table->string('secret_salt', 16);
-            $table->integer('max_count')->nullable();
-            $table->json('permissions')->default('[]');
-            $table->json('whitelist_range')->default('[]');
+            $table->json('whitelist_range');
+            $table->json('permissions');
             $table->dateTime('activated_at')->nullable();
             $table->dateTime('expires_at')->nullable();
-            $table->dateTime('created_at')->nullable()->useCurrent();
-            $table->dateTime('updated_at')->nullable()->useCurrent();
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
         });
     }
 

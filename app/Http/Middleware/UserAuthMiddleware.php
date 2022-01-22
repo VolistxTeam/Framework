@@ -4,12 +4,14 @@ namespace App\Http\Middleware;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Models\Log;
+use App\Classes\ValidationRules\IPValidationRule;
+use App\Classes\ValidationRules\KeyValidationRule;
+use App\Classes\ValidationRules\RequestsCountValidationRule;
+use App\Classes\ValidationRules\ValidationRuleBase;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Wikimedia\IPSet;
+use JetBrains\PhpStorm\ArrayShape;
 
 class UserAuthMiddleware
 {
@@ -17,44 +19,32 @@ class UserAuthMiddleware
     {
         $key = PermissionsCenter::getUserAuthKey($request->bearerToken());
 
-        if (!$key) {
-            return response()->json(MessagesCenter::E403(), 403);
-        }
 
-        if ($key->expires_at != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($key->expires_at))) {
-            return response()->json(MessagesCenter::E403(), 403);
-        }
-
-        $ipSet = new IPSet($key->whitelist_range);
-        if (!empty($personalKeys->whitelist_range) && !$ipSet->match($request->getClientIp())) {
-            return response()->json(MessagesCenter::E403(), 403);
-        }
-
-        $requestsMadeCount = $key->logs()->whereMonth('created_at', Carbon::now()->month)->count();
-
-        if ($key->max_count != -1 && $requestsMadeCount >= $key->max_count) {
-            return response()->json(MessagesCenter::E429(), 429);
-        }
-
-        $randomRayID = Str::uuid();
-
-        $log = [
-            'url' => $request->getUri(),
-            'method' => $request->getMethod(),
-            'headers' => $request->headers->all(),
-            'body' => $request->all()
+        //prepare inputs array
+        $inputs = [
+            'request' => $request,
+            'token' => $key,
         ];
 
-        Log::query()->create([
-            'personal_token_id' => $key->id,
-            'request_id' => $randomRayID,
-            'request_info' => $log,
-            'access_ip' => $request->getClientIp()
+        //add extra validators in the required order.
+        //To be refactored to detect all classes with a base of ValidationRuleBase and create instance of them passing parameters, and ordering them by id
+        $validators = [
+            new KeyValidationRule($inputs),
+            new IPValidationRule($inputs),
+            new RequestsCountValidationRule($inputs)
+        ];
+
+        foreach ($validators as $validator){
+            $result = $validator->validate();
+            if($result !== true){
+                return response()->json($result['message'],$result['code']);
+            }
+        }
+
+        $request->merge([
+            'X-PERSONAL-TOKEN'=> $key,
         ]);
 
-        $response = $next($request);
-        $response->header('X-Request-ID', $randomRayID);
-
-        return $response;
+      return $next($request);
     }
 }

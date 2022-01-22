@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\AccessToken;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AccessTokenFactory extends Factory
 {
@@ -20,11 +22,19 @@ class AccessTokenFactory extends Factory
      *
      * @return array
      */
+
     public function definition()
     {
+        $key = Str::random(64);
+        $salt = Str::random(16);
+
         return [
-            'whitelist_range' => array(),
+            'key' => substr($key, 0, 32),
+            'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
+            'secret_salt' => $salt,
             'permissions' => array(),
+            'whitelist_range' => array(),
+            'created_at' => Carbon::now()
         ];
     }
 }
