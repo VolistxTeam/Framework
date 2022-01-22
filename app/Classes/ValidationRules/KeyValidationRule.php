@@ -4,7 +4,6 @@ namespace App\Classes\ValidationRules;
 
 use App\Classes\MessagesCenter;
 use Carbon\Carbon;
-use Wikimedia\IPSet;
 
 class KeyValidationRule extends ValidationRuleBase
 {

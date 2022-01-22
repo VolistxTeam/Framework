@@ -11,5 +11,5 @@ abstract class ValidationRuleBase
         $this->inputs = $inputs;
     }
 
-    abstract public function Validate():bool|array;
+    abstract public function Validate(): bool|array;
 }

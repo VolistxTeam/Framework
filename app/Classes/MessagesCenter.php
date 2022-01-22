@@ -4,6 +4,11 @@ namespace App\Classes;
 
 class MessagesCenter
 {
+    public static function E400($error = 'One or more invalid fields were specified using the fields parameters.')
+    {
+        return self::Error('xInvalidParameters', $error);
+    }
+
     public static function Error($type, $info)
     {
         return [
@@ -12,11 +17,6 @@ class MessagesCenter
                 'info' => $info
             ]
         ];
-    }
-
-    public static function E400($error = 'One or more invalid fields were specified using the fields parameters.')
-    {
-        return self::Error('xInvalidParameters', $error);
     }
 
     public static function E401($error = 'Insufficient permissions to perform this request.')

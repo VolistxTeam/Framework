@@ -15,7 +15,7 @@ class IPValidationRule extends ValidationRuleBase
         $ipSet = new IPSet(json_decode($token->whitelist_range));
         if (!empty($token->whitelist_range) && !$ipSet->match($request->getClientIp())) {
             return [
-                'message'=>MessagesCenter::E403("Not allowed in your location"),
+                'message' => MessagesCenter::E403("Not allowed in your location"),
                 'code' => 403
             ];
         }
