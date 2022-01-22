@@ -4,16 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Repositories\AdminLogRepository;
-use App\Repositories\PersonalTokenRepository;
 use App\Repositories\SubscriptionRepository;
 use App\Repositories\UserLogRepository;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class SubscriptionController extends BaseController
@@ -36,8 +32,8 @@ class SubscriptionController extends BaseController
         $validator = Validator::make($request->all(), [
             'user_id' => ['bail', 'required', 'integer'],
             'plan_id' => ['bail', 'required', 'string', 'exists:plans,id'],
-            'plan_activated_at' => ['bail','required','date'],
-            'plan_expires_at' => ['bail','required','date','after:plan_activated_at']
+            'plan_activated_at' => ['bail', 'required', 'date'],
+            'plan_expires_at' => ['bail', 'required', 'date', 'after:plan_activated_at']
         ]);
 
         if ($validator->fails()) {
@@ -65,7 +61,7 @@ class SubscriptionController extends BaseController
             'subscription_id' => $subscription_id
         ]), [
             'subscription_id' => ['bail', 'required', 'uuid', 'exists:subscriptions,id'],
-            'plan_expires_at' => ['bail','sometimes','string'],
+            'plan_expires_at' => ['bail', 'sometimes', 'string'],
             'plan_id' => ['bail', 'sometimes', 'exists:plans,id']
         ]);
 
@@ -87,7 +83,7 @@ class SubscriptionController extends BaseController
 
     public function DeleteSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:delete')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -106,7 +102,7 @@ class SubscriptionController extends BaseController
             if (!$result) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json(null,204);
+            return response()->json(null, 204);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -114,7 +110,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:list')) {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
 
@@ -146,13 +142,13 @@ class SubscriptionController extends BaseController
             return response()->json(MessagesCenter::E401(), 401);
         }
 
-        $search = $request->input('search',"");
-        $page =$request->input('page',1);
-        $limit = $request->input('limit',50);
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
 
         $validator = Validator::make([
-            'page'=>$page,
-            'limit'=>$limit
+            'page' => $page,
+            'limit' => $limit
         ], [
             '$page' => ['bail', 'sometimes', 'numeric'],
             'limit' => ['bail', 'sometimes', 'numeric'],
@@ -163,7 +159,7 @@ class SubscriptionController extends BaseController
         }
 
         try {
-            $subs = $this->subscriptionRepository->FindAll($search,$page,$limit);
+            $subs = $this->subscriptionRepository->FindAll($search, $page, $limit);
             if (!$subs) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
@@ -187,14 +183,14 @@ class SubscriptionController extends BaseController
             return response()->json(MessagesCenter::E401(), 401);
         }
 
-        $search = $request->input('search',"");
-        $page =$request->input('page',1);
-        $limit = $request->input('limit',50);
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
 
         $validator = Validator::make(array_merge([
             'subscription_id' => $subscription_id,
-            'page'=>$page,
-            'limit'=>$limit
+            'page' => $page,
+            'limit' => $limit
         ]), [
             'subscription_id' => ['bail', 'required', 'exists:subscriptions,id'],
             '$page' => ['bail', 'sometimes', 'numeric'],
@@ -206,7 +202,7 @@ class SubscriptionController extends BaseController
         }
 
         try {
-            $logs = $this->logRepository->FindLogsBySubscription($subscription_id,$search,$page,$limit);
+            $logs = $this->logRepository->FindLogsBySubscription($subscription_id, $search, $page, $limit);
 
             return response()->json([
                 'pagination' => [

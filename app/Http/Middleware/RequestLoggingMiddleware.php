@@ -6,9 +6,8 @@ use App\Repositories\AdminLogRepository;
 use App\Repositories\UserLogRepository;
 use Closure;
 use GuzzleHttp\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use \Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class RequestLoggingMiddleware
 {
@@ -21,18 +20,15 @@ class RequestLoggingMiddleware
         $this->userLogRepository = $userLogRepository;
     }
 
-
     public function handle(Request $request, Closure $next)
     {
         return $next($request);
     }
 
-
     public function terminate(Request $request, Response $response)
     {
-
         $header = (array)$request->header();
-        unset($header['authorization']);
+        unset($header['Authorization']);
 
         $inputs = [
             'url' => $request->fullUrl(),
@@ -43,7 +39,6 @@ class RequestLoggingMiddleware
             'response_code' => $response->getStatusCode(),
             'response_body' => $response->getContent(),
         ];
-
 
         if ($request->input('X-PERSONAL-TOKEN')) {
             if (config('log.userLogMode') === 'local') {
@@ -60,11 +55,6 @@ class RequestLoggingMiddleware
         }
     }
 
-    private function logAdminToLocalDB($key, $inputs)
-    {
-        $this->adminLogRepository->Create($key->id, $inputs);
-    }
-
     private function logUserToLocalDB($key, $inputs)
     {
         $this->userLogRepository->Create($key->id, $inputs);
@@ -77,14 +67,19 @@ class RequestLoggingMiddleware
 
         $client = new Client();
         $request = $client->post($httpURL, [
-            'headers'=> ['Authorization' => $token],
+            'headers' => ['Authorization' => 'Bearer ' . $token],
             'body' => json_encode($inputs)
         ]);
 
         //Handle failure to log remotely, currently, it logs locally
-        if ($request->getStatusCode()!= 200){
-            $this->logUserToLocalDB($key,$inputs);
+        if ($request->getStatusCode() != 200) {
+            $this->logUserToLocalDB($key, $inputs);
         }
+    }
+
+    private function logAdminToLocalDB($key, $inputs)
+    {
+        $this->adminLogRepository->Create($key->id, $inputs);
     }
 
     private function logAdminToRemoteDB($key, $inputs)
@@ -94,13 +89,13 @@ class RequestLoggingMiddleware
 
         $client = new Client();
         $request = $client->post($httpURL, [
-            'headers'=> ['Authorization' => $token],
+            'headers' => ['Authorization' => $token],
             'body' => json_encode($inputs)
         ]);
 
         //Handle failure to log remotely, currently, it logs locally
-        if ($request->getStatusCode()!= 200){
-            $this->logAdminToLocalDB($key,$inputs);
+        if ($request->getStatusCode() != 200) {
+            $this->logAdminToLocalDB($key, $inputs);
         }
     }
 }

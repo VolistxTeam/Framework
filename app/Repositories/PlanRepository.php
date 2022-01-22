@@ -3,9 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Plan;
-use App\Models\Subscription;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class PlanRepository
@@ -36,9 +33,9 @@ class PlanRepository
             return $plan;
         }
 
-        if($name) $plan->name = $name;
-        if($description) $plan->description = $description;
-        if($requests) $plan->requests = $requests;
+        if ($name) $plan->name = $name;
+        if ($description) $plan->description = $description;
+        if ($requests) $plan->requests = $requests;
 
         $plan->save();
 

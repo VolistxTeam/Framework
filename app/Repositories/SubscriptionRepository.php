@@ -2,10 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\Plan;
 use App\Models\Subscription;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class SubscriptionRepository
@@ -36,8 +33,8 @@ class SubscriptionRepository
             return $subscription;
         }
 
-        if($plan_id) $subscription->plan_id = $plan_id;
-        if($plan_expires_at) $subscription->plan_expires_at = $plan_expires_at;
+        if ($plan_id) $subscription->plan_id = $plan_id;
+        if ($plan_expires_at) $subscription->plan_expires_at = $plan_expires_at;
 
         $subscription->save();
 

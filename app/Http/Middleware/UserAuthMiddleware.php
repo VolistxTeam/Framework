@@ -2,23 +2,18 @@
 
 namespace App\Http\Middleware;
 
-use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
 use App\Classes\ValidationRules\IPValidationRule;
 use App\Classes\ValidationRules\KeyValidationRule;
 use App\Classes\ValidationRules\RequestsCountValidationRule;
-use App\Classes\ValidationRules\ValidationRuleBase;
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
-use JetBrains\PhpStorm\ArrayShape;
 
 class UserAuthMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
         $key = PermissionsCenter::getUserAuthKey($request->bearerToken());
-
 
         //prepare inputs array
         $inputs = [
@@ -34,17 +29,17 @@ class UserAuthMiddleware
             new RequestsCountValidationRule($inputs)
         ];
 
-        foreach ($validators as $validator){
+        foreach ($validators as $validator) {
             $result = $validator->validate();
-            if($result !== true){
-                return response()->json($result['message'],$result['code']);
+            if ($result !== true) {
+                return response()->json($result['message'], $result['code']);
             }
         }
 
         $request->merge([
-            'X-PERSONAL-TOKEN'=> $key,
+            'X-PERSONAL-TOKEN' => $key,
         ]);
 
-      return $next($request);
+        return $next($request);
     }
 }

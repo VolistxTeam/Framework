@@ -51,6 +51,11 @@ class PersonalTokenRepository
         return $token;
     }
 
+    public function Find($subscription_id, $token_id)
+    {
+        return PersonalToken::query()->where('id', $token_id)->where('subscription_id', $subscription_id)->first();
+    }
+
     public function Reset($subscription_id, $token_id, $inputs)
     {
         $token = $this->Find($subscription_id, $token_id);
@@ -65,11 +70,6 @@ class PersonalTokenRepository
         $token->save();
 
         return $token;
-    }
-
-    public function Find($subscription_id, $token_id)
-    {
-        return PersonalToken::query()->where('id', $token_id)->where('subscription_id', $subscription_id)->first();
     }
 
     public function Delete($subscription_id, $token_id)

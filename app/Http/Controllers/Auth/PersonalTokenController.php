@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Repositories\AdminLogRepository;
 use App\Repositories\PersonalTokenRepository;
 use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
@@ -34,14 +33,14 @@ class PersonalTokenController extends BaseController
             return response()->json(MessagesCenter::E401(), 401);
         }
 
-        $validator = Validator::make(array_merge($request->all(),[
+        $validator = Validator::make(array_merge($request->all(), [
             'subscription_id' => $subscription_id
         ]), [
             'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
             'hours_to_expire' => ['bail', 'required', 'integer'],
-            'permissions' => ['bail', 'required' ,'array'],
+            'permissions' => ['bail', 'required', 'array'],
             'permissions.*' => ['bail', 'required_if:permissions,array', 'string'],
-            'whitelist_range' => ['bail', 'required' ,'array'],
+            'whitelist_range' => ['bail', 'required', 'array'],
             'whitelist_range.*' => ['bail', 'required_if:whitelist_range,array', 'ip'],
         ]);
 
@@ -56,8 +55,8 @@ class PersonalTokenController extends BaseController
             $newPersonalToken = $this->personalTokenRepository->Create($subscription_id, [
                 'key' => $key,
                 'salt' => $salt,
-                'permissions' =>$request->input('permissions'),
-                'whitelist_range' =>  $request->input('whitelist_range'),
+                'permissions' => $request->input('permissions'),
+                'whitelist_range' => $request->input('whitelist_range'),
                 'activated_at' => Carbon::now(),
                 'hours_to_expire' => $request->input('hours_to_expire')
             ])->toArray();
@@ -65,220 +64,8 @@ class PersonalTokenController extends BaseController
             if (!$newPersonalToken) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
-            return response()->json($this->getUserToken($newPersonalToken,$key), 201);
+            return response()->json($this->getUserToken($newPersonalToken, $key), 201);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
-        }
-    }
-
-    public function UpdatePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
-    {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
-            return response()->json(MessagesCenter::E401(), 401);
-        }
-
-        $validator = Validator::make(array_merge($request->all(), [
-            'subscription_id' => $subscription_id,
-            'token_id' => $token_id
-        ]), [
-            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
-            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
-            'hours_to_expire' => ['bail', 'sometimes', 'integer'],
-            'permissions' => ['bail', 'sometimes' ,'array'],
-            'permissions.*' => ['bail', 'required_if:permissions,array', 'string'],
-            'whitelist_range' => ['bail', 'sometimes' ,'array'],
-            'whitelist_range.*' => ['bail', 'required_if:whitelist_range,array', 'ip'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
-        }
-
-        try {
-            $updatedToken = $this->personalTokenRepository->Update($subscription_id, $token_id, $request->all())->toArray();
-            if (!$updatedToken) {
-                return response()->json(MessagesCenter::E404(), 404);
-            }
-            return response()->json($this->getUserToken($updatedToken));
-        } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
-        }
-    }
-
-    public function ResetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
-    {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:reset')) {
-            return response()->json(MessagesCenter::E401(), 401);
-        }
-
-        $validator = Validator::make(array_merge($request->all(), [
-            'subscription_id' => $subscription_id,
-            'token_id' => $token_id
-        ]), [
-            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
-            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
-        }
-
-
-        try {
-            $newKey = $this->generateSubscriptionKey();
-            $newSalt = Str::random(16);
-
-            $resetToken = $this->personalTokenRepository->Reset($subscription_id, $token_id,
-                [
-                    'key'=>$newKey,
-                    'salt'=>$newSalt
-                ]
-            )->toArray();
-
-            if (!$resetToken) {
-                return response()->json(MessagesCenter::E404(), 404);
-            }
-            return response()->json($this->getUserToken($resetToken,$newKey));
-        } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
-        }
-    }
-
-    public function DeletePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
-    {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
-            return response()->json(MessagesCenter::E401(), 401);
-        }
-        $validator = Validator::make(array_merge($request->all(), [
-            'subscription_id' => $subscription_id,
-            'token_id' => $token_id
-        ]), [
-            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
-            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
-        }
-
-        try {
-            $result = $this->personalTokenRepository->Delete($subscription_id, $token_id);
-            if (!$result) {
-                return response()->json(MessagesCenter::E404(), 404);
-            }
-            return response()->json(null,204);
-        } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
-        }
-    }
-
-    public function GetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
-    {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
-        }
-
-        $validator = Validator::make(array_merge($request->all(), [
-            'subscription_id' => $subscription_id,
-            'token_id' => $token_id
-        ]), [
-            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
-            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
-        ]);
-
-        try {
-            $token = $this->personalTokenRepository->Find($subscription_id, $token_id)->toArray();
-
-            if (!$token) {
-                return response()->json(MessagesCenter::E404(), 404);
-            }
-            return response()->json($this->getUserToken($token));
-        } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
-        }
-    }
-
-    public function GetPersonalTokens(Request $request, $subscription_id): JsonResponse
-    {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'),'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
-        }
-
-        $search = $request->input('search', "");
-        $page = $request->input('page', 1);
-        $limit = $request->input('limit', 50);
-
-        $validator = Validator::make([
-            'page' => $page,
-            'limit' => $limit
-        ], [
-            'page' => ['bail', 'sometimes', 'integer'],
-            'limit' => ['bail', 'sometimes', 'integer'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
-        }
-
-        try {
-            $tokens = $this->personalTokenRepository->FindAll($subscription_id ,$search, $page, $limit);
-
-            $userTokens = [];
-            foreach ($tokens->items() as $item) {
-                $userTokens[] = $this->getUserToken($item->toArray());
-            }
-
-            return response()->json([
-                'pagination' => [
-                    'per_page' => $tokens->perPage(),
-                    'current' => $tokens->currentPage(),
-                    'total' => $tokens->lastPage(),
-                ],
-                'items' => $userTokens
-            ]);
-
-        } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
-        }
-    }
-
-    public  function GetPersonalTokenLogs(Request $request,$subscription_id,$token_id):JsonResponse{
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
-            return response()->json(MessagesCenter::E401(), 401);
-        }
-
-        $search = $request->input('search',"");
-        $page =$request->input('page',1);
-        $limit = $request->input('limit',50);
-
-        $validator = Validator::make(array_merge([
-            'subscription_id' => $subscription_id,
-            'token_id'=>$token_id,
-            'page'=>$page,
-            'limit'=>$limit
-        ]), [
-            'subscription_id' => ['bail', 'required', 'exists:subscriptions,id'],
-            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
-            '$page' => ['bail', 'sometimes', 'numeric'],
-            'limit' => ['bail', 'sometimes', 'numeric'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
-        }
-
-        try {
-            $logs = $this->logRepository->FindLogsByToken($token_id,$search,$page,$limit);
-
-            return response()->json([
-                'pagination' => [
-                    'per_page' => $logs->perPage(),
-                    'current' => $logs->currentPage(),
-                    'total' => $logs->lastPage(),
-                ],
-                'items' => $logs->items()
-            ]);
-        } catch (Exception $exception) {
             return response()->json(MessagesCenter::E500(), 500);
         }
     }
@@ -312,6 +99,219 @@ class PersonalTokenController extends BaseController
         }
 
         return $result;
+    }
+
+    public function UpdatePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
+    {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+
+        $validator = Validator::make(array_merge($request->all(), [
+            'subscription_id' => $subscription_id,
+            'token_id' => $token_id
+        ]), [
+            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
+            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
+            'hours_to_expire' => ['bail', 'sometimes', 'integer'],
+            'permissions' => ['bail', 'sometimes', 'array'],
+            'permissions.*' => ['bail', 'required_if:permissions,array', 'string'],
+            'whitelist_range' => ['bail', 'sometimes', 'array'],
+            'whitelist_range.*' => ['bail', 'required_if:whitelist_range,array', 'ip'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        try {
+            $updatedToken = $this->personalTokenRepository->Update($subscription_id, $token_id, $request->all())->toArray();
+            if (!$updatedToken) {
+                return response()->json(MessagesCenter::E404(), 404);
+            }
+            return response()->json($this->getUserToken($updatedToken));
+        } catch (Exception $ex) {
+            return response()->json(MessagesCenter::E500(), 500);
+        }
+    }
+
+    public function ResetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
+    {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:reset')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+
+        $validator = Validator::make(array_merge($request->all(), [
+            'subscription_id' => $subscription_id,
+            'token_id' => $token_id
+        ]), [
+            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
+            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+
+        try {
+            $newKey = $this->generateSubscriptionKey();
+            $newSalt = Str::random(16);
+
+            $resetToken = $this->personalTokenRepository->Reset($subscription_id, $token_id,
+                [
+                    'key' => $newKey,
+                    'salt' => $newSalt
+                ]
+            )->toArray();
+
+            if (!$resetToken) {
+                return response()->json(MessagesCenter::E404(), 404);
+            }
+            return response()->json($this->getUserToken($resetToken, $newKey));
+        } catch (Exception $ex) {
+            return response()->json(MessagesCenter::E500(), 500);
+        }
+    }
+
+    public function DeletePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
+    {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+        $validator = Validator::make(array_merge($request->all(), [
+            'subscription_id' => $subscription_id,
+            'token_id' => $token_id
+        ]), [
+            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
+            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        try {
+            $result = $this->personalTokenRepository->Delete($subscription_id, $token_id);
+            if (!$result) {
+                return response()->json(MessagesCenter::E404(), 404);
+            }
+            return response()->json(null, 204);
+        } catch (Exception $ex) {
+            return response()->json(MessagesCenter::E500(), 500);
+        }
+    }
+
+    public function GetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
+    {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+
+        $validator = Validator::make(array_merge($request->all(), [
+            'subscription_id' => $subscription_id,
+            'token_id' => $token_id
+        ]), [
+            'subscription_id' => ['required', 'uuid', 'bail', 'exists:subscriptions,id'],
+            'token_id' => ['required', 'uuid', 'bail', 'exists:personal_tokens,id'],
+        ]);
+
+        try {
+            $token = $this->personalTokenRepository->Find($subscription_id, $token_id)->toArray();
+
+            if (!$token) {
+                return response()->json(MessagesCenter::E404(), 404);
+            }
+            return response()->json($this->getUserToken($token));
+        } catch (Exception $ex) {
+            return response()->json(MessagesCenter::E500(), 500);
+        }
+    }
+
+    public function GetPersonalTokens(Request $request, $subscription_id): JsonResponse
+    {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
+
+        $validator = Validator::make([
+            'page' => $page,
+            'limit' => $limit
+        ], [
+            'page' => ['bail', 'sometimes', 'integer'],
+            'limit' => ['bail', 'sometimes', 'integer'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        try {
+            $tokens = $this->personalTokenRepository->FindAll($subscription_id, $search, $page, $limit);
+
+            $userTokens = [];
+            foreach ($tokens->items() as $item) {
+                $userTokens[] = $this->getUserToken($item->toArray());
+            }
+
+            return response()->json([
+                'pagination' => [
+                    'per_page' => $tokens->perPage(),
+                    'current' => $tokens->currentPage(),
+                    'total' => $tokens->lastPage(),
+                ],
+                'items' => $userTokens
+            ]);
+
+        } catch (Exception $ex) {
+            return response()->json(MessagesCenter::E500(), 500);
+        }
+    }
+
+    public function GetPersonalTokenLogs(Request $request, $subscription_id, $token_id): JsonResponse
+    {
+        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
+            return response()->json(MessagesCenter::E401(), 401);
+        }
+
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
+
+        $validator = Validator::make(array_merge([
+            'subscription_id' => $subscription_id,
+            'token_id' => $token_id,
+            'page' => $page,
+            'limit' => $limit
+        ]), [
+            'subscription_id' => ['bail', 'required', 'exists:subscriptions,id'],
+            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
+            '$page' => ['bail', 'sometimes', 'numeric'],
+            'limit' => ['bail', 'sometimes', 'numeric'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+        }
+
+        try {
+            $logs = $this->logRepository->FindLogsByToken($token_id, $search, $page, $limit);
+
+            return response()->json([
+                'pagination' => [
+                    'per_page' => $logs->perPage(),
+                    'current' => $logs->currentPage(),
+                    'total' => $logs->lastPage(),
+                ],
+                'items' => $logs->items()
+            ]);
+        } catch (Exception $exception) {
+            return response()->json(MessagesCenter::E500(), 500);
+        }
     }
 
 }

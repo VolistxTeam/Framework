@@ -6,7 +6,6 @@ use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
 use App\Repositories\AdminLogRepository;
 use Closure;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Wikimedia\IPSet;
 
@@ -18,7 +17,6 @@ class AdminAuthMiddleware
     {
         $this->logRepository = $logRepository;
     }
-
 
     public function handle(Request $request, Closure $next)
     {
@@ -35,8 +33,9 @@ class AdminAuthMiddleware
         }
 
         $request->merge([
-            'X-ACCESS-TOKEN'=> $accessKey,
+            'X-ACCESS-TOKEN' => $accessKey,
         ]);
+
         return $next($request);
     }
 

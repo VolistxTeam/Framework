@@ -3,24 +3,21 @@
 namespace App\Repositories;
 
 use App\Models\AdminLog;
-use App\Models\PersonalToken;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class AdminLogRepository
 {
-    public function Create($access_token_id,array $inputs)
+    public function Create($access_token_id, array $inputs)
     {
         return AdminLog::query()->create([
             'access_token_id' => $access_token_id,
-            'url'               => $inputs['url'],
-            'request_method'    => $inputs['request_method'],
-            'request_body'      => $inputs['request_body'],
-            'request_header'    => $inputs['request_header'],
-            'ip'                => $inputs['ip'],
-            'response_code'     => $inputs['response_code'],
-            'response_body'     => $inputs['response_body'],
+            'url' => $inputs['url'],
+            'request_method' => $inputs['request_method'],
+            'request_body' => $inputs['request_body'],
+            'request_header' => $inputs['request_header'],
+            'ip' => $inputs['ip'],
+            'response_code' => $inputs['response_code'],
+            'response_body' => $inputs['response_body'],
         ]);
     }
 
@@ -29,12 +26,12 @@ class AdminLogRepository
         return AdminLog::query()->where('id', $log_id)->where('access_token_id', $access_token_id)->first();
     }
 
-    public function FindAll($access_token_id,$needle,$page,$limit)
+    public function FindAll($access_token_id, $needle, $page, $limit)
     {
         $columns = Schema::getColumnListing('admin_logs');
         $query = AdminLog::query();
 
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $query->orWhere("admin_logs.$column", 'LIKE', "%$needle%");
         }
         return $query->where('access_token_id', $access_token_id)

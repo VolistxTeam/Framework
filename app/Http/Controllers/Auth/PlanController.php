@@ -4,16 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
-use App\Repositories\AdminLogRepository;
-use App\Repositories\PersonalTokenRepository;
 use App\Repositories\PlanRepository;
-use App\Repositories\SubscriptionRepository;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class PlanController extends BaseController
@@ -34,7 +29,7 @@ class PlanController extends BaseController
         $validator = Validator::make($request->all(), [
             'name' => ['bail', 'required', 'string'],
             'description' => ['bail', 'required', 'string'],
-            'requests' => ['bail','required','integer'],
+            'requests' => ['bail', 'required', 'integer'],
         ]);
 
         if ($validator->fails()) {
@@ -64,7 +59,7 @@ class PlanController extends BaseController
             'plan_id' => ['bail', 'required', 'uuid', 'exists:plans,id'],
             'name' => ['bail', 'sometimes', 'string'],
             'description' => ['bail', 'sometimes', 'string'],
-            'requests' => ['bail','sometimes','integer'],
+            'requests' => ['bail', 'sometimes', 'integer'],
         ]);
 
         if ($validator->fails()) {
@@ -104,7 +99,7 @@ class PlanController extends BaseController
             if (!$result) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json(null,204);
+            return response()->json(null, 204);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -144,13 +139,13 @@ class PlanController extends BaseController
             return response()->json(MessagesCenter::E401(), 401);
         }
 
-        $search = $request->input('search',"");
-        $page =$request->input('page',1);
-        $limit = $request->input('limit',50);
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
 
         $validator = Validator::make([
-            'page'=>$page,
-            'limit'=>$limit
+            'page' => $page,
+            'limit' => $limit
         ], [
             '$page' => ['bail', 'sometimes', 'numeric'],
             'limit' => ['bail', 'sometimes', 'numeric'],
@@ -161,7 +156,7 @@ class PlanController extends BaseController
         }
 
         try {
-            $plans = $this->planRepository->FindAll($search,$page,$limit);
+            $plans = $this->planRepository->FindAll($search, $page, $limit);
             if (!$plans) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
