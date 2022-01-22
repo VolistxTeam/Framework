@@ -30,6 +30,7 @@ php artisan key:generate
 php artisan migrate
 php artisan geoip:update
 php artisan cloudflare:reload
+php artisan optimize
 ```
 
 Do not forget to set a cronjob for production:
