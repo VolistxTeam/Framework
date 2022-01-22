@@ -2,10 +2,8 @@
 
 namespace App\Console;
 
-use Illuminate\Console\KeyGenerateCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
-use Mlntn\Console\Commands\Serve;
 use Spatie\ResponseCache\Commands\ClearCommand;
 
 class Kernel extends ConsoleKernel
@@ -19,8 +17,6 @@ class Kernel extends ConsoleKernel
         Commands\AccessKey\GenerateCommand::class,
         Commands\AccessKey\DeleteCommand::class,
         ClearCommand::class,
-        KeyGenerateCommand::class,
-        Serve::class,
         \Monicahq\Cloudflare\Commands\Reload::class,
 
         // Custom Commands Here

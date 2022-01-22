@@ -26,6 +26,8 @@ $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 $app->withFacades();
 $app->withEloquent();
 
+$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
