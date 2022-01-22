@@ -25,7 +25,6 @@ class AdminLog extends Model
      */
     public $timestamps = true;
 
-
     protected $fillable = [
         'access_token_id',
         'url',
@@ -35,10 +34,6 @@ class AdminLog extends Model
         'ip',
         'response_code',
         'response_body',
-    ];
-
-    protected $casts = [
-        'header'=>'array'
     ];
 
     public function accessToken(): BelongsTo

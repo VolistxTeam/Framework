@@ -28,7 +28,7 @@ class RequestLoggingMiddleware
     public function terminate(Request $request, Response $response)
     {
         $header = (array)$request->header();
-        unset($header['Authorization']);
+        unset($header['authorization']);
 
         $inputs = [
             'url' => $request->fullUrl(),

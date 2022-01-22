@@ -31,7 +31,7 @@ class SubscriptionController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'user_id' => ['bail', 'required', 'integer'],
-            'plan_id' => ['bail', 'required', 'string', 'exists:plans,id'],
+            'plan_id' => ['bail', 'required', 'uuid', 'exists:plans,id'],
             'plan_activated_at' => ['bail', 'required', 'date'],
             'plan_expires_at' => ['bail', 'required', 'date', 'after:plan_activated_at']
         ]);

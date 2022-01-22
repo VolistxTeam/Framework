@@ -147,7 +147,7 @@ class PlanController extends BaseController
             'page' => $page,
             'limit' => $limit
         ], [
-            '$page' => ['bail', 'sometimes', 'numeric'],
+            'page' => ['bail', 'sometimes', 'numeric'],
             'limit' => ['bail', 'sometimes', 'numeric'],
         ]);
 
@@ -156,7 +156,7 @@ class PlanController extends BaseController
         }
 
         try {
-            $plans = $this->planRepository->FindAll($search, $page, $limit);
+            $plans = $this->planRepository->FindAll($search, (int) $page, (int) $limit);
             if (!$plans) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
