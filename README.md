@@ -15,7 +15,12 @@ Let's make some awesome thing together!
 
 ### Installation
 ```
-composer create-project --prefer-dist cryental/volistx-skeleton myproject
+composer create-project --prefer-dist cryental/volistx-skeleton myproject ^5.0
+```
+
+For Simple Subscription Management:
+```
+composer create-project --prefer-dist cryental/volistx-skeleton myproject ^4.0
 ```
 
 ### Usage
