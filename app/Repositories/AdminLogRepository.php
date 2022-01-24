@@ -21,12 +21,12 @@ class AdminLogRepository
         ]);
     }
 
-    public function Find($access_token_id, $log_id)
+    public function Find($log_id)
     {
-        return AdminLog::query()->where('id', $log_id)->where('access_token_id', $access_token_id)->first();
+        return AdminLog::query()->where('id', $log_id)->first();
     }
 
-    public function FindAll($access_token_id, $needle, $page, $limit)
+    public function FindAll($needle, $page, $limit)
     {
         $columns = Schema::getColumnListing('admin_logs');
         $query = AdminLog::query();
@@ -34,8 +34,7 @@ class AdminLogRepository
         foreach ($columns as $column) {
             $query->orWhere("admin_logs.$column", 'LIKE', "%$needle%");
         }
-        return $query->where('access_token_id', $access_token_id)
-            ->orderBy('created_at', 'DESC')
+        return $query->orderBy('created_at', 'DESC')
             ->paginate($limit, ['*'], 'page', $page);
     }
 }

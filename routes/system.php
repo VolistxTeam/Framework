@@ -46,5 +46,10 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
             $router->get('/', 'Auth\PlanController@GetPlans');
             $router->get('/{plan_id}', 'Auth\PlanController@GetPlan');
         });
+
+        $router->group(['prefix' => 'logs'], function () use ($router) {
+            $router->get('/', 'Auth\AdminLogController@GetAdminLogs');
+            $router->get('/{log_id}', 'Auth\AdminLogController@GetAdminLog');
+        });
     });
 });
