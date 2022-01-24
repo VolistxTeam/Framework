@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Classes\UuidForKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AccessToken extends Model
 {
@@ -35,4 +36,9 @@ class AccessToken extends Model
         'permissions' => 'array',
         'whitelist_range' => 'array'
     ];
+
+    public function adminLogs(): HasMany
+    {
+        return $this->hasMany(AdminLog::class);
+    }
 }
