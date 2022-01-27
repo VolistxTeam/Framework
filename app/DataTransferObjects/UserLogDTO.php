@@ -13,7 +13,7 @@ class UserLogDTO extends DataTransferObjectBase
     public string $url;
     public string $request_header;
     public string $request_method;
-    public string $request_body;
+    public ?string $request_body;
     public string $response_code;
     public string $response_body;
     public string $created_at;
@@ -40,7 +40,7 @@ class UserLogDTO extends DataTransferObjectBase
             ],
             'response' => [
                 'code' => $this->response_code,
-                'body' =>json_decode($this->response_body)
+               // 'body' =>json_decode($this->response_body)
             ]
         ];
     }
