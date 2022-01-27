@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
+use App\DataTransferObjects\AdminLogDTO;
 use App\Repositories\AdminLogRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -42,7 +43,7 @@ class AdminLogController extends BaseController
             if (!$log) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($log);
+            return response()->json(AdminLogDTO::fromModel($log)->GetDTO());
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -76,13 +77,18 @@ class AdminLogController extends BaseController
                 return response()->json(MessagesCenter::E500(), 500);
             }
 
+            $items = [];
+            foreach ($logs->items() as $item){
+                $items[] = AdminLogDTO::fromModel($item)->GetDTO();
+            }
+
             return response()->json([
                 'pagination' => [
                     'per_page' => $logs->perPage(),
                     'current' => $logs->currentPage(),
                     'total' => $logs->lastPage(),
                 ],
-                'items' => $logs->items()
+                'items' => $items
             ]);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
