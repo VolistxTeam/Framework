@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
+use App\DataTransferObjects\PlanDTO;
 use App\Repositories\PlanRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -37,11 +38,11 @@ class PlanController extends BaseController
         }
 
         try {
-            $newPlan = $this->planRepository->Create($request->all())->toArray();
+            $newPlan = $this->planRepository->Create($request->all());
             if (!$newPlan) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
-            return response()->json($newPlan, 201);
+            return response()->json(PlanDTO::fromModel($newPlan)->GetDTO(), 201);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -72,7 +73,7 @@ class PlanController extends BaseController
             if (!$updatedPlan) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($updatedPlan);
+            return response()->json(PlanDTO::fromModel($updatedPlan)->GetDTO());
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -127,7 +128,7 @@ class PlanController extends BaseController
             if (!$plan) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($plan);
+            return response()->json(PlanDTO::fromModel($plan)->GetDTO());
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -161,6 +162,10 @@ class PlanController extends BaseController
                 return response()->json(MessagesCenter::E500(), 500);
             }
 
+            $items = [];
+            foreach ($plans->items() as $item){
+                $items[] = PlanDTO::fromModel($item)->GetDTO();
+            }
             return response()->json([
                 'pagination' => [
                     'per_page' => $plans->perPage(),
