@@ -58,7 +58,7 @@ class UserLogRepository
         }
         return $query->join('personal_tokens', 'personal_tokens.id', '=', 'user_logs.personal_token_id')
             ->where('personal_tokens.subscription_id', $subscription_id)
-            ->orderBy('created_at', 'DESC')
+            ->orderBy('user_logs.created_at', 'DESC')
             ->paginate($limit, ['*'], 'page', $page);
     }
 
