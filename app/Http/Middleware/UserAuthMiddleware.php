@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Classes\PermissionsCenter;
 use App\Classes\ValidationRules\IPValidationRule;
 use App\Classes\ValidationRules\KeyValidationRule;
+use App\Classes\ValidationRules\RateLimitValidationRule;
 use App\Classes\ValidationRules\RequestsCountValidationRule;
 use Closure;
 use Illuminate\Http\Request;
@@ -26,7 +27,8 @@ class UserAuthMiddleware
         $validators = [
             new KeyValidationRule($inputs),
             new IPValidationRule($inputs),
-            new RequestsCountValidationRule($inputs)
+            new RequestsCountValidationRule($inputs),
+            new RateLimitValidationRule($inputs)
         ];
 
         foreach ($validators as $validator) {
