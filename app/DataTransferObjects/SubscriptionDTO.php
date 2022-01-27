@@ -3,6 +3,8 @@
 namespace App\DataTransferObjects;
 
 
+use App\Repositories\AdminLogRepository;
+use App\Repositories\PlanRepository;
 use Carbon\Carbon;
 
 class SubscriptionDTO extends DataTransferObjectBase
@@ -17,17 +19,18 @@ class SubscriptionDTO extends DataTransferObjectBase
 
     public static function fromModel($subscription) :self
     {
-        return new self($subscription->toArray());
+        return new self($subscription);
     }
 
 
     public function GetDTO(): array
     {
+
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'plan'=>[
-                'id' => $this->plan_id,
+            'plan'=> PlanDTO::fromModel($this->entity->plan()->first()),
+            'status'=>[
                 'is_expired' => $this->plan_expires_at != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($this->plan_expires_at)),
                 'activated_at' =>$this->plan_activated_at,
                 'expires_at' =>$this->plan_expires_at

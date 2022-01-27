@@ -186,7 +186,6 @@ class SubscriptionController extends BaseController
 
     public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
     {
-        ray('here');
         if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
             return response()->json(MessagesCenter::E401(), 401);
         }

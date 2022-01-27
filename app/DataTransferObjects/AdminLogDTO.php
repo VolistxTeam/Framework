@@ -21,7 +21,7 @@ class AdminLogDTO extends DataTransferObjectBase
 
     public static function fromModel($adminLog): self
     {
-        return new self($adminLog->toArray());
+        return new self($adminLog);
     }
 
 

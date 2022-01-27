@@ -21,7 +21,7 @@ class UserLogDTO extends DataTransferObjectBase
 
     public static function fromModel($userLog): self
     {
-        return new self($userLog->toArray());
+        return new self($userLog);
     }
 
 
