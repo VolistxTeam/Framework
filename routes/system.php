@@ -14,7 +14,7 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
     });
 
     $router->group(['prefix' => 'admin', 'middleware' => 'auth.admin'], function () use ($router) {
-        $router->group(['prefix' => 'subscription'], function () use ($router) {
+        $router->group(['prefix' => 'subscriptions'], function () use ($router) {
             $router->group(['middleware' => ['filter.json']], function () use ($router) {
                 $router->post('/', 'Auth\SubscriptionController@CreateSubscription');
                 $router->put('/{subscription_id}', 'Auth\SubscriptionController@UpdateSubscription');
