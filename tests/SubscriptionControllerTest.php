@@ -34,7 +34,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
 
-        $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/subscription/', [
+        $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/subscriptions/', [
             '*' => 201,
             '' => 401,
             'key:create' => 201
@@ -52,7 +52,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $key = Str::random(64);
         $this->GenerateAccessToken($key);
 
-        $request = $this->json('POST', '/sys-bin/admin/subscription/', [
+        $request = $this->json('POST', '/sys-bin/admin/subscriptions/', [
             "plan_id" => Plan::query()->first()->id,
             "user_id" => 1,
             "plan_activated_at" => \Carbon\Carbon::now(),
@@ -62,8 +62,9 @@ class SubscriptionControllerTest extends BaseTestCase
         ]);
 
         self::assertResponseStatus(201);
-        self::assertSame(1, json_decode($request->response->getContent())->user_id);
-        self::assertSame(Plan::query()->first()->id, json_decode($request->response->getContent())->plan_id);
+        self::assertSame('1', json_decode($request->response->getContent())->user_id);
+        ray( json_decode($request->response->getContent()));
+        self::assertSame(Plan::query()->first()->id, json_decode($request->response->getContent())->plan->id);
     }
 
 
@@ -75,7 +76,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $this->TestPermissions($token, $key, 'PUT', "/sys-bin/admin/subscription/{$sub->id}", [
+        $this->TestPermissions($token, $key, 'PUT', "/sys-bin/admin/subscriptions/{$sub->id}", [
             '*' => 200,
             'key:update' => 200,
             '' => 401
@@ -91,15 +92,15 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $request = $this->json('PUT', "/sys-bin/admin/subscription/{$sub->id}", [
+        $request = $this->json('PUT', "/sys-bin/admin/subscriptions/{$sub->id}", [
             'plan_id' => Plan::query()->skip(1)->first()->id,
         ], [
             'Authorization' => "Bearer $key",
         ]);
 
         self::assertResponseStatus(200);
-        self::assertSame(0, json_decode($request->response->getContent())->user_id);
-        self::assertSame(Plan::query()->skip(1)->first()->id, json_decode($request->response->getContent())->plan_id);
+        self::assertSame('0', json_decode($request->response->getContent())->user_id);
+        self::assertSame(Plan::query()->skip(1)->first()->id, json_decode($request->response->getContent())->plan->id);
     }
 
 
@@ -111,17 +112,17 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
 
         $sub = $this->GenerateSub(0);
-        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscription/{$sub->id}", [
+        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
             '*' => 204,
         ]);
 
         $sub = $this->GenerateSub(0);
-        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscription/{$sub->id}", [
+        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
             'key:delete' => 204,
         ]);
 
         $sub = $this->GenerateSub(0);
-        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscription/{$sub->id}", [
+        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
             '' => 401
         ]);
     }
@@ -133,7 +134,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $request = $this->json('DELETE', "/sys-bin/admin/subscription/{$sub->id}", [], [
+        $request = $this->json('DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -149,7 +150,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscription/{$sub->id}", [
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}", [
             '*' => 200,
             '' => 401,
             'key:list' => 200
@@ -163,12 +164,12 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $request = $this->json('GET', "/sys-bin/admin/subscription/{$sub->id}", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}", [], [
             'Authorization' => "Bearer $key",
         ]);
 
         self::assertResponseStatus(200);
-        self::assertSame(0, json_decode($request->response->getContent())->user_id);
+        self::assertSame('0', json_decode($request->response->getContent())->user_id);
     }
 
 
@@ -179,7 +180,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscription/", [
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/", [
             '*' => 200,
             '' => 401,
             'key:list' => 200
@@ -194,14 +195,14 @@ class SubscriptionControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0);
         $sub = $this->GenerateSub(0);
 
-        $request = $this->json('GET', "/sys-bin/admin/subscription/", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/", [], [
             'Authorization' => "Bearer $key",
         ]);
 
         self::assertResponseStatus(200);
         self::assertCount(2, json_decode($request->response->getContent())->items);
 
-        $request = $this->json('GET', "/sys-bin/admin/subscription/?limit=1", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/?limit=1", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -216,7 +217,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
 
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscription/{$sub->id}/logs", [
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs", [
             '*' => 200,
             '' => 401,
             'key:logs' => 200
@@ -229,7 +230,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0);
-        $request = $this->json('GET', "/sys-bin/admin/subscription/{$sub->id}/logs", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -237,7 +238,7 @@ class SubscriptionControllerTest extends BaseTestCase
         self::assertCount(25, json_decode($request->response->getContent())->items);
 
 
-        $request = $this->json('GET', "/sys-bin/admin/subscription/{$sub->id}/logs/?limit=10", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs/?limit=10", [], [
             'Authorization' => "Bearer $key",
         ]);
 

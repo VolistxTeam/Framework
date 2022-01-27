@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
+use App\DataTransferObjects\SubscriptionDTO;
 use App\Repositories\SubscriptionRepository;
 use App\Repositories\UserLogRepository;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -41,11 +43,11 @@ class SubscriptionController extends BaseController
         }
 
         try {
-            $newSubscription = $this->subscriptionRepository->Create($request->all())->toArray();
+            $newSubscription = $this->subscriptionRepository->Create($request->all());
             if (!$newSubscription) {
                 return response()->json(MessagesCenter::E500(), 500);
             }
-            return response()->json($newSubscription, 201);
+            return response()->json(SubscriptionDTO::fromModel($newSubscription)->GetDTO(), 201);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -75,7 +77,7 @@ class SubscriptionController extends BaseController
             if (!$updatedSub) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($updatedSub);
+            return response()->json(SubscriptionDTO::fromModel($updatedSub)->GetDTO());
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -130,7 +132,7 @@ class SubscriptionController extends BaseController
             if (!$subscription) {
                 return response()->json(MessagesCenter::E404(), 404);
             }
-            return response()->json($subscription);
+            return response()->json(SubscriptionDTO::fromModel($subscription)->GetDTO());
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
         }
@@ -164,13 +166,17 @@ class SubscriptionController extends BaseController
                 return response()->json(MessagesCenter::E500(), 500);
             }
 
+            $items = [];
+            foreach ($subs->items() as $item){
+                $items[] = SubscriptionDTO::fromModel($item)->GetDTO();
+            }
             return response()->json([
                 'pagination' => [
                     'per_page' => $subs->perPage(),
                     'current' => $subs->currentPage(),
                     'total' => $subs->lastPage(),
                 ],
-                'items' => $subs->items()
+                'items' => $items
             ]);
         } catch (Exception $ex) {
             return response()->json(MessagesCenter::E500(), 500);
