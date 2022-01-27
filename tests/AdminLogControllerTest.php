@@ -22,7 +22,7 @@ class AdminLogControllerTest extends BaseTestCase
 
 
     /** @test */
-    public function AuthorizeGetPlanPermissions()
+    public function AuthorizeGetLogPermissions()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key,1);
@@ -36,7 +36,7 @@ class AdminLogControllerTest extends BaseTestCase
     }
 
     /** @test */
-    public function GetPlan()
+    public function GetLog()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key,1);
@@ -48,7 +48,7 @@ class AdminLogControllerTest extends BaseTestCase
         ]);
 
         self::assertResponseStatus(200);
-        self::assertSame($token->id,json_decode($request->response->getContent())->access_token_id);
+        self::assertSame($token->id,json_decode($request->response->getContent())->access_token->id);
     }
 
 
