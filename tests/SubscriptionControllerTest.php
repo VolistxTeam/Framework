@@ -234,6 +234,7 @@ class SubscriptionControllerTest extends BaseTestCase
             'Authorization' => "Bearer $key",
         ]);
 
+        ray(json_decode($request->response->getContent()));
         self::assertResponseStatus(200);
         self::assertCount(25, json_decode($request->response->getContent())->items);
 

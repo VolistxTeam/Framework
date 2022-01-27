@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Classes\MessagesCenter;
 use App\Classes\PermissionsCenter;
 use App\DataTransferObjects\SubscriptionDTO;
+use App\DataTransferObjects\UserLogDTO;
 use App\Repositories\SubscriptionRepository;
 use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
@@ -185,6 +186,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
     {
+        ray('here');
         if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
             return response()->json(MessagesCenter::E401(), 401);
         }
@@ -210,13 +212,18 @@ class SubscriptionController extends BaseController
         try {
             $logs = $this->logRepository->FindLogsBySubscription($subscription_id, $search, $page, $limit);
 
+            $items = [];
+            foreach ($logs->items() as $item){
+                $items[] = UserLogDTO::fromModel($item)->GetDTO();
+            }
+
             return response()->json([
                 'pagination' => [
                     'per_page' => $logs->perPage(),
                     'current' => $logs->currentPage(),
                     'total' => $logs->lastPage(),
                 ],
-                'items' => $logs->items()
+                'items' => $items
             ]);
         } catch (Exception $exception) {
             return response()->json(MessagesCenter::E500(), 500);
