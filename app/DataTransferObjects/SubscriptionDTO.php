@@ -11,7 +11,7 @@ class SubscriptionDTO extends DataTransferObjectBase
     public string $user_id;
     public string $plan_id;
     public string $plan_activated_at;
-    public string $plan_expires_at;
+    public ?string $plan_expires_at;
     public string $created_at;
     public string $updated_at;
 
