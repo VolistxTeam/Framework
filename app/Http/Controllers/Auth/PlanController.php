@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\MessagesCenter;
-use App\Classes\PermissionsCenter;
+use App\Classes\Facades\Messages;
+use App\Classes\Facades\Permissions;
 use App\DataTransferObjects\PlanDTO;
 use App\Repositories\PlanRepository;
 use Exception;
@@ -23,8 +23,8 @@ class PlanController extends BaseController
 
     public function CreatePlan(Request $request): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:create')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:create')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -34,24 +34,24 @@ class PlanController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $newPlan = $this->planRepository->Create($request->all());
             if (!$newPlan) {
-                return response()->json(MessagesCenter::E500(), 500);
+                return response()->json(Messages::E500(), 500);
             }
             return response()->json(PlanDTO::fromModel($newPlan)->GetDTO(), 201);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function UpdatePlan(Request $request, $plan_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -64,25 +64,25 @@ class PlanController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $updatedPlan = $this->planRepository->Update($plan_id, $request->all());
 
             if (!$updatedPlan) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(PlanDTO::fromModel($updatedPlan)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function DeletePlan(Request $request, $plan_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make([
@@ -92,24 +92,24 @@ class PlanController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $result = $this->planRepository->Delete($plan_id);
             if (!$result) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(null, 204);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetPlan(Request $request, $plan_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make([
@@ -119,25 +119,25 @@ class PlanController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $plan = $this->planRepository->Find($plan_id);
 
             if (!$plan) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(PlanDTO::fromModel($plan)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetPlans(Request $request): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $search = $request->input('search', "");
@@ -153,13 +153,13 @@ class PlanController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $plans = $this->planRepository->FindAll($search, (int) $page, (int) $limit);
             if (!$plans) {
-                return response()->json(MessagesCenter::E500(), 500);
+                return response()->json(Messages::E500(), 500);
             }
 
             $items = [];
@@ -175,7 +175,7 @@ class PlanController extends BaseController
                 'items' => $plans->items()
             ]);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 }
