@@ -3,6 +3,8 @@
 use App\Http\Middleware\JsonBodyValidationFilteringMiddleware;
 use App\Http\Middleware\ParametersSanitizerMiddleware;
 use App\Http\Middleware\RequestLoggingMiddleware;
+use App\Providers\MessagesServiceProvider;
+use App\Providers\PermissionsServiceProvider;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use LumenRateLimiting\ThrottleRequests;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
@@ -23,7 +25,9 @@ $app = new Laravel\Lumen\Application(
 
 $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 
+
 $app->withFacades();
+
 $app->withEloquent();
 
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
@@ -36,6 +40,9 @@ $app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
+$app->register(PermissionsServiceProvider::class);
+$app->register(MessagesServiceProvider::class);
+
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -48,6 +55,7 @@ $app->singleton(
 );
 
 $app->configure('app');
+
 
 $app->middleware([
     App\Http\Middleware\TrustProxies::class,
@@ -78,5 +86,7 @@ $app->router->group([
 ], function ($router) {
     require __DIR__ . '/../routes/system.php';
 });
+
+
 
 return $app;
