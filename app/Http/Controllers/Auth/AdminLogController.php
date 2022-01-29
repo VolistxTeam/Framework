@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\MessagesCenter;
-use App\Classes\PermissionsCenter;
+use App\Classes\Facades\Messages;
+use App\Classes\Facades\Permissions;
 use App\DataTransferObjects\AdminLogDTO;
 use App\Repositories\AdminLogRepository;
 use Exception;
@@ -23,8 +23,8 @@ class AdminLogController extends BaseController
 
     public function GetAdminLog(Request $request, $log_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make([
@@ -34,25 +34,26 @@ class AdminLogController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $log = $this->adminLogRepository->Find($log_id);
 
             if (!$log) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(AdminLogDTO::fromModel($log)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            ray($ex->getMessage());
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetAdminLogs(Request $request): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $search = $request->input('search',"");
@@ -68,13 +69,13 @@ class AdminLogController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $logs = $this->adminLogRepository->FindAll($search,$page,$limit);
             if (!$logs) {
-                return response()->json(MessagesCenter::E500(), 500);
+                return response()->json(Messages::E500(), 500);
             }
 
             $items = [];
@@ -91,7 +92,7 @@ class AdminLogController extends BaseController
                 'items' => $items
             ]);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 }
