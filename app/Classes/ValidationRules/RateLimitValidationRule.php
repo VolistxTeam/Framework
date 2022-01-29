@@ -2,7 +2,7 @@
 
 namespace App\Classes\ValidationRules;
 
-use App\Classes\MessagesCenter;
+use App\Classes\Facades\Messages;
 use Illuminate\Support\Facades\RateLimiter;
 
 class RateLimitValidationRule extends ValidationRuleBase
@@ -23,7 +23,7 @@ class RateLimitValidationRule extends ValidationRuleBase
 
         if (!$executed) {
             return [
-                'message' => MessagesCenter::E429(),
+                'message' => Messages::E429(),
                 'code' => 429
             ];
         }

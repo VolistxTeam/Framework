@@ -2,7 +2,7 @@
 
 namespace App\Classes\ValidationRules;
 
-use App\Classes\MessagesCenter;
+use App\Classes\Facades\Messages;
 use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
 
@@ -17,7 +17,7 @@ class RequestsCountValidationRule extends ValidationRuleBase
         $planRequestsLimit = $token->subscription()->first()->plan()->first()->requests;
         if ($planRequestsLimit != -1 && $requestsMadeCount >= $planRequestsLimit) {
             return [
-                'message' => MessagesCenter::E429(),
+                'message' => Messages::E429(),
                 'code' => 429
             ];
         }
