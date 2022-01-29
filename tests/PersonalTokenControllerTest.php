@@ -62,9 +62,9 @@ class PersonalTokenControllerTest extends BaseTestCase
         ]);
 
         self::assertResponseStatus(201);
-        self::assertSame($sub->id, json_decode($request->response->getContent())->subscription_id);
-        self::assertSame('["*"]', json_decode($request->response->getContent())->permissions);
-        self::assertSame('["127.0.0.0"]', json_decode($request->response->getContent())->whitelist_range);
+        self::assertSame($sub->id, json_decode($request->response->getContent())->subscription->id);
+        self::assertSame(array('*'), json_decode($request->response->getContent())->permissions);
+        self::assertSame(array('127.0.0.0'), json_decode($request->response->getContent())->whitelist_range);
         self::assertSame(Carbon::createFromTimeString((json_decode($request->response->getContent())->status->activated_at))->addHours(500)->format('Y-m-d H:i:s'), json_decode($request->response->getContent())->status->expires_at);
     }
 
@@ -105,9 +105,9 @@ class PersonalTokenControllerTest extends BaseTestCase
         ]);
 
         self::assertResponseStatus(200);
-        self::assertSame($sub->id, json_decode($request->response->getContent())->subscription_id);
-        self::assertSame('["1"]', json_decode($request->response->getContent())->permissions);
-        self::assertSame('["128.0.0.0"]', json_decode($request->response->getContent())->whitelist_range);
+        self::assertSame($sub->id, json_decode($request->response->getContent())->subscription->id);
+        self::assertSame(array('1'), json_decode($request->response->getContent())->permissions);
+        self::assertSame(array('128.0.0.0'), json_decode($request->response->getContent())->whitelist_range);
         $expires_at = json_decode($request->response->getContent())->status->expires_at;
         $activated_at = json_decode($request->response->getContent())->status->activated_at;
         self::assertSame(Carbon::createFromTimeString($activated_at)->addHours(1000)->timestamp, Carbon::createFromTimeString( $expires_at)->timestamp);

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\MessagesCenter;
-use App\Classes\PermissionsCenter;
+use App\Classes\Facades\Messages;
+use App\Classes\Facades\Permissions;
+use App\DataTransferObjects\PersonalTokenDTO;
+use App\DataTransferObjects\UserLogDTO;
 use App\Repositories\PersonalTokenRepository;
 use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
@@ -29,8 +31,8 @@ class PersonalTokenController extends BaseController
 
     public function CreatePersonalToken(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:create')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:create')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -45,7 +47,7 @@ class PersonalTokenController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
@@ -59,14 +61,14 @@ class PersonalTokenController extends BaseController
                 'whitelist_range' => $request->input('whitelist_range'),
                 'activated_at' => Carbon::now(),
                 'hours_to_expire' => $request->input('hours_to_expire')
-            ])->toArray();
+            ]);
 
             if (!$newPersonalToken) {
-                return response()->json(MessagesCenter::E500(), 500);
+                return response()->json(Messages::E500(), 500);
             }
-            return response()->json($this->getUserToken($newPersonalToken, $key), 201);
+            return response()->json(PersonalTokenDTO::fromModel($newPersonalToken)->GetDTO($key), 201);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
@@ -75,36 +77,10 @@ class PersonalTokenController extends BaseController
         return Str::random(64);
     }
 
-    private function getUserToken(array $item, $key = null): array
-    {
-        $result = [
-            'id' => $item['id'],
-            'subscription_id' => $item['subscription_id'],
-            'key' => null,
-            'permissions' => $item['permissions'],
-            'whitelist_range' => $item['whitelist_range'],
-            'status' => [
-                'is_expired' => $item['expires_at'] != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($item['expires_at'])),
-                'activated_at' => $item['activated_at'],
-                'expires_at' => $item['expires_at']
-            ],
-            'created_at' => $item['created_at'],
-            'updated_at' => $item['updated_at']
-        ];
-
-        if ($key) {
-            $result['key'] = $key;
-        } else {
-            unset($result['key']);
-        }
-
-        return $result;
-    }
-
     public function UpdatePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -121,24 +97,24 @@ class PersonalTokenController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
-            $updatedToken = $this->personalTokenRepository->Update($subscription_id, $token_id, $request->all())->toArray();
+            $updatedToken = $this->personalTokenRepository->Update($subscription_id, $token_id, $request->all());
             if (!$updatedToken) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
-            return response()->json($this->getUserToken($updatedToken));
+            return response()->json(PersonalTokenDTO::fromModel($updatedToken)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function ResetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:reset')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:reset')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -150,7 +126,7 @@ class PersonalTokenController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
 
@@ -163,21 +139,21 @@ class PersonalTokenController extends BaseController
                     'key' => $newKey,
                     'salt' => $newSalt
                 ]
-            )->toArray();
+            );
 
             if (!$resetToken) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
-            return response()->json($this->getUserToken($resetToken, $newKey));
+            return response()->json(PersonalTokenDTO::fromModel($resetToken)->GetDTO($newKey));
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function DeletePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+            return response()->json(Messages::E401(), 401);
         }
         $validator = Validator::make(array_merge($request->all(), [
             'subscription_id' => $subscription_id,
@@ -188,24 +164,24 @@ class PersonalTokenController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $result = $this->personalTokenRepository->Delete($subscription_id, $token_id);
             if (!$result) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(null, 204);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -217,21 +193,21 @@ class PersonalTokenController extends BaseController
         ]);
 
         try {
-            $token = $this->personalTokenRepository->Find($subscription_id, $token_id)->toArray();
+            $token = $this->personalTokenRepository->Find($subscription_id, $token_id);
 
             if (!$token) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
-            return response()->json($this->getUserToken($token));
+            return response()->json(PersonalTokenDTO::fromModel($token)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetPersonalTokens(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $search = $request->input('search', "");
@@ -247,7 +223,7 @@ class PersonalTokenController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
@@ -255,7 +231,7 @@ class PersonalTokenController extends BaseController
 
             $userTokens = [];
             foreach ($tokens->items() as $item) {
-                $userTokens[] = $this->getUserToken($item->toArray());
+                $userTokens[] = PersonalTokenDTO::fromModel($item)->GetDTO();
             }
 
             return response()->json([
@@ -268,14 +244,14 @@ class PersonalTokenController extends BaseController
             ]);
 
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetPersonalTokenLogs(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $search = $request->input('search', "");
@@ -295,11 +271,16 @@ class PersonalTokenController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $logs = $this->logRepository->FindLogsByToken($token_id, $search, $page, $limit);
+
+            $items = [];
+            foreach ($logs->items() as $item){
+                $items[] = UserLogDTO::fromModel($item)->GetDTO();
+            }
 
             return response()->json([
                 'pagination' => [
@@ -307,10 +288,10 @@ class PersonalTokenController extends BaseController
                     'current' => $logs->currentPage(),
                     'total' => $logs->lastPage(),
                 ],
-                'items' => $logs->items()
+                'items' => $items
             ]);
         } catch (Exception $exception) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 

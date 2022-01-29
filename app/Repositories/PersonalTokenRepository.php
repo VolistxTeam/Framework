@@ -16,8 +16,8 @@ class PersonalTokenRepository
             'key' => substr($inputs['key'], 0, 32),
             'secret' => Hash::make(substr($inputs['key'], 32), ['salt' => $inputs['salt']]),
             'secret_salt' => $inputs['salt'],
-            'permissions' => json_encode($inputs['permissions']),
-            'whitelist_range' => json_encode($inputs['whitelist_range']),
+            'permissions' => $inputs['permissions'],
+            'whitelist_range' => $inputs['whitelist_range'],
             'activated_at' => Carbon::now(),
             'expires_at' => $inputs['hours_to_expire'] != -1 ? Carbon::now()->addHours($inputs['hours_to_expire']) : null
         ]);
@@ -39,10 +39,9 @@ class PersonalTokenRepository
             return $token;
         }
 
+        if ($permissions) $token->permissions = $permissions;
 
-        if ($permissions) $token->permissions = json_encode($permissions);
-
-        if ($whitelistRange) $token->whitelist_range = json_encode($whitelistRange);
+        if ($whitelistRange) $token->whitelist_range = $whitelistRange;
 
         if ($hours_to_expire) $token->expires_at = $hours_to_expire != -1 ? Carbon::createFromTimeString($token->activated_at)->addHours($hours_to_expire) : null;
 
@@ -96,5 +95,13 @@ class PersonalTokenRepository
             $query->orWhere("personal_tokens.$column", 'LIKE', "%$needle%");
         }
         return $query->where('subscription_id', $subscription_id)->paginate($limit, ['*'], 'page', $page);
+    }
+
+    public function AuthPersonalToken($token)
+    {
+        return PersonalToken::query()->where('key', substr($token, 0, 32))
+            ->get()->filter(function ($v) use ($token) {
+                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
+            })->first();
     }
 }

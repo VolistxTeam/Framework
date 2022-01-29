@@ -32,8 +32,8 @@ class PersonalTokenFactory extends Factory
             'key' => substr($key, 0, 32),
             'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
             'secret_salt' => $salt,
-            'permissions' => array(),
-            'whitelist_range' => array(),
+            'permissions' => array('*'),
+            'whitelist_range' => array('127.0.0.0'),
             'created_at' => Carbon::now(),
             'activated_at' =>Carbon::now()
         ];
