@@ -5,36 +5,19 @@ namespace App\Classes;
 use App\Models\AccessToken;
 use App\Models\PersonalToken;
 use Illuminate\Support\Facades\Hash;
+use Wikimedia\IPSet;
 
 class PermissionsCenter
 {
-    public static function checkPermission($key, $permissionName): bool
+    public function check($key, $permissionName): bool
     {
-        if (empty($key)) {
-            return false;
-        }
+        $permissions = $key->permissions;
 
-        if (in_array($permissionName, $key->permissions) || in_array('*', $key->permissions)) {
+        if (in_array($permissionName, $permissions) || in_array('*', $permissions)) {
             return true;
         }
 
         return false;
-    }
-
-    public static function getUserAuthKey($token)
-    {
-        return PersonalToken::query()->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v) use ($token) {
-                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
-            })->first();
-    }
-
-    public static function getAdminAuthKey($token)
-    {
-        return AccessToken::query()->where('key', substr($token, 0, 32))
-            ->get()->filter(function ($v) use ($token) {
-                return Hash::check(substr($token, 32), $v->secret, ['salt' => $v->secret_salt]);
-            })->first();
     }
 }
 
