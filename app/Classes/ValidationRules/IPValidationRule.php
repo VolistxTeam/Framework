@@ -12,7 +12,6 @@ class IPValidationRule extends ValidationRuleBase
         $token = $this->inputs['token'];
         $request = $this->inputs['request'];
 
-        $s = $token->whitelist_range;
         $ipSet = new IPSet($token->whitelist_range);
         if (!empty($token->whitelist_range) && !$ipSet->match($request->getClientIp())) {
             return [
