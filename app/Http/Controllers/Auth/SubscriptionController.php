@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\MessagesCenter;
-use App\Classes\PermissionsCenter;
+use App\Classes\Facades\Messages;
+use App\Classes\Facades\Permissions;
 use App\DataTransferObjects\SubscriptionDTO;
 use App\DataTransferObjects\UserLogDTO;
 use App\Repositories\SubscriptionRepository;
 use App\Repositories\UserLogRepository;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,8 +27,8 @@ class SubscriptionController extends BaseController
 
     public function CreateSubscription(Request $request): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:create')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:create')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -40,24 +39,24 @@ class SubscriptionController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $newSubscription = $this->subscriptionRepository->Create($request->all());
             if (!$newSubscription) {
-                return response()->json(MessagesCenter::E500(), 500);
+                return response()->json(Messages::E500(), 500);
             }
             return response()->json(SubscriptionDTO::fromModel($newSubscription)->GetDTO(), 201);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function UpdateSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:update')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make(array_merge($request->all(), [
@@ -69,25 +68,25 @@ class SubscriptionController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $updatedSub = $this->subscriptionRepository->Update($subscription_id, $request->all());
 
             if (!$updatedSub) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(SubscriptionDTO::fromModel($updatedSub)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function DeleteSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make([
@@ -97,24 +96,24 @@ class SubscriptionController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $result = $this->subscriptionRepository->Delete($subscription_id);
             if (!$result) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(null, 204);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $validator = Validator::make([
@@ -124,25 +123,25 @@ class SubscriptionController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $subscription = $this->subscriptionRepository->Find($subscription_id);
 
             if (!$subscription) {
-                return response()->json(MessagesCenter::E404(), 404);
+                return response()->json(Messages::E404(), 404);
             }
             return response()->json(SubscriptionDTO::fromModel($subscription)->GetDTO());
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetSubscriptions(Request $request): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:list')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $search = $request->input('search', "");
@@ -158,13 +157,13 @@ class SubscriptionController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
             $subs = $this->subscriptionRepository->FindAll($search, $page, $limit);
             if (!$subs) {
-                return response()->json(MessagesCenter::E500(), 500);
+                return response()->json(Messages::E500(), 500);
             }
 
             $items = [];
@@ -180,14 +179,14 @@ class SubscriptionController extends BaseController
                 'items' => $items
             ]);
         } catch (Exception $ex) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
     {
-        if (!PermissionsCenter::checkPermission($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
-            return response()->json(MessagesCenter::E401(), 401);
+        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
+            return response()->json(Messages::E401(), 401);
         }
 
         $search = $request->input('search', "");
@@ -205,7 +204,7 @@ class SubscriptionController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return response()->json(MessagesCenter::E400($validator->errors()->first()), 400);
+            return response()->json(Messages::E400($validator->errors()->first()), 400);
         }
 
         try {
@@ -225,7 +224,7 @@ class SubscriptionController extends BaseController
                 'items' => $items
             ]);
         } catch (Exception $exception) {
-            return response()->json(MessagesCenter::E500(), 500);
+            return response()->json(Messages::E500(), 500);
         }
     }
 }

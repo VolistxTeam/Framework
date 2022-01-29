@@ -35,9 +35,7 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
 
         $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/subscriptions/', [
-            '*' => 201,
             '' => 401,
-            'key:create' => 201
         ], [
             "plan_id" => Plan::query()->first()->id,
             "user_id" => 1,
