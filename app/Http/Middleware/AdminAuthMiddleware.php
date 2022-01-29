@@ -2,51 +2,49 @@
 
 namespace App\Http\Middleware;
 
-use App\Classes\MessagesCenter;
-use App\Classes\PermissionsCenter;
-use App\Repositories\AdminLogRepository;
+use App\Classes\ValidationRules\IPValidationRule;
+use App\Classes\ValidationRules\ValidKeyValidationRule;
+use App\Repositories\AccessTokenRepository;
 use Closure;
 use Illuminate\Http\Request;
-use Wikimedia\IPSet;
 
 class AdminAuthMiddleware
 {
-    private AdminLogRepository $logRepository;
-
-    public function __construct(AdminLogRepository $logRepository)
+    private AccessTokenRepository $accessTokenRepository;
+    public function __construct(AccessTokenRepository $accessTokenRepository)
     {
-        $this->logRepository = $logRepository;
+        $this->accessTokenRepository = $accessTokenRepository;
     }
 
     public function handle(Request $request, Closure $next)
     {
-        $accessKey = PermissionsCenter::getAdminAuthKey($request->bearerToken());
+        $token = $this->accessTokenRepository->AuthAccessToken($request->bearerToken());
 
-        if (empty($accessKey)) {
-            return response()->json(MessagesCenter::E403(), 403);
+        //prepare inputs array
+        $inputs = [
+            'request' => $request,
+            'token' => $token,
+        ];
+
+        //add extra validators in the required order.
+        //To be refactored to detect all classes with a base of ValidationRuleBase and create instance of them passing parameters, and ordering them by id
+        $validators = [
+            new ValidKeyValidationRule($inputs),
+            new IPValidationRule($inputs),
+        ];
+
+        foreach ($validators as $validator) {
+            $result = $validator->validate();
+            if ($result !== true) {
+                return response()->json($result['message'], $result['code']);
+            }
         }
 
-        $clientIPRange = $this->checkIPRange($request->getClientIp(), $accessKey->whitelist_range);
-
-        if ($clientIPRange === FALSE) {
-            return response()->json(MessagesCenter::E403("Not allowed in your location"), 403);
-        }
 
         $request->merge([
-            'X-ACCESS-TOKEN' => $accessKey,
+            'X-ACCESS-TOKEN' => $token,
         ]);
 
         return $next($request);
-    }
-
-    protected function checkIPRange($ip, $range): bool
-    {
-        if (empty($range)) {
-            return true;
-        }
-
-        $ipSet = new IPSet($range);
-
-        return $ipSet->match($ip);
     }
 }
