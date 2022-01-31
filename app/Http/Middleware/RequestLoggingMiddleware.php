@@ -40,17 +40,17 @@ class RequestLoggingMiddleware
             'response_body' => $response->getContent(),
         ];
 
-        if ($request->input('X-PERSONAL-TOKEN')) {
+        if ($request->X_PERSONAL_TOKEN) {
             if (config('log.userLogMode') === 'local') {
-                $this->logUserToLocalDB($request->input('X-PERSONAL-TOKEN'), $inputs);
+                $this->logUserToLocalDB($request->X_PERSONAL_TOKEN, $inputs);
             } else {
-                $this->logUserToRemoteDB($request->input('X-PERSONAL-TOKEN'), $inputs);
+                $this->logUserToRemoteDB($request->X_PERSONAL_TOKEN, $inputs);
             }
-        } else if ($request->input('X-ACCESS-TOKEN')) {
+        } else if ($request->X_ACCESS_TOKEN) {
             if (config('log.adminLogMode') === 'local') {
-                $this->logAdminToLocalDB($request->input('X-ACCESS-TOKEN'), $inputs);
+                $this->logAdminToLocalDB($request->X_ACCESS_TOKEN, $inputs);
             } else {
-                $this->logAdminToRemoteDB($request, $response);
+                $this->logAdminToRemoteDB($request->X_ACCESS_TOKEN, $inputs);
             }
         }
     }
