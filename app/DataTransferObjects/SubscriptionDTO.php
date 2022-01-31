@@ -28,7 +28,7 @@ class SubscriptionDTO extends DataTransferObjectBase
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'plan'=> PlanDTO::fromModel($this->entity->plan()->first()),
+            'plan'=> PlanDTO::fromModel($this->entity->plan()->first())->GetDTO(),
             'plan_status'=>[
                 'is_expired' => $this->plan_expires_at != null && Carbon::now()->greaterThan(Carbon::createFromTimeString($this->plan_expires_at)),
                 'activated_at' =>$this->plan_activated_at,
