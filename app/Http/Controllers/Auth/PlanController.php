@@ -23,7 +23,7 @@ class PlanController extends BaseController
 
     public function CreatePlan(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:create')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:create')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -50,7 +50,7 @@ class PlanController extends BaseController
 
     public function UpdatePlan(Request $request, $plan_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:update')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -81,7 +81,7 @@ class PlanController extends BaseController
 
     public function DeletePlan(Request $request, $plan_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:delete')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -108,7 +108,7 @@ class PlanController extends BaseController
 
     public function GetPlan(Request $request, $plan_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -136,7 +136,7 @@ class PlanController extends BaseController
 
     public function GetPlans(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 

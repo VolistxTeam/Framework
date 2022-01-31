@@ -31,7 +31,7 @@ class PersonalTokenController extends BaseController
 
     public function CreatePersonalToken(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:create')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:create')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -79,7 +79,7 @@ class PersonalTokenController extends BaseController
 
     public function UpdatePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:update')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -113,7 +113,7 @@ class PersonalTokenController extends BaseController
 
     public function ResetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:reset')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:reset')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -152,7 +152,7 @@ class PersonalTokenController extends BaseController
 
     public function DeletePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:delete')) {
             return response()->json(Messages::E401(), 401);
         }
         $validator = Validator::make(array_merge($request->all(), [
@@ -180,7 +180,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -206,7 +206,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalTokens(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -250,7 +250,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalTokenLogs(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:logs')) {
             return response()->json(Messages::E401(), 401);
         }
 

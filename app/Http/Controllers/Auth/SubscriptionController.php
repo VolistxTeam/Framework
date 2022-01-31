@@ -27,7 +27,7 @@ class SubscriptionController extends BaseController
 
     public function CreateSubscription(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:create')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:create')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -55,7 +55,7 @@ class SubscriptionController extends BaseController
 
     public function UpdateSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:update')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:update')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -85,7 +85,7 @@ class SubscriptionController extends BaseController
 
     public function DeleteSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:delete')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:delete')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -112,7 +112,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -140,7 +140,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscriptions(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -185,7 +185,7 @@ class SubscriptionController extends BaseController
 
     public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:logs')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:logs')) {
             return response()->json(Messages::E401(), 401);
         }
 

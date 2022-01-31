@@ -23,7 +23,7 @@ class AdminLogController extends BaseController
 
     public function GetAdminLog(Request $request, $log_id): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -52,7 +52,7 @@ class AdminLogController extends BaseController
 
     public function GetAdminLogs(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->input('X-ACCESS-TOKEN'), 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
             return response()->json(Messages::E401(), 401);
         }
 

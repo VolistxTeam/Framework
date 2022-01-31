@@ -61,7 +61,6 @@ class SubscriptionControllerTest extends BaseTestCase
 
         self::assertResponseStatus(201);
         self::assertSame('1', json_decode($request->response->getContent())->user_id);
-        ray( json_decode($request->response->getContent()));
         self::assertSame(Plan::query()->first()->id, json_decode($request->response->getContent())->plan->id);
     }
 
