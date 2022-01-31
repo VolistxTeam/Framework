@@ -23,11 +23,12 @@ class UserAuthMiddleware
     public function handle(Request $request, Closure $next)
     {
         $token = $this->personalTokenRepository->AuthPersonalToken($request->bearerToken());
-
+        $plan = $token->subscription()->first()->plan()->first();
         //prepare inputs array
         $inputs = [
             'request' => $request,
             'token' => $token,
+            'plan' => $plan
         ];
 
         //add extra validators in the required order.
@@ -48,9 +49,11 @@ class UserAuthMiddleware
         }
 
         $request->merge([
-            'X-PERSONAL-TOKEN' => $token,
+            'X_PERSONAL_TOKEN' => $token,
+            'PLAN' => $plan
         ]);
 
+        ray($request);
         return $next($request);
     }
 }

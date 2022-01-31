@@ -42,7 +42,7 @@ class AdminAuthMiddleware
 
 
         $request->merge([
-            'X-ACCESS-TOKEN' => $token,
+            'X_ACCESS_TOKEN' => $token,
         ]);
 
         return $next($request);
