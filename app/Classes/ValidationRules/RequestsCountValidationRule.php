@@ -11,10 +11,11 @@ class RequestsCountValidationRule extends ValidationRuleBase
     public function Validate(): bool|array
     {
         $token = $this->inputs['token'];
+        $plan = $this->inputs['plan'];
 
         $repository = new UserLogRepository();
         $requestsMadeCount = $repository->FindLogsBySubscriptionCount($token->subscription()->first()->id, Carbon::now());
-        $planRequestsLimit = $token->subscription()->first()->plan()->first()->requests;
+        $planRequestsLimit = $plan->requests;
         if ($planRequestsLimit != -1 && $requestsMadeCount >= $planRequestsLimit) {
             return [
                 'message' => Messages::E429(),
