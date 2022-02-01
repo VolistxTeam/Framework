@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Classes\Facades;
+namespace App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use function Symfony\Component\Translation\t;
 
-class Messages extends  Facade
+class Permissions extends  Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return 'messages';
+        return 'permissions';
     }
 }

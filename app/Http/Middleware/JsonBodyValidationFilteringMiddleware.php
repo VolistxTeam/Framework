@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Classes\Facades\Messages;
+use App\Facades\Messages;
 use Closure;
 use Illuminate\Http\Request;
 

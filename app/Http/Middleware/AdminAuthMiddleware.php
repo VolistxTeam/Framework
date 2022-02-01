@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Classes\ValidationRules\IPValidationRule;
-use App\Classes\ValidationRules\ValidKeyValidationRule;
+use App\ValidationRules\IPValidationRule;
+use App\ValidationRules\ValidKeyValidationRule;
 use App\Repositories\AccessTokenRepository;
 use Closure;
 use Illuminate\Http\Request;

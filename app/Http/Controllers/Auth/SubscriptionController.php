@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\Facades\Messages;
-use App\Classes\Facades\Permissions;
+use App\Facades\Messages;
+use App\Facades\Permissions;
 use App\DataTransferObjects\SubscriptionDTO;
 use App\DataTransferObjects\UserLogDTO;
 use App\Http\Controllers\Controller;

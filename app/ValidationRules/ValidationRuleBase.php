@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Classes\ValidationRules;
+namespace App\ValidationRules;
 
 abstract class ValidationRuleBase
 {

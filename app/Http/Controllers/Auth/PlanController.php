@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\Facades\Messages;
-use App\Classes\Facades\Permissions;
+use App\Facades\Messages;
+use App\Facades\Permissions;
 use App\DataTransferObjects\PlanDTO;
 use App\Http\Controllers\Controller;
 use App\Repositories\PlanRepository;

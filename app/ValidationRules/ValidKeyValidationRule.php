@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Classes\ValidationRules;
+namespace App\ValidationRules;
 
-use App\Classes\Facades\Messages;
+use App\Facades\Messages;
 
 
 class ValidKeyValidationRule extends ValidationRuleBase

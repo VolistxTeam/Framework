@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Classes\ValidationRules;
+namespace App\ValidationRules;
 
-use App\Classes\Facades\Messages;
+use App\Facades\Messages;
 use Illuminate\Support\Facades\RateLimiter;
 
 class RateLimitValidationRule extends ValidationRuleBase
