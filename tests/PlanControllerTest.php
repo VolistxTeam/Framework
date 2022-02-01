@@ -32,7 +32,7 @@ class PlanControllerTest extends BaseTestCase
         ], [
             "name" => "name",
             "description" => "description",
-            "requests" => 50
+            "data" =>array('requests'=>50)
         ]);
     }
 
@@ -45,7 +45,7 @@ class PlanControllerTest extends BaseTestCase
         $request = $this->json('POST', '/sys-bin/admin/plans/', [
             "name" => "name",
             "description" => "description",
-            "requests" => 50
+            "data" =>array('requests'=>50)
         ], [
             'Authorization' => "Bearer $key",
         ]);
@@ -53,7 +53,7 @@ class PlanControllerTest extends BaseTestCase
         self::assertResponseStatus(201);
         self::assertSame("name", json_decode($request->response->getContent())->name);
         self::assertSame("description", json_decode($request->response->getContent())->description);
-        self::assertSame(50, json_decode($request->response->getContent())->requests);
+        self::assertSame(50, json_decode($request->response->getContent())->data->requests);
     }
 
 

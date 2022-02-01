@@ -7,7 +7,7 @@ class PlanDTO extends DataTransferObjectBase
     public string $id;
     public string $name;
     public string $description;
-    public int $requests;
+    public array $data;
 
 
 
@@ -23,7 +23,7 @@ class PlanDTO extends DataTransferObjectBase
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'requests'=> $this->requests,
+            'data'=> $this->data,
         ];
     }
 }

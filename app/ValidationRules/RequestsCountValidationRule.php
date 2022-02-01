@@ -15,7 +15,7 @@ class RequestsCountValidationRule extends ValidationRuleBase
 
         $repository = new UserLogRepository();
         $requestsMadeCount = $repository->FindLogsBySubscriptionCount($token->subscription()->first()->id, Carbon::now());
-        $planRequestsLimit = $plan->requests;
+        $planRequestsLimit = $plan['requests'];
         if ($planRequestsLimit != -1 && $requestsMadeCount >= $planRequestsLimit) {
             return [
                 'message' => Messages::E429(),

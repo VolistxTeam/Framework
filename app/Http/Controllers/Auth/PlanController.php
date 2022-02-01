@@ -31,7 +31,7 @@ class PlanController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['bail', 'required', 'string'],
             'description' => ['bail', 'required', 'string'],
-            'requests' => ['bail', 'required', 'integer'],
+            'data' => ['bail', 'required', 'array'],
         ]);
 
         if ($validator->fails()) {
@@ -61,7 +61,7 @@ class PlanController extends Controller
             'plan_id' => ['bail', 'required', 'uuid', 'exists:plans,id'],
             'name' => ['bail', 'sometimes', 'string'],
             'description' => ['bail', 'sometimes', 'string'],
-            'requests' => ['bail', 'sometimes', 'integer'],
+            'data' => ['bail', 'sometimes', 'json'],
         ]);
 
         if ($validator->fails()) {

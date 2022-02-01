@@ -12,7 +12,7 @@ class PlanRepository
         return Plan::query()->create([
             'name' => $inputs['name'],
             'description' => $inputs['description'],
-            'requests' => $inputs['requests'],
+            'data' => $inputs['data'],
         ]);
     }
 
@@ -26,16 +26,16 @@ class PlanRepository
 
         $name = $inputs['name'] ?? null;
         $description = $inputs['description'] ?? null;
-        $requests = $inputs['requests'] ?? null;
+        $data = $inputs['data'] ?? null;
 
 
-        if (!$name && !$description && !$requests) {
+        if (!$name && !$description && !$data) {
             return $plan;
         }
 
         if ($name) $plan->name = $name;
         if ($description) $plan->description = $description;
-        if ($requests) $plan->requests = $requests;
+        if ($data) $plan->data = $data;
 
         $plan->save();
 

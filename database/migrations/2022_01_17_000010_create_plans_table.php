@@ -17,7 +17,7 @@ class CreatePlansTable extends Migration
             $table->uuid('id')->primary();
             $table->string('name',255);
             $table->string('description');
-            $table->integer('requests');
+            $table->json('data');
             $table->dateTime('created_at');
             $table->dateTime('updated_at');
         });
