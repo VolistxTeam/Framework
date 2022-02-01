@@ -6,6 +6,7 @@ use App\Classes\Facades\Messages;
 use App\Classes\Facades\Permissions;
 use App\DataTransferObjects\PersonalTokenDTO;
 use App\DataTransferObjects\UserLogDTO;
+use App\Http\Controllers\Controller;
 use App\Repositories\PersonalTokenRepository;
 use App\Repositories\UserLogRepository;
 use Carbon\Carbon;
@@ -14,9 +15,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Laravel\Lumen\Routing\Controller as BaseController;
 
-class PersonalTokenController extends BaseController
+class PersonalTokenController extends Controller
 {
     private PersonalTokenRepository $personalTokenRepository;
     private UserLogRepository $logRepository;
@@ -24,6 +24,7 @@ class PersonalTokenController extends BaseController
 
     public function __construct(PersonalTokenRepository $personalTokenRepository, UserLogRepository $logRepository)
     {
+        $this->module = 'personal-tokens';
         $this->personalTokenRepository = $personalTokenRepository;
         $this->logRepository = $logRepository;
 
@@ -31,7 +32,7 @@ class PersonalTokenController extends BaseController
 
     public function CreatePersonalToken(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:create')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'create')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -79,7 +80,7 @@ class PersonalTokenController extends BaseController
 
     public function UpdatePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:update')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'update')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -113,7 +114,7 @@ class PersonalTokenController extends BaseController
 
     public function ResetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:reset')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'reset')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -152,7 +153,7 @@ class PersonalTokenController extends BaseController
 
     public function DeletePersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:delete')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'delete')) {
             return response()->json(Messages::E401(), 401);
         }
         $validator = Validator::make(array_merge($request->all(), [
@@ -180,7 +181,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalToken(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -206,7 +207,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalTokens(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view-all')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -250,7 +251,7 @@ class PersonalTokenController extends BaseController
 
     public function GetPersonalTokenLogs(Request $request, $subscription_id, $token_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:logs')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'logs')) {
             return response()->json(Messages::E401(), 401);
         }
 

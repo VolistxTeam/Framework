@@ -5,25 +5,26 @@ namespace App\Http\Controllers\Auth;
 use App\Classes\Facades\Messages;
 use App\Classes\Facades\Permissions;
 use App\DataTransferObjects\AdminLogDTO;
+use App\Http\Controllers\Controller;
 use App\Repositories\AdminLogRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Lumen\Routing\Controller as BaseController;
 
-class AdminLogController extends BaseController
+class AdminLogController extends Controller
 {
     private AdminLogRepository $adminLogRepository;
 
     public function __construct(AdminLogRepository $adminLogRepository)
     {
+        $this->module = "logs";
         $this->adminLogRepository = $adminLogRepository;
     }
 
     public function GetAdminLog(Request $request, $log_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -52,7 +53,7 @@ class AdminLogController extends BaseController
 
     public function GetAdminLogs(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, 'key:list')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view-all')) {
             return response()->json(Messages::E401(), 401);
         }
 
