@@ -35,8 +35,8 @@ class SubscriptionControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
 
         $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/subscriptions/', [
-            '*' => 201,
-            'key:create' => 201,
+            'subscriptions:*' => 201,
+            'subscriptions:create' => 201,
             '' => 401
         ], [
             "plan_id" => Plan::query()->first()->id,
@@ -76,8 +76,8 @@ class SubscriptionControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0);
 
         $this->TestPermissions($token, $key, 'PUT', "/sys-bin/admin/subscriptions/{$sub->id}", [
-            '*' => 200,
-            'key:update' => 200,
+            'subscriptions:*' => 200,
+            'subscriptions:update' => 200,
             '' => 401
         ], [
             ]
@@ -112,12 +112,12 @@ class SubscriptionControllerTest extends BaseTestCase
 
         $sub = $this->GenerateSub(0);
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
-            '*' => 204,
+            'subscriptions:*' => 204,
         ]);
 
         $sub = $this->GenerateSub(0);
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}", [
-            'key:delete' => 204,
+            'subscriptions:delete' => 204,
         ]);
 
         $sub = $this->GenerateSub(0);
@@ -150,9 +150,9 @@ class SubscriptionControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0);
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}", [
-            '*' => 200,
+            'subscriptions:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'subscriptions:view' => 200
         ]);
     }
 
@@ -180,9 +180,9 @@ class SubscriptionControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0);
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/", [
-            '*' => 200,
+            'subscriptions:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'subscriptions:view-all' => 200
         ]);
     }
 
@@ -217,9 +217,9 @@ class SubscriptionControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0);
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs", [
-            '*' => 200,
+            'subscriptions:*' => 200,
             '' => 401,
-            'key:logs' => 200
+            'subscriptions:logs' => 200
         ]);
     }
 
@@ -269,7 +269,7 @@ class SubscriptionControllerTest extends BaseTestCase
             ->create(['key' => substr($key, 0, 32),
                 'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
                 'secret_salt' => $salt,
-                'permissions' => array('*')]);
+                'permissions' => array('subscriptions:*')]);
     }
 
     private function GenerateSub($userID)

@@ -29,9 +29,9 @@ class AdminLogControllerTest extends BaseTestCase
         $log = $token->adminLogs()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/logs/{$log->id}", [
-            '*' => 200,
+            'logs:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'logs:view' => 200
         ]);
     }
 
@@ -44,7 +44,7 @@ class AdminLogControllerTest extends BaseTestCase
 
 
         $request = $this->json('GET', "/sys-bin/admin/logs/{$log->id}", [], [
-            'Authorization' => "Bearer $key",
+            'Authorization' => "Bearer $key"
         ]);
 
         self::assertResponseStatus(200);
@@ -59,9 +59,9 @@ class AdminLogControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key,5);
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/logs/", [
-            '*' => 200,
+            'logs:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'logs:view-all' => 200
         ]);
     }
 
@@ -109,6 +109,6 @@ class AdminLogControllerTest extends BaseTestCase
             ->create(['key' => substr($key, 0, 32),
                 'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
                 'secret_salt' => $salt,
-                'permissions' => array('*')]);
+                'permissions' => array('logs:*')]);
     }
 }

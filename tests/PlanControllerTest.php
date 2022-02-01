@@ -26,9 +26,9 @@ class PlanControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
 
         $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/plans/', [
-            '*' => 201,
+            'plans:*' => 201,
             '' => 401,
-            'key:create' => 201
+            'plans:create' => 201
         ], [
             "name" => "name",
             "description" => "description",
@@ -66,8 +66,8 @@ class PlanControllerTest extends BaseTestCase
         $plan = $this->GeneratePlan();
 
         $this->TestPermissions($token, $key, 'PUT', "/sys-bin/admin/plans/{$plan->id}", [
-            '*' => 200,
-            'key:update' => 200,
+            'plans:*' => 200,
+            'plans:update' => 200,
             '' => 401
         ], [
             ]
@@ -101,12 +101,12 @@ class PlanControllerTest extends BaseTestCase
 
         $plan = $this->GeneratePlan();
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/plans/{$plan->id}", [
-            '*' => 204,
+            'plans:*' => 204,
         ]);
 
         $plan = $this->GeneratePlan();
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/plans/{$plan->id}", [
-            'key:delete' => 204,
+            'plans:delete' => 204,
         ]);
 
         $plan = $this->GeneratePlan();
@@ -139,9 +139,9 @@ class PlanControllerTest extends BaseTestCase
         $plan = $this->GeneratePlan();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/plans/{$plan->id}", [
-            '*' => 200,
+            'plans:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'plans:view' => 200
         ]);
     }
 
@@ -169,9 +169,9 @@ class PlanControllerTest extends BaseTestCase
         $sub = $this->GeneratePlan();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/plans/", [
-            '*' => 200,
+            'plans:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'plans:view-all' => 200
         ]);
     }
 
@@ -220,7 +220,7 @@ class PlanControllerTest extends BaseTestCase
             ->create(['key' => substr($key, 0, 32),
                 'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
                 'secret_salt' => $salt,
-                'permissions' => array('*')]);
+                'permissions' => array('plans:*')]);
     }
 
     private function GeneratePlan()

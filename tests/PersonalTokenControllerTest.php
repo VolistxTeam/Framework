@@ -36,9 +36,9 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0,0);
 
         $this->TestPermissions($accessToken, $key, 'POST', "/sys-bin/admin/personal-tokens/{$sub->id}", [
-            '*' => 201,
+            'personal-tokens:*' => 201,
             '' => 401,
-            'key:create' => 201
+            'personal-tokens:create' => 201
         ], [
             'permissions' => array('*'),
             'whitelist_range' => array('127.0.0.0'),
@@ -79,8 +79,8 @@ class PersonalTokenControllerTest extends BaseTestCase
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
-            '*' => 200,
-            'key:update' => 200,
+            'personal-tokens:*' => 200,
+            'personal-tokens:update' => 200,
             '' => 401
         ], [
             ]
@@ -124,8 +124,8 @@ class PersonalTokenControllerTest extends BaseTestCase
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/reset", [
-            '*' => 200,
-            'key:reset' => 200,
+            'personal-tokens:*' => 200,
+            'personal-tokens:reset' => 200,
             '' => 401
         ], [
             ]
@@ -159,12 +159,12 @@ class PersonalTokenControllerTest extends BaseTestCase
 
         $personalToken = $sub->personalTokens()->first();
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
-            '*' => 204,
+            'personal-tokens:*' => 204,
         ]);
 
         $personalToken = $sub->personalTokens()->first();
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
-            'key:delete' => 204,
+            'personal-tokens:delete' => 204,
         ]);
 
         $personalToken = $sub->personalTokens()->first();
@@ -198,9 +198,9 @@ class PersonalTokenControllerTest extends BaseTestCase
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
-            '*' => 200,
+            'personal-tokens:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'personal-tokens:view' => 200
         ]);
     }
 
@@ -230,9 +230,9 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0,3);
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}", [
-            '*' => 200,
+            'personal-tokens:*' => 200,
             '' => 401,
-            'key:list' => 200
+            'personal-tokens:view-all' => 200
         ]);
     }
 
@@ -277,9 +277,9 @@ class PersonalTokenControllerTest extends BaseTestCase
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs", [
-            '*' => 200,
+            'personal-tokens:*' => 200,
             '' => 401,
-            'key:logs' => 200
+            'personal-tokens:logs' => 200
         ]);
     }
 
@@ -337,7 +337,7 @@ class PersonalTokenControllerTest extends BaseTestCase
             ->create(['key' => substr($key, 0, 32),
                 'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
                 'secret_salt' => $salt,
-                'permissions' => array('*')]);
+                'permissions' => array('personal-tokens:*')]);
     }
 
     private function GenerateSub($userID, $tokenCount,$logs = 50)
