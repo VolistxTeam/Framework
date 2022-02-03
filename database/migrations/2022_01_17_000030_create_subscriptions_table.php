@@ -19,7 +19,7 @@ class CreateSubscriptionsTable extends Migration
             $table->uuid('plan_id')->index('sub_plan_id');
             $table->foreign('plan_id')->references('id')->on('plans')->onDelete('cascade');
             $table->dateTime('plan_activated_at');
-            $table->dateTime('plan_expires_at');
+            $table->dateTime('plan_expires_at')->nullable();
             $table->dateTime('created_at');
             $table->dateTime('updated_at');
         });

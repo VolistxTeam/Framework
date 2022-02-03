@@ -15,8 +15,8 @@ class CreatePlansTable extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name',255);
-            $table->string('description');
+            $table->string('name');
+            $table->string('description')->nullable();
             $table->json('data');
             $table->dateTime('created_at');
             $table->dateTime('updated_at');
