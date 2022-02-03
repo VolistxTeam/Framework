@@ -64,6 +64,7 @@ class SubscriptionController extends Controller
             'subscription_id' => $subscription_id
         ]), [
             'subscription_id' => ['bail', 'required', 'uuid', 'exists:subscriptions,id'],
+            'plan_activated_at' => ['bail', 'sometimes', 'string'],
             'plan_expires_at' => ['bail', 'sometimes', 'string'],
             'plan_id' => ['bail', 'sometimes', 'exists:plans,id']
         ]);

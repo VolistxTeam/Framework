@@ -25,10 +25,24 @@ class PlanControllerTest extends BaseTestCase
 
         $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/plans/', [
             'plans:*' => 201,
+        ], [
+            "name" => "name1",
+            "description" => "description",
+            "data" => array('requests' => 50)
+        ]);
+
+        $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/plans/', [
             '' => 401,
-            'plans:create' => 201
         ], [
             "name" => "name",
+            "description" => "description",
+            "data" => array('requests' => 50)
+        ]);
+
+        $this->TestPermissions($token, $key, 'POST', '/sys-bin/admin/plans/', [
+            'plans:create' => 201
+        ], [
+            "name" => "name2",
             "description" => "description",
             "data" => array('requests' => 50)
         ]);

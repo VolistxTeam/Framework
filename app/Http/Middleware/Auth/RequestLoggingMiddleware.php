@@ -33,12 +33,9 @@ class RequestLoggingMiddleware
 
         $inputs = [
             'url' => $request->fullUrl(),
-            'request_method' => $request->method(),
-            'request_body' => $request->getContent(),
-            'request_header' => json_encode($header),
+            'method' => $request->method(),
             'ip' => $request->ip(),
-            'response_code' => $response->getStatusCode(),
-            'response_body' => $response->getContent(),
+            'user_agent' =>  $_SERVER['HTTP_USER_AGENT']?? null,
         ];
 
         if ($request->X_PERSONAL_TOKEN) {
