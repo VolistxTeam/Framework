@@ -3,7 +3,9 @@
 namespace App\Console\Commands\AccessKey;
 
 use App\Classes\Auth\PermissionsCenter;
+use App\Repositories\Auth\AccessTokenRepository;
 use Illuminate\Console\Command;
+use function Symfony\Component\Translation\t;
 
 class DeleteCommand extends Command
 {
@@ -20,14 +22,15 @@ class DeleteCommand extends Command
             return;
         }
 
-        $accessKey = PermissionsCenter::getAdminAuthKey($token);
+        $repo = new AccessTokenRepository();
+        $accessToken = $repo->AuthAccessToken($token);
 
-        if (empty($accessKey)) {
+        if (!$accessToken) {
             $this->error('The specified access key is invalid.');
             return;
         }
 
-        $accessKey->delete();
+        $accessToken->delete();
 
         $this->info('Your access key is deleted: ' . $token);
     }
