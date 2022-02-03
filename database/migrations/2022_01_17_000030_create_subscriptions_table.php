@@ -15,7 +15,7 @@ class CreateSubscriptionsTable extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->integer('user_id')->index('sub_user_id');
+            $table->integer('user_id')->index('sub_user_id'); // not changeable
             $table->uuid('plan_id')->index('sub_plan_id');
             $table->foreign('plan_id')->references('id')->on('plans')->onDelete('cascade');
             $table->dateTime('plan_activated_at');

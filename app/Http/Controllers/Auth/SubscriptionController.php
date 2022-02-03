@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DataTransferObjects\Auth\SubscriptionDTO;
+use App\DataTransferObjects\Auth\UserLogDTO;
 use App\Facades\Messages;
 use App\Facades\Permissions;
-use App\DataTransferObjects\SubscriptionDTO;
-use App\DataTransferObjects\UserLogDTO;
 use App\Http\Controllers\Controller;
-use App\Repositories\SubscriptionRepository;
-use App\Repositories\UserLogRepository;
+use App\Repositories\Auth\SubscriptionRepository;
+use App\Repositories\Auth\UserLogRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,7 +56,7 @@ class SubscriptionController extends Controller
 
     public function UpdateSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'update')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'update')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -86,7 +86,7 @@ class SubscriptionController extends Controller
 
     public function DeleteSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'delete')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'delete')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -113,7 +113,7 @@ class SubscriptionController extends Controller
 
     public function GetSubscription(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'view')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -141,7 +141,7 @@ class SubscriptionController extends Controller
 
     public function GetSubscriptions(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view-all')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'view-all')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -168,7 +168,7 @@ class SubscriptionController extends Controller
             }
 
             $items = [];
-            foreach ($subs->items() as $item){
+            foreach ($subs->items() as $item) {
                 $items[] = SubscriptionDTO::fromModel($item)->GetDTO();
             }
             return response()->json([
@@ -186,7 +186,7 @@ class SubscriptionController extends Controller
 
     public function GetSubscriptionLogs(Request $request, $subscription_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'logs')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'logs')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -212,7 +212,7 @@ class SubscriptionController extends Controller
             $logs = $this->logRepository->FindLogsBySubscription($subscription_id, $search, $page, $limit);
 
             $items = [];
-            foreach ($logs->items() as $item){
+            foreach ($logs->items() as $item) {
                 $items[] = UserLogDTO::fromModel($item)->GetDTO();
             }
 

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Services;
 
 use App\Facades\Permissions;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use phpDocumentor\Reflection\DocBlock\Tags\Example;
 
 class ExampleService extends Controller
 {
@@ -14,9 +14,9 @@ class ExampleService extends Controller
         $this->module = 'example';
     }
 
-    public function Ping(Request $request): \Illuminate\Http\JsonResponse
+    public function Ping(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_PERSONAL_TOKEN, $this->module,'permission-name')) {
+        if (!Permissions::check($request->X_PERSONAL_TOKEN, $this->module, 'permission-name')) {
             // do something if permissions failed
         }
 

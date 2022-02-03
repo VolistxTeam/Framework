@@ -1,8 +1,11 @@
 <?php
 
-use App\Http\Middleware\JsonBodyValidationFilteringMiddleware;
-use App\Http\Middleware\ParametersSanitizerMiddleware;
-use App\Http\Middleware\RequestLoggingMiddleware;
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Http\Middleware\Auth\FirewallMiddleware;
+use App\Http\Middleware\Auth\JsonBodyValidationFilteringMiddleware;
+use App\Http\Middleware\Auth\ParametersSanitizerMiddleware;
+use App\Http\Middleware\Auth\RequestLoggingMiddleware;
 use App\Providers\MessagesServiceProvider;
 use App\Providers\PermissionsServiceProvider;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
@@ -10,8 +13,6 @@ use LumenRateLimiting\ThrottleRequests;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Torann\GeoIP\GeoIPServiceProvider;
-
-require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -25,9 +26,7 @@ $app = new Laravel\Lumen\Application(
 
 $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 
-
 $app->withFacades();
-
 $app->withEloquent();
 
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
@@ -56,22 +55,21 @@ $app->singleton(
 
 $app->configure('app');
 
-
 $app->middleware([
-    App\Http\Middleware\TrustProxies::class,
+    \App\Http\Middleware\Auth\TrustProxies::class,
     CloudfrontProxies::class,
     TrustProxies::class,
-    App\Http\Middleware\FirewallMiddleware::class,
+    FirewallMiddleware::class,
     RequestLoggingMiddleware::class
 ]);
 
 $app->routeMiddleware([
+    'auth.admin' => \App\Http\Middleware\Auth\AdminAuthMiddleware::class,
     'auth.user' => App\Http\Middleware\UserAuthMiddleware::class,
-    'auth.admin' => App\Http\Middleware\AdminAuthMiddleware::class,
-    'cacheResponse' => CacheResponse::class,
-    'throttle' => ThrottleRequests::class,
     'sanitizer' => ParametersSanitizerMiddleware::class,
     'filter.json' => JsonBodyValidationFilteringMiddleware::class,
+    'cacheResponse' => CacheResponse::class,
+    'throttle' => ThrottleRequests::class,
 ]);
 
 $app->router->group([
@@ -86,7 +84,5 @@ $app->router->group([
 ], function ($router) {
     require __DIR__ . '/../routes/system.php';
 });
-
-
 
 return $app;

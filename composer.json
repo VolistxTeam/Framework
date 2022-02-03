@@ -9,17 +9,17 @@
         "ext-json": "*",
         "chuckrincon/lumen-config-discover": "^1.0",
         "cryental/laravel-hashing-sha256": "^1.0",
-        "fakerphp/faker": "^1.17",
+        "fakerphp/faker": "^1.19",
         "fideloper/proxy": "^4.4",
         "flipbox/lumen-generator": "^8.2",
         "geoip2/geoip2": "^2.12",
-        "illuminate/redis": "^8.80",
+        "illuminate/redis": "^8.82",
         "jdavidbakr/cloudfront-proxies": "^1.6",
         "laravel/lumen-framework": "^8.3",
         "monicahq/laravel-cloudflare": "^2.0",
         "rogervila/lumen-rate-limiting": "^1.0",
         "spatie/laravel-responsecache": "^7.2",
-        "swooletw/laravel-swoole": "^2.8",
+        "swooletw/laravel-swoole": "^2.11",
         "torann/geoip": "^3.0",
         "wikimedia/ip-set": "^3.0"
     },
@@ -35,7 +35,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-          "app/Classes/Helpers.php"
+            "app/Classes/Auth/Helpers.php"
         ],
         "classmap": [
             "app/Classes"

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Classes\MessagesCenter;
+use App\Classes\Auth\MessagesCenter;
 use Illuminate\Support\ServiceProvider;
 
 class MessagesServiceProvider extends ServiceProvider
@@ -24,7 +24,7 @@ class MessagesServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('messages',function(){
+        $this->app->bind('messages', function () {
             return new MessagesCenter();
         });
     }

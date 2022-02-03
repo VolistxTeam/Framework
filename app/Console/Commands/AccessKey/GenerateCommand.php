@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\AccessKey;
 
-use App\Models\AccessToken;
+use App\Models\Auth\AccessToken;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;

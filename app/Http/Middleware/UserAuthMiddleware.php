@@ -2,18 +2,19 @@
 
 namespace App\Http\Middleware;
 
-use App\ValidationRules\IPValidationRule;
-use App\ValidationRules\KeyExpiryValidationRule;
-use App\ValidationRules\RateLimitValidationRule;
-use App\ValidationRules\RequestsCountValidationRule;
-use App\ValidationRules\ValidKeyValidationRule;
-use App\Repositories\PersonalTokenRepository;
+use App\Repositories\Auth\PersonalTokenRepository;
+use App\ValidationRules\Auth\IPValidationRule;
+use App\ValidationRules\Auth\KeyExpiryValidationRule;
+use App\ValidationRules\Auth\RateLimitValidationRule;
+use App\ValidationRules\Auth\RequestsCountValidationRule;
+use App\ValidationRules\Auth\ValidKeyValidationRule;
 use Closure;
 use Illuminate\Http\Request;
 
 class UserAuthMiddleware
 {
     private PersonalTokenRepository $personalTokenRepository;
+
     public function __construct(PersonalTokenRepository $personalTokenRepository)
     {
         $this->personalTokenRepository = $personalTokenRepository;
@@ -53,7 +54,6 @@ class UserAuthMiddleware
             'PLAN' => $plan
         ]);
 
-        ray($request);
         return $next($request);
     }
 }

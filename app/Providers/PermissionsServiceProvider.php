@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Classes\PermissionsCenter;
+use App\Classes\Auth\PermissionsCenter;
 use Illuminate\Support\ServiceProvider;
 
 class PermissionsServiceProvider extends ServiceProvider
@@ -24,7 +24,7 @@ class PermissionsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('permissions',function(){
+        $this->app->bind('permissions', function () {
             return new PermissionsCenter();
         });
     }

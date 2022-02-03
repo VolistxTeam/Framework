@@ -1,10 +1,11 @@
 <?php
 
-use App\Models\AccessToken;
-use App\Models\PersonalToken;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\UserLog;
+use App\Models\Auth\AccessToken;
+use App\Models\Auth\PersonalToken;
+use App\Models\Auth\Plan;
+use App\Models\Auth\Subscription;
+use App\Models\Auth\UserLog;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Application;
@@ -20,14 +21,6 @@ class SubscriptionControllerTest extends BaseTestCase
         return require __DIR__ . '/../bootstrap/app.php';
     }
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Plan::factory()->count(3)->create();
-
-    }
-
-
     /** @test */
     public function AuthorizeCreateSubPermissions()
     {
@@ -41,9 +34,33 @@ class SubscriptionControllerTest extends BaseTestCase
         ], [
             "plan_id" => Plan::query()->first()->id,
             "user_id" => 1,
-            "plan_activated_at" => \Carbon\Carbon::now(),
-            "plan_expires_at"=> \Carbon\Carbon::now()->addHours(50)
+            "plan_activated_at" => Carbon::now(),
+            "plan_expires_at" => Carbon::now()->addHours(50)
         ]);
+    }
+
+    private function GenerateAccessToken($key)
+    {
+        $salt = Str::random(16);
+        return AccessToken::factory()
+            ->create(['key' => substr($key, 0, 32),
+                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
+                'secret_salt' => $salt,
+                'permissions' => array('subscriptions:*')]);
+    }
+
+    /** @test */
+    private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
+    {
+        foreach ($permissions as $permissionName => $permissionResult) {
+            $token->permissions = array($permissionName);
+            $token->save();
+
+            $request = $this->json($verb, $route, $input, [
+                'Authorization' => "Bearer $key",
+            ]);
+            self::assertResponseStatus($permissionResult);
+        }
     }
 
     /** @test */
@@ -55,8 +72,8 @@ class SubscriptionControllerTest extends BaseTestCase
         $request = $this->json('POST', '/sys-bin/admin/subscriptions/', [
             "plan_id" => Plan::query()->first()->id,
             "user_id" => 1,
-            "plan_activated_at" => \Carbon\Carbon::now(),
-            "plan_expires_at"=> \Carbon\Carbon::now()->addHours(50)
+            "plan_activated_at" => Carbon::now(),
+            "plan_expires_at" => Carbon::now()->addHours(50)
         ], [
             'Authorization' => "Bearer $key",
         ]);
@@ -65,8 +82,6 @@ class SubscriptionControllerTest extends BaseTestCase
         self::assertSame('1', json_decode($request->response->getContent())->user_id);
         self::assertSame(Plan::query()->first()->id, json_decode($request->response->getContent())->plan->id);
     }
-
-
 
     /** @test */
     public function AuthorizeUpdateSubPermissions()
@@ -82,6 +97,13 @@ class SubscriptionControllerTest extends BaseTestCase
         ], [
             ]
         );
+    }
+
+    private function GenerateSub($userID)
+    {
+        return Subscription::factory()
+            ->has(PersonalToken::factory()->count(5)->has(UserLog::factory()->count(5))
+            )->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 
     /** @test */
@@ -101,8 +123,6 @@ class SubscriptionControllerTest extends BaseTestCase
         self::assertSame('0', json_decode($request->response->getContent())->user_id);
         self::assertSame(Plan::query()->skip(1)->first()->id, json_decode($request->response->getContent())->plan->id);
     }
-
-
 
     /** @test */
     public function AuthorizeDeleteSubPermissions()
@@ -140,8 +160,6 @@ class SubscriptionControllerTest extends BaseTestCase
         self::assertResponseStatus(204);
     }
 
-
-
     /** @test */
     public function AuthorizeGetSubPermissions()
     {
@@ -170,7 +188,6 @@ class SubscriptionControllerTest extends BaseTestCase
         self::assertResponseStatus(200);
         self::assertSame('0', json_decode($request->response->getContent())->user_id);
     }
-
 
     /** @test */
     public function AuthorizeGetSubsPermissions()
@@ -233,10 +250,8 @@ class SubscriptionControllerTest extends BaseTestCase
             'Authorization' => "Bearer $key",
         ]);
 
-        ray(json_decode($request->response->getContent()));
         self::assertResponseStatus(200);
         self::assertCount(25, json_decode($request->response->getContent())->items);
-
 
         $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/logs/?limit=10", [], [
             'Authorization' => "Bearer $key",
@@ -246,36 +261,10 @@ class SubscriptionControllerTest extends BaseTestCase
         self::assertCount(10, json_decode($request->response->getContent())->items);
     }
 
-
-
-    /** @test */
-    private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
+    protected function setUp(): void
     {
-        foreach ($permissions as $permissionName => $permissionResult) {
-            $token->permissions = array($permissionName);
-            $token->save();
+        parent::setUp();
+        Plan::factory()->count(3)->create();
 
-            $request = $this->json($verb, $route, $input, [
-                'Authorization' => "Bearer $key",
-            ]);
-            self::assertResponseStatus($permissionResult);
-        }
-    }
-
-    private function GenerateAccessToken($key)
-    {
-        $salt = Str::random(16);
-        return AccessToken::factory()
-            ->create(['key' => substr($key, 0, 32),
-                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
-                'secret_salt' => $salt,
-                'permissions' => array('subscriptions:*')]);
-    }
-
-    private function GenerateSub($userID)
-    {
-        return Subscription::factory()
-            ->has(PersonalToken::factory()->count(5)->has(UserLog::factory()->count(5))
-        )->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
     }
 }

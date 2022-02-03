@@ -17,10 +17,9 @@ abstract class DataTransferObjectBase
 
         $parameters = $entity->toArray();
 
-        foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty){
+        foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             $property = $reflectionProperty->getName();
             $this->{$property} = $parameters[$property];
         }
     }
-
 }

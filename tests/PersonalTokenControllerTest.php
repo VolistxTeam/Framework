@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\AccessToken;
-use App\Models\AdminLog;
-use App\Models\PersonalToken;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Models\UserLog;
+use App\Models\Auth\AccessToken;
+use App\Models\Auth\PersonalToken;
+use App\Models\Auth\Plan;
+use App\Models\Auth\Subscription;
+use App\Models\Auth\UserLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -22,18 +21,12 @@ class PersonalTokenControllerTest extends BaseTestCase
         return require __DIR__ . '/../bootstrap/app.php';
     }
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Plan::factory()->count(3)->create();
-    }
-
     /** @test */
     public function AuthorizeCreateTokenPermissions()
     {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,0);
+        $sub = $this->GenerateSub(0, 0);
 
         $this->TestPermissions($accessToken, $key, 'POST', "/sys-bin/admin/personal-tokens/{$sub->id}", [
             'personal-tokens:*' => 201,
@@ -46,12 +39,42 @@ class PersonalTokenControllerTest extends BaseTestCase
         ]);
     }
 
+    private function GenerateAccessToken($key)
+    {
+        $salt = Str::random(16);
+        return AccessToken::factory()
+            ->create(['key' => substr($key, 0, 32),
+                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
+                'secret_salt' => $salt,
+                'permissions' => array('personal-tokens:*')]);
+    }
+
+    private function GenerateSub($userID, $tokenCount, $logs = 50)
+    {
+        return Subscription::factory()
+            ->has(PersonalToken::factory()->count($tokenCount)->has(UserLog::factory()->count(50)))
+            ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
+    }
+
+    private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
+    {
+        foreach ($permissions as $permissionName => $permissionResult) {
+            $token->permissions = array($permissionName);
+            $token->save();
+
+            $request = $this->json($verb, $route, $input, [
+                'Authorization' => "Bearer $key",
+            ]);
+            self::assertResponseStatus($permissionResult);
+        }
+    }
+
     /** @test */
     public function CreateToken()
     {
         $key = Str::random(64);
         $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,0);
+        $sub = $this->GenerateSub(0, 0);
 
         $request = $this->json('POST', "/sys-bin/admin/personal-tokens/{$sub->id}", [
             'permissions' => array('*'),
@@ -68,14 +91,12 @@ class PersonalTokenControllerTest extends BaseTestCase
         self::assertSame(Carbon::createFromTimeString((json_decode($request->response->getContent())->token_status->activated_at))->addHours(500)->format('Y-m-d H:i:s'), json_decode($request->response->getContent())->token_status->expires_at);
     }
 
-
-
     /** @test */
     public function AuthorizeUpdateTokenPermissions()
     {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
@@ -92,15 +113,15 @@ class PersonalTokenControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
 
         $request = $this->json('PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
-            'permissions' =>array('1'),
+            'permissions' => array('1'),
             'whitelist_range' => array('128.0.0.0'),
             'hours_to_expire' => 1000,
-            ], [
+        ], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -110,17 +131,16 @@ class PersonalTokenControllerTest extends BaseTestCase
         self::assertSame(array('128.0.0.0'), json_decode($request->response->getContent())->whitelist_range);
         $expires_at = json_decode($request->response->getContent())->token_status->expires_at;
         $activated_at = json_decode($request->response->getContent())->token_status->activated_at;
-        self::assertSame(Carbon::createFromTimeString($activated_at)->addHours(1000)->timestamp, Carbon::createFromTimeString( $expires_at)->timestamp);
+        self::assertSame(Carbon::createFromTimeString($activated_at)->addHours(1000)->timestamp, Carbon::createFromTimeString($expires_at)->timestamp);
 
     }
-
 
     /** @test */
     public function AuthorizeResetTokenPermissions()
     {
         $key = Str::random(64);
         $accessToken = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/reset", [
@@ -137,7 +157,7 @@ class PersonalTokenControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
         $oldKey = $personalToken->key;
 
@@ -146,16 +166,15 @@ class PersonalTokenControllerTest extends BaseTestCase
         ]);
 
         self::assertResponseStatus(200);
-        self::assertNotSame($oldKey,json_decode($request->response->getContent())->key);
+        self::assertNotSame($oldKey, json_decode($request->response->getContent())->key);
     }
-
 
     /** @test */
     public function AuthorizeDeleteTokenPermissions()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,3);
+        $sub = $this->GenerateSub(0, 3);
 
         $personalToken = $sub->personalTokens()->first();
         $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
@@ -178,7 +197,7 @@ class PersonalTokenControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
         $request = $this->json('DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [], [
@@ -188,13 +207,12 @@ class PersonalTokenControllerTest extends BaseTestCase
         self::assertResponseStatus(204);
     }
 
-
     /** @test */
     public function AuthorizeGetTokenPermissions()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
@@ -209,7 +227,7 @@ class PersonalTokenControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,3);
+        $sub = $this->GenerateSub(0, 3);
         $personalToken = $sub->personalTokens()->first();
 
         $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [], [
@@ -220,14 +238,12 @@ class PersonalTokenControllerTest extends BaseTestCase
         self::assertSame($personalToken->id, json_decode($request->response->getContent())->id);
     }
 
-
-
     /** @test */
     public function AuthorizeGetTokensPermissions()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,3);
+        $sub = $this->GenerateSub(0, 3);
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}", [
             'personal-tokens:*' => 200,
@@ -241,7 +257,7 @@ class PersonalTokenControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,3);
+        $sub = $this->GenerateSub(0, 3);
 
         $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}", [], [
             'Authorization' => "Bearer $key",
@@ -267,13 +283,12 @@ class PersonalTokenControllerTest extends BaseTestCase
 
     }
 
-
     /** @test */
     public function AuthorizeGetTokenLogsPermissions()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,1);
+        $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs", [
@@ -288,7 +303,7 @@ class PersonalTokenControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0,3);
+        $sub = $this->GenerateSub(0, 3);
         $personalToken = $sub->personalTokens()->first();
 
         $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs", [], [
@@ -315,35 +330,9 @@ class PersonalTokenControllerTest extends BaseTestCase
 
     }
 
-
-
-    private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
+    protected function setUp(): void
     {
-        foreach ($permissions as $permissionName => $permissionResult) {
-            $token->permissions = array($permissionName);
-            $token->save();
-
-            $request = $this->json($verb, $route, $input, [
-                'Authorization' => "Bearer $key",
-            ]);
-            self::assertResponseStatus($permissionResult);
-        }
-    }
-
-    private function GenerateAccessToken($key)
-    {
-        $salt = Str::random(16);
-        return AccessToken::factory()
-            ->create(['key' => substr($key, 0, 32),
-                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
-                'secret_salt' => $salt,
-                'permissions' => array('personal-tokens:*')]);
-    }
-
-    private function GenerateSub($userID, $tokenCount,$logs = 50)
-    {
-        return Subscription::factory()
-            ->has(PersonalToken::factory()->count($tokenCount)->has(UserLog::factory()->count(50)))
-            ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
+        parent::setUp();
+        Plan::factory()->count(3)->create();
     }
 }

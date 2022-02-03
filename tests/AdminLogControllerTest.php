@@ -1,10 +1,7 @@
 <?php
 
-use App\Models\AccessToken;
-use App\Models\AdminLog;
-use App\Models\PersonalToken;
-use App\Models\Plan;
-use App\Models\Subscription;
+use App\Models\Auth\AccessToken;
+use App\Models\Auth\AdminLog;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Application;
@@ -25,7 +22,7 @@ class AdminLogControllerTest extends BaseTestCase
     public function AuthorizeGetLogPermissions()
     {
         $key = Str::random(64);
-        $token = $this->GenerateAccessToken($key,1);
+        $token = $this->GenerateAccessToken($key, 1);
         $log = $token->adminLogs()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/logs/{$log->id}", [
@@ -35,58 +32,15 @@ class AdminLogControllerTest extends BaseTestCase
         ]);
     }
 
-    /** @test */
-    public function GetLog()
+    private function GenerateAccessToken($key, $logsCount)
     {
-        $key = Str::random(64);
-        $token = $this->GenerateAccessToken($key,1);
-        $log = $token->adminLogs()->first();
-
-
-        $request = $this->json('GET', "/sys-bin/admin/logs/{$log->id}", [], [
-            'Authorization' => "Bearer $key"
-        ]);
-
-        self::assertResponseStatus(200);
-        self::assertSame($token->id,json_decode($request->response->getContent())->access_token->id);
+        $salt = Str::random(16);
+        return AccessToken::factory()->has(AdminLog::factory()->count($logsCount))
+            ->create(['key' => substr($key, 0, 32),
+                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
+                'secret_salt' => $salt,
+                'permissions' => array('logs:*')]);
     }
-
-
-    /** @test */
-    public function AuthorizeGetPlansPermissions()
-    {
-        $key = Str::random(64);
-        $token = $this->GenerateAccessToken($key,5);
-
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/logs/", [
-            'logs:*' => 200,
-            '' => 401,
-            'logs:view-all' => 200
-        ]);
-    }
-
-    /** @test */
-    public function GetPlans()
-    {
-        $key = Str::random(64);
-        $token = $this->GenerateAccessToken($key,50);
-
-
-        $request = $this->json('GET', "/sys-bin/admin/logs/", [], [
-            'Authorization' => "Bearer $key",
-        ]);
-
-        self::assertResponseStatus(200);
-        self::assertCount(50, json_decode($request->response->getContent())->items);
-
-        $request = $this->json('GET', "/sys-bin/admin/logs/?limit=1", [], [
-            'Authorization' => "Bearer $key",
-        ]);
-
-        self::assertResponseStatus(200);
-        self::assertCount(1, json_decode($request->response->getContent())->items);
-    }
-
 
     /** @test */
     private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
@@ -102,13 +56,54 @@ class AdminLogControllerTest extends BaseTestCase
         }
     }
 
-    private function GenerateAccessToken($key, $logsCount)
+    /** @test */
+    public function GetLog()
     {
-        $salt = Str::random(16);
-        return AccessToken::factory()->has(AdminLog::factory()->count($logsCount))
-            ->create(['key' => substr($key, 0, 32),
-                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
-                'secret_salt' => $salt,
-                'permissions' => array('logs:*')]);
+        $key = Str::random(64);
+        $token = $this->GenerateAccessToken($key, 1);
+        $log = $token->adminLogs()->first();
+
+
+        $request = $this->json('GET', "/sys-bin/admin/logs/{$log->id}", [], [
+            'Authorization' => "Bearer $key"
+        ]);
+
+        self::assertResponseStatus(200);
+        self::assertSame($token->id, json_decode($request->response->getContent())->access_token->id);
+    }
+
+    /** @test */
+    public function AuthorizeGetPlansPermissions()
+    {
+        $key = Str::random(64);
+        $token = $this->GenerateAccessToken($key, 5);
+
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/logs/", [
+            'logs:*' => 200,
+            '' => 401,
+            'logs:view-all' => 200
+        ]);
+    }
+
+    /** @test */
+    public function GetPlans()
+    {
+        $key = Str::random(64);
+        $token = $this->GenerateAccessToken($key, 50);
+
+
+        $request = $this->json('GET', "/sys-bin/admin/logs/", [], [
+            'Authorization' => "Bearer $key",
+        ]);
+
+        self::assertResponseStatus(200);
+        self::assertCount(50, json_decode($request->response->getContent())->items);
+
+        $request = $this->json('GET', "/sys-bin/admin/logs/?limit=1", [], [
+            'Authorization' => "Bearer $key",
+        ]);
+
+        self::assertResponseStatus(200);
+        self::assertCount(1, json_decode($request->response->getContent())->items);
     }
 }

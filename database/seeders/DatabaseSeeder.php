@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\PersonalToken;
-use App\Models\Plan;
-use App\Models\Subscription;
-use Faker\Provider\Person;
+use App\Models\Auth\PersonalToken;
+use App\Models\Auth\Plan;
+use App\Models\Auth\Subscription;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

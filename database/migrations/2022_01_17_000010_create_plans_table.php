@@ -15,9 +15,9 @@ class CreatePlansTable extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            $table->string('name'); // name should be unique for specified subscription, not for all rows
             $table->string('description')->nullable();
-            $table->json('data');
+            $table->json('data')->default('[]');
             $table->dateTime('created_at');
             $table->dateTime('updated_at');
         });

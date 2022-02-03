@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DataTransferObjects\Auth\PlanDTO;
 use App\Facades\Messages;
 use App\Facades\Permissions;
-use App\DataTransferObjects\PlanDTO;
 use App\Http\Controllers\Controller;
-use App\Repositories\PlanRepository;
+use App\Repositories\Auth\PlanRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +24,7 @@ class PlanController extends Controller
 
     public function CreatePlan(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'create')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'create')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -51,7 +51,7 @@ class PlanController extends Controller
 
     public function UpdatePlan(Request $request, $plan_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'update')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'update')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -82,7 +82,7 @@ class PlanController extends Controller
 
     public function DeletePlan(Request $request, $plan_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'delete')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'delete')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -109,7 +109,7 @@ class PlanController extends Controller
 
     public function GetPlan(Request $request, $plan_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'view')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -137,7 +137,7 @@ class PlanController extends Controller
 
     public function GetPlans(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view-all')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'view-all')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -158,13 +158,13 @@ class PlanController extends Controller
         }
 
         try {
-            $plans = $this->planRepository->FindAll($search, (int) $page, (int) $limit);
+            $plans = $this->planRepository->FindAll($search, (int)$page, (int)$limit);
             if (!$plans) {
                 return response()->json(Messages::E500(), 500);
             }
 
             $items = [];
-            foreach ($plans->items() as $item){
+            foreach ($plans->items() as $item) {
                 $items[] = PlanDTO::fromModel($item)->GetDTO();
             }
             return response()->json([

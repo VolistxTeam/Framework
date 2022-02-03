@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\AccessKey;
 
-use App\Classes\PermissionsCenter;
+use App\Classes\Auth\PermissionsCenter;
 use Illuminate\Console\Command;
 
 class DeleteCommand extends Command

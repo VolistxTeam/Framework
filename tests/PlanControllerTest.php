@@ -1,9 +1,7 @@
 <?php
 
-use App\Models\AccessToken;
-use App\Models\PersonalToken;
-use App\Models\Plan;
-use App\Models\Subscription;
+use App\Models\Auth\AccessToken;
+use App\Models\Auth\Plan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Application;
@@ -32,8 +30,32 @@ class PlanControllerTest extends BaseTestCase
         ], [
             "name" => "name",
             "description" => "description",
-            "data" =>array('requests'=>50)
+            "data" => array('requests' => 50)
         ]);
+    }
+
+    private function GenerateAccessToken($key)
+    {
+        $salt = Str::random(16);
+        return AccessToken::factory()
+            ->create(['key' => substr($key, 0, 32),
+                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
+                'secret_salt' => $salt,
+                'permissions' => array('plans:*')]);
+    }
+
+    /** @test */
+    private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
+    {
+        foreach ($permissions as $permissionName => $permissionResult) {
+            $token->permissions = array($permissionName);
+            $token->save();
+
+            $request = $this->json($verb, $route, $input, [
+                'Authorization' => "Bearer $key",
+            ]);
+            self::assertResponseStatus($permissionResult);
+        }
     }
 
     /** @test */
@@ -45,7 +67,7 @@ class PlanControllerTest extends BaseTestCase
         $request = $this->json('POST', '/sys-bin/admin/plans/', [
             "name" => "name",
             "description" => "description",
-            "data" =>array('requests'=>50)
+            "data" => array('requests' => 50)
         ], [
             'Authorization' => "Bearer $key",
         ]);
@@ -55,8 +77,6 @@ class PlanControllerTest extends BaseTestCase
         self::assertSame("description", json_decode($request->response->getContent())->description);
         self::assertSame(50, json_decode($request->response->getContent())->data->requests);
     }
-
-
 
     /** @test */
     public function AuthorizeUpdatePlanPermissions()
@@ -72,6 +92,11 @@ class PlanControllerTest extends BaseTestCase
         ], [
             ]
         );
+    }
+
+    private function GeneratePlan()
+    {
+        return Plan::factory()->create();
     }
 
     /** @test */
@@ -90,8 +115,6 @@ class PlanControllerTest extends BaseTestCase
         self::assertResponseStatus(200);
         self::assertSame("UpdatedName", json_decode($request->response->getContent())->name);
     }
-
-
 
     /** @test */
     public function AuthorizeDeletePlanPermissions()
@@ -129,8 +152,6 @@ class PlanControllerTest extends BaseTestCase
         self::assertResponseStatus(204);
     }
 
-
-
     /** @test */
     public function AuthorizeGetPlanPermissions()
     {
@@ -159,7 +180,6 @@ class PlanControllerTest extends BaseTestCase
         self::assertResponseStatus(200);
         self::assertNotEmpty(json_decode($request->response->getContent())->name);
     }
-
 
     /** @test */
     public function AuthorizeGetPlansPermissions()
@@ -196,35 +216,5 @@ class PlanControllerTest extends BaseTestCase
 
         self::assertResponseStatus(200);
         self::assertCount(1, json_decode($request->response->getContent())->items);
-    }
-
-
-    /** @test */
-    private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])
-    {
-        foreach ($permissions as $permissionName => $permissionResult) {
-            $token->permissions = array($permissionName);
-            $token->save();
-
-            $request = $this->json($verb, $route, $input, [
-                'Authorization' => "Bearer $key",
-            ]);
-            self::assertResponseStatus($permissionResult);
-        }
-    }
-
-    private function GenerateAccessToken($key)
-    {
-        $salt = Str::random(16);
-        return AccessToken::factory()
-            ->create(['key' => substr($key, 0, 32),
-                'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
-                'secret_salt' => $salt,
-                'permissions' => array('plans:*')]);
-    }
-
-    private function GeneratePlan()
-    {
-        return Plan::factory()->create();
     }
 }

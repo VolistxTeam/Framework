@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Facades\Messages;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -68,7 +69,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof ThrottleRequestsException) {
-            return response('', 429);
+            return response()->json(Messages::E429(), 429);
         }
 
         return parent::render($request, $exception);

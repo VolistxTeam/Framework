@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DataTransferObjects\Auth\AdminLogDTO;
 use App\Facades\Messages;
 use App\Facades\Permissions;
-use App\DataTransferObjects\AdminLogDTO;
 use App\Http\Controllers\Controller;
-use App\Repositories\AdminLogRepository;
+use App\Repositories\Auth\AdminLogRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +24,7 @@ class AdminLogController extends Controller
 
     public function GetAdminLog(Request $request, $log_id): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'view')) {
             return response()->json(Messages::E401(), 401);
         }
 
@@ -46,24 +46,23 @@ class AdminLogController extends Controller
             }
             return response()->json(AdminLogDTO::fromModel($log)->GetDTO());
         } catch (Exception $ex) {
-            ray($ex->getMessage());
             return response()->json(Messages::E500(), 500);
         }
     }
 
     public function GetAdminLogs(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module,'view-all')) {
+        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'view-all')) {
             return response()->json(Messages::E401(), 401);
         }
 
-        $search = $request->input('search',"");
-        $page =$request->input('page',1);
-        $limit = $request->input('limit',50);
+        $search = $request->input('search', "");
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 50);
 
         $validator = Validator::make([
-            'page'=>$page,
-            'limit'=>$limit
+            'page' => $page,
+            'limit' => $limit
         ], [
             '$page' => ['bail', 'sometimes', 'numeric'],
             'limit' => ['bail', 'sometimes', 'numeric'],
@@ -74,13 +73,13 @@ class AdminLogController extends Controller
         }
 
         try {
-            $logs = $this->adminLogRepository->FindAll($search,$page,$limit);
+            $logs = $this->adminLogRepository->FindAll($search, $page, $limit);
             if (!$logs) {
                 return response()->json(Messages::E500(), 500);
             }
 
             $items = [];
-            foreach ($logs->items() as $item){
+            foreach ($logs->items() as $item) {
                 $items[] = AdminLogDTO::fromModel($item)->GetDTO();
             }
 

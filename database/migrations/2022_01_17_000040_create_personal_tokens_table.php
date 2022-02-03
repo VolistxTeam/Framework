@@ -20,8 +20,8 @@ class CreatePersonalTokensTable extends Migration
             $table->string('key', 32);
             $table->string('secret', 64);
             $table->string('secret_salt', 16);
-            $table->json('whitelist_range');
-            $table->json('permissions');
+            $table->json('whitelist_range')->default('[]');
+            $table->json('permissions')->default('[]');
             $table->dateTime('activated_at')->nullable();
             $table->dateTime('expires_at')->nullable();
             $table->dateTime('created_at');
