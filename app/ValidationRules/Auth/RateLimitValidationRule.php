@@ -11,21 +11,22 @@ class RateLimitValidationRule extends ValidationRuleBase
     public function Validate(): bool|array
     {
         $token = $this->inputs['token'];
-        $request = $this->inputs['request'];
+        $plan = $this->inputs['plan'];
 
-        $executed = RateLimiter::attempt(
-            $token->subscription_id, 5,
-            function () {
+        if(isset($plan['RPM'])){
+            $executed = RateLimiter::attempt(
+                $token->subscription_id, $plan['RPM'],
+                function () {
+                }
+            );
+
+            if (!$executed) {
+                return [
+                    'message' => Messages::E429(),
+                    'code' => 429
+                ];
             }
-        );
-
-        if (!$executed) {
-            return [
-                'message' => Messages::E429(),
-                'code' => 429
-            ];
         }
-
         return true;
     }
 }
