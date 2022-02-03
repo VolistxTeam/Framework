@@ -24,14 +24,9 @@ class UserLogFactory extends Factory
     {
         return [
             'url' => $this->faker->url(),
-            'request_method' => $this->faker->randomElement(["POST", "GET", "PUT", "DELETE", "PATCH"]),
-            'request_body' => json_encode("body"),
-            'request_header' => json_encode([
-                'content-type' => "application/json"
-            ]),
+            'method' => $this->faker->randomElement(["POST", "GET", "PUT", "DELETE", "PATCH"]),
             'ip' => $this->faker->ipv4(),
-            'response_code' => $this->faker->randomElement(["201", "204", "400", "401", "403"]),
-            'response_body' => json_encode("response_body")
+            'user_agent' => $this->faker->userAgent()
         ];
     }
 }

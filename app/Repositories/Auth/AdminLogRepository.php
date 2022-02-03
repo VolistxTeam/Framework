@@ -12,12 +12,9 @@ class AdminLogRepository
         AdminLog::query()->create([
             'access_token_id' => $access_token_id,
             'url' => $inputs['url'],
-            'request_method' => $inputs['request_method'],
-            'request_body' => empty($inputs['request_body']) ? null : $inputs['request_body'],
-            'request_header' => $inputs['request_header'],
             'ip' => $inputs['ip'],
-            'response_code' => $inputs['response_code'],
-            'response_body' => $inputs['response_body'],
+            'method' => $inputs['method'],
+            'user_agent' => $inputs['user_agent'],
         ]);
     }
 

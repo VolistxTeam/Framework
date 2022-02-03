@@ -29,16 +29,12 @@ class UserLog extends Model
     protected $fillable = [
         'personal_token_id',
         'url',
-        'request_method',
-        'request_body',
-        'request_header',
+        'method',
         'ip',
-        'response_code',
-        'response_body',
+        'user_agent',
     ];
 
     protected $casts = [
-        'header' => 'array'
     ];
 
     public function personalToken(): BelongsTo

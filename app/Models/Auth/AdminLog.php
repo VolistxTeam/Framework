@@ -28,12 +28,9 @@ class AdminLog extends Model
     protected $fillable = [
         'access_token_id',
         'url',
-        'request_method',
-        'request_body',
-        'request_header',
+        'method',
         'ip',
-        'response_code',
-        'response_body',
+        'user_agent',
     ];
 
     public function accessToken(): BelongsTo

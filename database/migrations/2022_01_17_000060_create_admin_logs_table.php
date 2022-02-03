@@ -18,13 +18,10 @@ class CreateAdminLogsTable extends Migration
             $table->uuid('access_token_id')->index('log_access_token_id');
             $table->foreign('access_token_id')->references('id')->on('access_tokens');
             $table->string('url');
-            $table->string('request_method');
-            $table->json('request_body')->nullable();
-            $table->json('request_header');
+            $table->string('method');
             $table->ipAddress('ip');
-            $table->string('response_code');
-            $table->json('response_body')->nullable();
-            $table->dateTime('created_at')->nullable();
+            $table->string('user_agent')->nullable();
+            $table->dateTime('created_at');
         });
     }
 

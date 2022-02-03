@@ -9,11 +9,8 @@ class UserLogDTO extends DataTransferObjectBase
     public string $id;
     public string $url;
     public string $ip;
-    public string $request_header;
-    public string $request_method;
-    public ?string $request_body;
-    public string $response_code;
-    public string $response_body;
+    public string $method;
+    public ?string $user_agent;
     public string $created_at;
 
     public static function fromModel($userLog): self
@@ -28,16 +25,8 @@ class UserLogDTO extends DataTransferObjectBase
             'personal_token' => PersonalTokenDTO::fromModel($this->entity->personalToken()->first())->GetDTO(),
             'url' => $this->url,
             'ip' => $this->ip,
-            'request' => [
-                'method' => $this->request_method,
-                'header' => json_decode($this->request_header),
-                'body' => json_decode($this->request_body),
-            ],
-            'response' => [
-                'code' => $this->response_code,
-                //TO BE DISCUSSED WITH CRYENTAL
-                // 'body' =>json_decode($this->response_body)
-            ]
+            'method' => $this->method,
+            'user_agent' => $this->user_agent,
         ];
     }
 }
