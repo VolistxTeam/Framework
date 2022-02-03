@@ -29,7 +29,7 @@ class UserLogDTO extends DataTransferObjectBase
     {
         return [
             'id' => $this->id,
-            'personal_token' => PersonalTokenDTO::fromModel($this->entity->personal_token()->first())->GetDTO(),
+            'personal_token' => PersonalTokenDTO::fromModel($this->entity->personalToken()->first())->GetDTO(),
             'url' => $this->url,
             'ip' =>$this->ip,
             'request' => [
