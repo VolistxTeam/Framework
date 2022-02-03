@@ -28,7 +28,8 @@ class PersonalTokenDTO extends DataTransferObjectBase
     {
         $result = [
             'id' => $this->id,
-            'key' => null,
+             'key' => null,
+            // 'key' => $key,
             'subscription' => SubscriptionDTO::fromModel($this->entity->subscription()->first())->GetDTO(),
             'permissions' => $this->permissions,
             'whitelist_range' => $this->whitelist_range,
@@ -37,15 +38,14 @@ class PersonalTokenDTO extends DataTransferObjectBase
                 'activated_at' => $this->activated_at,
                 'expires_at' => $this->expires_at
             ],
-            'created_at' =>$this->created_at,
-            'updated_at' => $this->updated_at
         ];
 
-        if ($key) {
-            $result['key'] = $key;
-        } else {
-            unset($result['key']);
-        }
+        //REMOVED TO ENSURE SIMILAR RESPONSE BODIES.
+//        if ($key) {
+//            $result['key'] = $key;
+//        } else {
+//            unset($result['key']);
+//        }
 
         return $result;
     }

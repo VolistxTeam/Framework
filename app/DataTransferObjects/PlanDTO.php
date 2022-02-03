@@ -6,7 +6,7 @@ class PlanDTO extends DataTransferObjectBase
 {
     public string $id;
     public string $name;
-    public string $description;
+    public ?string $description;
     public array $data;
 
 

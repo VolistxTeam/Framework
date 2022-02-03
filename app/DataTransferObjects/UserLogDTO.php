@@ -9,8 +9,8 @@ use function Symfony\Component\Translation\t;
 class UserLogDTO extends DataTransferObjectBase
 {
     public string $id;
-    public string $personal_token_id;
     public string $url;
+    public string $ip;
     public string $request_header;
     public string $request_method;
     public ?string $request_body;
@@ -29,10 +29,9 @@ class UserLogDTO extends DataTransferObjectBase
     {
         return [
             'id' => $this->id,
-            'personal_token' => [
-                'id'=> $this->personal_token_id
-            ],
+            'personal_token' => PersonalTokenDTO::fromModel($this->entity->personal_token()->first())->GetDTO(),
             'url' => $this->url,
+            'ip' =>$this->ip,
             'request' => [
                 'method' => $this->request_method,
                 'header' =>json_decode($this->request_header),
@@ -40,6 +39,7 @@ class UserLogDTO extends DataTransferObjectBase
             ],
             'response' => [
                 'code' => $this->response_code,
+                //TO BE DISCUSSED WITH CRYENTAL
                // 'body' =>json_decode($this->response_body)
             ]
         ];
