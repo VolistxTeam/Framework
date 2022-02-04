@@ -37,10 +37,7 @@ class PersonalTokenDTO extends DataTransferObjectBase
             ],
         ];
 
-        //REMOVED TO ENSURE SIMILAR RESPONSE BODIES.
-        if ($key) {
-            $result['key'] = $key;
-        } else {
+        if (!$key) {
             unset($result['key']);
         }
 
