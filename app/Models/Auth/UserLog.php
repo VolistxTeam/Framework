@@ -36,9 +36,4 @@ class UserLog extends Model
 
     protected $casts = [
     ];
-
-    public function personalToken(): BelongsTo
-    {
-        return $this->belongsTo(PersonalToken::class);
-    }
 }

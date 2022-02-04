@@ -36,9 +36,4 @@ class AccessToken extends Model
         'permissions' => 'array',
         'whitelist_range' => 'array'
     ];
-
-    public function adminLogs(): HasMany
-    {
-        return $this->hasMany(AdminLog::class);
-    }
 }

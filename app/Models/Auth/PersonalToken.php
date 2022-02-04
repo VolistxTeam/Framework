@@ -42,9 +42,4 @@ class PersonalToken extends Model
     {
         return $this->belongsTo(Subscription::class);
     }
-
-    public function userLogs(): HasMany
-    {
-        return $this->hasMany(UserLog::class);
-    }
 }

@@ -32,9 +32,4 @@ class AdminLog extends Model
         'ip',
         'user_agent',
     ];
-
-    public function accessToken(): BelongsTo
-    {
-        return $this->belongsTo(AccessToken::class);
-    }
 }
