@@ -267,8 +267,8 @@ class PersonalTokenController extends Controller
         ]), [
             'subscription_id' => ['bail', 'required', 'exists:subscriptions,id'],
             'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
-            '$page' => ['bail', 'sometimes', 'numeric'],
-            'limit' => ['bail', 'sometimes', 'numeric'],
+            '$page' => ['bail', 'sometimes', 'integer'],
+            'limit' => ['bail', 'sometimes', 'integer'],
         ]);
 
         if ($validator->fails()) {

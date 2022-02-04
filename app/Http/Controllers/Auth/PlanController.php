@@ -98,8 +98,11 @@ class PlanController extends Controller
 
         try {
             $result = $this->planRepository->Delete($plan_id);
-            if (!$result) {
+            if ($result === null) {
                 return response()->json(Messages::E404(), 404);
+            }
+            if ($result === false){
+                return response()->json(Messages::E409(), 409);
             }
             return response()->json(null, 204);
         } catch (Exception $ex) {
@@ -149,8 +152,8 @@ class PlanController extends Controller
             'page' => $page,
             'limit' => $limit
         ], [
-            'page' => ['bail', 'sometimes', 'numeric'],
-            'limit' => ['bail', 'sometimes', 'numeric'],
+            'page' => ['bail', 'sometimes', 'integer'],
+            'limit' => ['bail', 'sometimes', 'integer'],
         ]);
 
         if ($validator->fails()) {

@@ -64,8 +64,8 @@ class AdminLogController extends Controller
             'page' => $page,
             'limit' => $limit
         ], [
-            '$page' => ['bail', 'sometimes', 'numeric'],
-            'limit' => ['bail', 'sometimes', 'numeric'],
+            '$page' => ['bail', 'sometimes', 'integer'],
+            'limit' => ['bail', 'sometimes', 'integer'],
         ]);
 
         if ($validator->fails()) {
