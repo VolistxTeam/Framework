@@ -36,6 +36,11 @@ class MessagesCenter
         return self::Error('xNotFound', $error);
     }
 
+    #[Pure] public function E409($error = 'could not be completed due to a conflict with the current state of the resource.'): array
+    {
+        return self::Error('xConflict', $error);
+    }
+
     #[Pure] public function E429($error = 'Too many requests.'): array
     {
         return self::Error('xManyRequests', $error);
