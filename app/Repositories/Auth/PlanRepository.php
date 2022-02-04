@@ -55,11 +55,14 @@ class PlanRepository
             return null;
         }
 
-        $toBeDeletedPlan->delete();
-
-        return [
-            'result' => 'true'
-        ];
+        try {
+            $toBeDeletedPlan->delete();
+            return [
+                'result' => 'true'
+            ];
+        } catch (\Exception $ex){
+            return false;
+        }
     }
 
     public function FindAll($needle, $page, $limit)
