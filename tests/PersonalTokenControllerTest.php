@@ -51,9 +51,16 @@ class PersonalTokenControllerTest extends BaseTestCase
 
     private function GenerateSub($userID, $tokenCount, $logs = 50)
     {
-        return Subscription::factory()
-            ->has(PersonalToken::factory()->count($tokenCount)->has(UserLog::factory()->count(50)))
+        $sub = Subscription::factory()
+            ->has(PersonalToken::factory()->count($tokenCount))
             ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
+
+        foreach ($sub->personalTokens()->get() as $token){
+            UserLog::factory()->count($logs)->create([
+                'personal_token_id' => $token->id
+            ]);
+        }
+        return $sub;
     }
 
     private function TestPermissions($token, $key, $verb, $route, $permissions, $input = [])

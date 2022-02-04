@@ -99,11 +99,18 @@ class SubscriptionControllerTest extends BaseTestCase
         );
     }
 
-    private function GenerateSub($userID)
+    private function GenerateSub($userID, $tokenCount = 5, $logs = 5)
     {
-        return Subscription::factory()
-            ->has(PersonalToken::factory()->count(5)->has(UserLog::factory()->count(5))
-            )->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
+        $sub = Subscription::factory()
+            ->has(PersonalToken::factory()->count($tokenCount))
+            ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
+
+        foreach ($sub->personalTokens()->get() as $token) {
+            UserLog::factory()->count($logs)->create([
+                'personal_token_id' => $token->id
+            ]);
+        }
+        return $sub;
     }
 
     /** @test */

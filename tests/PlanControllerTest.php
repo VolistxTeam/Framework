@@ -2,6 +2,7 @@
 
 use App\Models\Auth\AccessToken;
 use App\Models\Auth\Plan;
+use App\Models\Auth\Subscription;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Application;
@@ -108,9 +109,9 @@ class PlanControllerTest extends BaseTestCase
         );
     }
 
-    private function GeneratePlan()
+    private function GeneratePlan($subCount = 0)
     {
-        return Plan::factory()->create();
+        return Plan::factory()->has(Subscription::factory()->count($subCount))->create();
     }
 
     /** @test */
@@ -153,7 +154,7 @@ class PlanControllerTest extends BaseTestCase
     }
 
     /** @test */
-    public function DeletePlan()
+    public function DeleteNonDependantPlan()
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key);
@@ -162,8 +163,20 @@ class PlanControllerTest extends BaseTestCase
         $request = $this->json('DELETE', "/sys-bin/admin/plans/{$plan->id}", [], [
             'Authorization' => "Bearer $key",
         ]);
-
         self::assertResponseStatus(204);
+    }
+
+    /** @test */
+    public function PreventDeleteDependantPlan()
+    {
+        $key = Str::random(64);
+        $token = $this->GenerateAccessToken($key);
+
+        $plan = $this->GeneratePlan(5);
+        $request = $this->json('DELETE', "/sys-bin/admin/plans/{$plan->id}", [], [
+            'Authorization' => "Bearer $key",
+        ]);
+        self::assertResponseStatus(409);
     }
 
     /** @test */

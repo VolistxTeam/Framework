@@ -23,7 +23,7 @@ class AdminLogControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key, 1);
-        $log = $token->adminLogs()->first();
+        $log = AdminLog::query()->first();
 
         $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/logs/{$log->id}", [
             'logs:*' => 200,
@@ -35,11 +35,17 @@ class AdminLogControllerTest extends BaseTestCase
     private function GenerateAccessToken($key, $logsCount)
     {
         $salt = Str::random(16);
-        return AccessToken::factory()->has(AdminLog::factory()->count($logsCount))
+        $token = AccessToken::factory()
             ->create(['key' => substr($key, 0, 32),
                 'secret' => Hash::make(substr($key, 32), ['salt' => $salt]),
                 'secret_salt' => $salt,
                 'permissions' => array('logs:*')]);
+
+        AdminLog::factory()->count($logsCount)->create([
+            'access_token_id' => $token->id
+        ]);
+
+        return $token;
     }
 
     /** @test */
@@ -61,7 +67,8 @@ class AdminLogControllerTest extends BaseTestCase
     {
         $key = Str::random(64);
         $token = $this->GenerateAccessToken($key, 1);
-        $log = $token->adminLogs()->first();
+        $log = AdminLog::query()->first();
+
 
 
         $request = $this->json('GET', "/sys-bin/admin/logs/{$log->id}", [], [
