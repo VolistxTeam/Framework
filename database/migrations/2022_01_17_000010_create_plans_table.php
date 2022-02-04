@@ -13,6 +13,7 @@ class CreatePlansTable extends Migration
      */
     public function up()
     {
+        Schema::enableForeignKeyConstraints();
         Schema::create('plans', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name')->unique();

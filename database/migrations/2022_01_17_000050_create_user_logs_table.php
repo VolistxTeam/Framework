@@ -13,10 +13,10 @@ class CreateUserLogsTable extends Migration
      */
     public function up()
     {
+        Schema::enableForeignKeyConstraints();
         Schema::create('user_logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('personal_token_id')->index('log_personal_token_id');
-            $table->foreign('personal_token_id')->references('id')->on('personal_tokens');
             $table->string('url');
             $table->string('method');
             $table->ipAddress('ip');

@@ -13,11 +13,12 @@ class CreateSubscriptionsTable extends Migration
      */
     public function up()
     {
+        Schema::enableForeignKeyConstraints();
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->integer('user_id')->index('sub_user_id'); // not changeable
+            $table->integer('user_id')->index('sub_user_id');
             $table->uuid('plan_id')->index('sub_plan_id');
-            $table->foreign('plan_id')->references('id')->on('plans')->onDelete('cascade');
+            $table->foreign('plan_id')->references('id')->on('plans');
             $table->dateTime('plan_activated_at');
             $table->dateTime('plan_expires_at')->nullable();
             $table->dateTime('created_at');

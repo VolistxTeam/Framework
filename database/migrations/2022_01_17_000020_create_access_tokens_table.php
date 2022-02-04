@@ -13,6 +13,7 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
+        Schema::enableForeignKeyConstraints();
         Schema::create('access_tokens', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('key', 32)->index('access_token_key');

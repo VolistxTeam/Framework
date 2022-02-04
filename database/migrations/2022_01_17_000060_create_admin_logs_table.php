@@ -13,10 +13,10 @@ class CreateAdminLogsTable extends Migration
      */
     public function up()
     {
+        Schema::enableForeignKeyConstraints();
         Schema::create('admin_logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('access_token_id')->index('log_access_token_id');
-            $table->foreign('access_token_id')->references('id')->on('access_tokens');
             $table->string('url');
             $table->string('method');
             $table->ipAddress('ip');

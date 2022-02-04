@@ -13,6 +13,7 @@ class CreatePersonalTokensTable extends Migration
      */
     public function up()
     {
+        Schema::enableForeignKeyConstraints();
         Schema::create('personal_tokens', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('subscription_id')->index('personalToken_subscription_id');
