@@ -5,6 +5,7 @@ namespace App\Http\Middleware\Auth;
 use App\Repositories\Auth\AdminLogRepository;
 use App\Repositories\Auth\UserLogRepository;
 use Closure;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,23 +29,30 @@ class RequestLoggingMiddleware
 
     public function terminate(Request $request, Response $response)
     {
-        $header = (array)$request->header();
-        unset($header['authorization']);
 
-        $inputs = [
-            'url' => $request->fullUrl(),
-            'method' => $request->method(),
-            'ip' => $request->ip(),
-            'user_agent' =>  $_SERVER['HTTP_USER_AGENT']?? null,
-        ];
 
         if ($request->X_PERSONAL_TOKEN) {
+            $inputs = [
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'ip' => $request->ip(),
+                'user_agent' =>  $_SERVER['HTTP_USER_AGENT']?? null,
+                'personal_token_id' => $request->X_PERSONAL_TOKEN->id
+        ];
+
             if (config('log.userLogMode') === 'local') {
                 $this->logUserToLocalDB($request->X_PERSONAL_TOKEN, $inputs);
             } else {
                 $this->logUserToRemoteDB($request->X_PERSONAL_TOKEN, $inputs);
             }
         } else if ($request->X_ACCESS_TOKEN) {
+            $inputs = [
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'ip' => $request->ip(),
+                'user_agent' =>  $_SERVER['HTTP_USER_AGENT']?? null,
+                'access_token_id' => $request->X_ACCESS_TOKEN->id
+        ];
             if (config('log.adminLogMode') === 'local') {
                 $this->logAdminToLocalDB($request->X_ACCESS_TOKEN, $inputs);
             } else {
@@ -63,14 +71,21 @@ class RequestLoggingMiddleware
         $httpURL = config('log.userLogHttpUrl');
         $token = config('log.userLogHttpToken');
 
-        $client = new Client();
-        $request = $client->post($httpURL, [
-            'headers' => ['Authorization' => 'Bearer ' . $token],
-            'body' => json_encode($inputs)
-        ]);
+        try {
+            $client = new Client();
+            $request = $client->post($httpURL, [
+                'headers' => [
+                    'Authorization' =>"Bearer $token",
+                    'Content-Type' => "application/json"
+                ],
+                'body' => json_encode($inputs)
+            ]);
+        } catch (Exception $ex){
+            $this->logUserToLocalDB($key, $inputs);
+        }
 
         //Handle failure to log remotely, currently, it logs locally
-        if ($request->getStatusCode() != 200) {
+        if ($request->getStatusCode() != 201) {
             $this->logUserToLocalDB($key, $inputs);
         }
     }
@@ -85,14 +100,20 @@ class RequestLoggingMiddleware
         $httpURL = config('log.adminLogHttpUrl');
         $token = config('log.adminLogHttpToken');
 
-        $client = new Client();
-        $request = $client->post($httpURL, [
-            'headers' => ['Authorization' => $token],
-            'body' => json_encode($inputs)
-        ]);
-
+        try {
+            $client = new Client();
+            $request = $client->post($httpURL, [
+                'headers' => [
+                    'Authorization' =>"Bearer $token",
+                    'Content-Type' => "application/json"
+                ],
+                'body' => json_encode($inputs)
+            ]);
+        } catch (Exception $ex){
+            $this->logAdminToLocalDB($key, $inputs);
+        }
         //Handle failure to log remotely, currently, it logs locally
-        if ($request->getStatusCode() != 200) {
+        if ($request->getStatusCode() != 201) {
             $this->logAdminToLocalDB($key, $inputs);
         }
     }
