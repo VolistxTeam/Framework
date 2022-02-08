@@ -101,7 +101,7 @@ class PlanController extends Controller
             if ($result === null) {
                 return response()->json(Messages::E404(), 404);
             }
-            if ($result === false){
+            if ($result === false) {
                 return response()->json(Messages::E409(), 409);
             }
             return response()->json(null, 204);

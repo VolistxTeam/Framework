@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\Auth;
 
+use App\Facades\Messages;
 use App\Repositories\Auth\AdminLogRepository;
 use App\Repositories\Auth\UserLogRepository;
 use Closure;
@@ -29,16 +30,14 @@ class RequestLoggingMiddleware
 
     public function terminate(Request $request, Response $response)
     {
-
-
         if ($request->X_PERSONAL_TOKEN) {
             $inputs = [
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
                 'ip' => $request->ip(),
-                'user_agent' =>  $_SERVER['HTTP_USER_AGENT']?? null,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
                 'personal_token_id' => $request->X_PERSONAL_TOKEN->id
-        ];
+            ];
 
             if (config('log.userLogMode') === 'local') {
                 $this->logUserToLocalDB($request->X_PERSONAL_TOKEN, $inputs);
@@ -50,9 +49,9 @@ class RequestLoggingMiddleware
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
                 'ip' => $request->ip(),
-                'user_agent' =>  $_SERVER['HTTP_USER_AGENT']?? null,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
                 'access_token_id' => $request->X_ACCESS_TOKEN->id
-        ];
+            ];
             if (config('log.adminLogMode') === 'local') {
                 $this->logAdminToLocalDB($request->X_ACCESS_TOKEN, $inputs);
             } else {
@@ -75,19 +74,23 @@ class RequestLoggingMiddleware
             $client = new Client();
             $request = $client->post($httpURL, [
                 'headers' => [
-                    'Authorization' =>"Bearer $token",
+                    'Authorization' => "Bearer $token",
                     'Content-Type' => "application/json"
                 ],
                 'body' => json_encode($inputs)
             ]);
-        } catch (Exception $ex){
-            $this->logUserToLocalDB($key, $inputs);
+
+            if ($request->getStatusCode() != 201) {
+                response()->json(Messages::E500(), 500)->send();
+                exit();
+            }
+        } catch (Exception $ex) {
+            response()->json(Messages::E500(), 500)->send();
+            exit();
         }
 
         //Handle failure to log remotely, currently, it logs locally
-        if ($request->getStatusCode() != 201) {
-            $this->logUserToLocalDB($key, $inputs);
-        }
+
     }
 
     private function logAdminToLocalDB($key, $inputs)
@@ -104,17 +107,19 @@ class RequestLoggingMiddleware
             $client = new Client();
             $request = $client->post($httpURL, [
                 'headers' => [
-                    'Authorization' =>"Bearer $token",
+                    'Authorization' => "Bearer $token",
                     'Content-Type' => "application/json"
                 ],
                 'body' => json_encode($inputs)
             ]);
-        } catch (Exception $ex){
-            $this->logAdminToLocalDB($key, $inputs);
-        }
-        //Handle failure to log remotely, currently, it logs locally
-        if ($request->getStatusCode() != 201) {
-            $this->logAdminToLocalDB($key, $inputs);
+
+            if ($request->getStatusCode() != 201) {
+                response()->json(Messages::E500(), 500)->send();
+                exit();
+            }
+        } catch (Exception $ex) {
+            response()->json(Messages::E500(), 500)->send();
+            exit();
         }
     }
 }
