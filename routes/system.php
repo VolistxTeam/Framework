@@ -34,7 +34,6 @@ $router->group(['prefix' => 'sys-bin'], function () use ($router) {
             $router->put('/{subscription_id}/{token_id}/reset', 'Auth\PersonalTokenController@ResetPersonalToken');
             $router->get('/{subscription_id}/{token_id}', 'Auth\PersonalTokenController@GetPersonalToken');
             $router->get('/{subscription_id}', 'Auth\PersonalTokenController@GetPersonalTokens');
-            $router->get('/{subscription_id}/{token_id}/logs', 'Auth\PersonalTokenController@GetPersonalTokenLogs');
         });
 
         $router->group(['prefix' => 'plans'], function () use ($router) {
