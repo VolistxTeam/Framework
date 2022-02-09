@@ -6,7 +6,7 @@ use App\DataTransferObjects\DataTransferObjectBase;
 
 class UserLogDTO extends DataTransferObjectBase
 {
-    public string $personal_token_id;
+    public string $subscription_id;
     public string $id;
     public string $url;
     public string $ip;
@@ -23,8 +23,8 @@ class UserLogDTO extends DataTransferObjectBase
     {
         return [
             'id' => $this->id,
-            'personal_token' => [
-                'id' => $this->personal_token_id
+            'subscription_id' => [
+                'id' => $this->subscription_id
             ],
             'url' => $this->url,
             'ip' => $this->ip,
