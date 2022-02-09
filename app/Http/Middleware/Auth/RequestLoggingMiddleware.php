@@ -36,7 +36,7 @@ class RequestLoggingMiddleware
                 'method' => $request->method(),
                 'ip' => $request->ip(),
                 'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
-                'personal_token_id' => $request->X_PERSONAL_TOKEN->id
+                'subscription_id' => $request->X_PERSONAL_TOKEN->subscription()->first()->id
             ];
 
             if (config('log.userLogMode') === 'local') {
