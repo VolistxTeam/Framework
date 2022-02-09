@@ -55,11 +55,10 @@ class PersonalTokenControllerTest extends BaseTestCase
             ->has(PersonalToken::factory()->count($tokenCount))
             ->create(['user_id' => $userID, 'plan_id' => Plan::query()->first()->id]);
 
-        foreach ($sub->personalTokens()->get() as $token){
             UserLog::factory()->count($logs)->create([
-                'personal_token_id' => $token->id
+                'subscription_id' => $sub->id
             ]);
-        }
+
         return $sub;
     }
 
@@ -287,53 +286,6 @@ class PersonalTokenControllerTest extends BaseTestCase
 
         self::assertResponseStatus(200);
         self::assertCount(2, json_decode($request->response->getContent())->items);
-
-    }
-
-    /** @test */
-    public function AuthorizeGetTokenLogsPermissions()
-    {
-        $key = Str::random(64);
-        $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0, 1);
-        $personalToken = $sub->personalTokens()->first();
-
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs", [
-            'personal-tokens:*' => 200,
-            '' => 401,
-            'personal-tokens:logs' => 200
-        ]);
-    }
-
-    /** @test */
-    public function GetTokenLogs()
-    {
-        $key = Str::random(64);
-        $token = $this->GenerateAccessToken($key);
-        $sub = $this->GenerateSub(0, 3);
-        $personalToken = $sub->personalTokens()->first();
-
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs", [], [
-            'Authorization' => "Bearer $key",
-        ]);
-
-        self::assertResponseStatus(200);
-        self::assertCount(50, json_decode($request->response->getContent())->items);
-
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs?limit=25", [], [
-            'Authorization' => "Bearer $key",
-        ]);
-
-        self::assertResponseStatus(200);
-        self::assertCount(25, json_decode($request->response->getContent())->items);
-
-
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/logs?search=xxxx", [], [
-            'Authorization' => "Bearer $key",
-        ]);
-
-        self::assertResponseStatus(200);
-        self::assertCount(0, json_decode($request->response->getContent())->items);
 
     }
 

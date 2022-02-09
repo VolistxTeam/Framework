@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\DataTransferObjects\Auth\PersonalTokenDTO;
-use App\DataTransferObjects\Auth\UserLogDTO;
 use App\Facades\Messages;
 use App\Facades\Permissions;
 use App\Http\Controllers\Controller;
@@ -19,15 +18,12 @@ use Illuminate\Support\Str;
 class PersonalTokenController extends Controller
 {
     private PersonalTokenRepository $personalTokenRepository;
-    private UserLogRepository $logRepository;
 
 
-    public function __construct(PersonalTokenRepository $personalTokenRepository, UserLogRepository $logRepository)
+    public function __construct(PersonalTokenRepository $personalTokenRepository)
     {
         $this->module = 'personal-tokens';
         $this->personalTokenRepository = $personalTokenRepository;
-        $this->logRepository = $logRepository;
-
     }
 
     public function CreatePersonalToken(Request $request, $subscription_id): JsonResponse
@@ -248,52 +244,4 @@ class PersonalTokenController extends Controller
             return response()->json(Messages::E500(), 500);
         }
     }
-
-    public function GetPersonalTokenLogs(Request $request, $subscription_id, $token_id): JsonResponse
-    {
-        if (!Permissions::check($request->X_ACCESS_TOKEN, $this->module, 'logs')) {
-            return response()->json(Messages::E401(), 401);
-        }
-
-        $search = $request->input('search', "");
-        $page = $request->input('page', 1);
-        $limit = $request->input('limit', 50);
-
-        $validator = Validator::make(array_merge([
-            'subscription_id' => $subscription_id,
-            'token_id' => $token_id,
-            'page' => $page,
-            'limit' => $limit
-        ]), [
-            'subscription_id' => ['bail', 'required', 'exists:subscriptions,id'],
-            'token_id' => ['bail', 'required', 'exists:personal_tokens,id'],
-            '$page' => ['bail', 'sometimes', 'integer'],
-            'limit' => ['bail', 'sometimes', 'integer'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(Messages::E400($validator->errors()->first()), 400);
-        }
-
-        try {
-            $logs = $this->logRepository->FindLogsByToken($token_id, $search, $page, $limit);
-
-            $items = [];
-            foreach ($logs->items() as $item) {
-                $items[] = UserLogDTO::fromModel($item)->GetDTO();
-            }
-
-            return response()->json([
-                'pagination' => [
-                    'per_page' => $logs->perPage(),
-                    'current' => $logs->currentPage(),
-                    'total' => $logs->lastPage(),
-                ],
-                'items' => $items
-            ]);
-        } catch (Exception $exception) {
-            return response()->json(Messages::E500(), 500);
-        }
-    }
-
 }
