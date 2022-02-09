@@ -103,7 +103,6 @@ class RequestLoggingMiddleware
         $httpURL = config('log.adminLogHttpUrl');
         $token = config('log.adminLogHttpToken');
 
-        try {
             $client = new Client();
             $request = $client->post($httpURL, [
                 'headers' => [
@@ -114,12 +113,7 @@ class RequestLoggingMiddleware
             ]);
 
             if ($request->getStatusCode() != 201) {
-                response()->json(Messages::E500(), 500)->send();
-                exit();
+                //WE SEE WHAT WE DO
             }
-        } catch (Exception $ex) {
-            response()->json(Messages::E500(), 500)->send();
-            exit();
-        }
     }
 }
