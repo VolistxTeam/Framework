@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Schema;
 
 class UserLogRepository
 {
-    public function Create($subscription_id, array $inputs)
+    public function Create(array $inputs)
     {
         return UserLog::query()->create([
-            'subscription_id' => $subscription_id,
+            'subscription_id' => $inputs['subscription_id'],
             'url' => $inputs['url'],
             'ip' => $inputs['ip'],
             'method' => $inputs['method'],

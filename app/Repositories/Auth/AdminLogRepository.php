@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 
 class AdminLogRepository
 {
-    public function Create($access_token_id, array $inputs)
+    public function Create(array $inputs)
     {
         AdminLog::query()->create([
-            'access_token_id' => $access_token_id,
+            'access_token_id' => $inputs['access_token_id'],
             'url' => $inputs['url'],
             'ip' => $inputs['ip'],
             'method' => $inputs['method'],

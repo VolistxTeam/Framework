@@ -40,11 +40,12 @@ class RequestLoggingMiddleware
             ];
 
             if (config('log.userLogMode') === 'local') {
-                $this->logUserToLocalDB($request->X_PERSONAL_TOKEN, $inputs);
+                $this->logUserToLocalDB( $inputs);
             } else {
-                $this->logUserToRemoteDB($request->X_PERSONAL_TOKEN, $inputs);
+                $this->logUserToRemoteDB($inputs);
             }
-        } else if ($request->X_ACCESS_TOKEN) {
+        }
+        else if ($request->X_ACCESS_TOKEN) {
             $inputs = [
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
@@ -53,67 +54,59 @@ class RequestLoggingMiddleware
                 'access_token_id' => $request->X_ACCESS_TOKEN->id
             ];
             if (config('log.adminLogMode') === 'local') {
-                $this->logAdminToLocalDB($request->X_ACCESS_TOKEN, $inputs);
+                $this->logAdminToLocalDB($inputs);
             } else {
-                $this->logAdminToRemoteDB($request->X_ACCESS_TOKEN, $inputs);
+                $this->logAdminToRemoteDB($inputs);
             }
         }
     }
 
-    private function logUserToLocalDB($key, $inputs)
+    private function logUserToLocalDB($inputs)
     {
-        $this->userLogRepository->Create($key->id, $inputs);
+        $this->userLogRepository->Create($inputs);
     }
 
-    private function logUserToRemoteDB($key, $inputs)
+    private function logUserToRemoteDB($inputs)
     {
         $httpURL = config('log.userLogHttpUrl');
         $token = config('log.userLogHttpToken');
 
-        try {
-            $client = new Client();
-            $request = $client->post($httpURL, [
-                'headers' => [
-                    'Authorization' => "Bearer $token",
-                    'Content-Type' => "application/json"
-                ],
-                'body' => json_encode($inputs)
-            ]);
+        $client = new Client();
+        $request = $client->post($httpURL, [
+            'headers' => [
+                'Authorization' => "Bearer $token",
+                'Content-Type' => "application/json"
+            ],
+            'body' => json_encode($inputs)
+        ]);
 
-            if ($request->getStatusCode() != 201) {
-                response()->json(Messages::E500(), 500)->send();
-                exit();
-            }
-        } catch (Exception $ex) {
-            response()->json(Messages::E500(), 500)->send();
-            exit();
+
+        if ($request->getStatusCode() != 201) {
+            //WE SEE WHAT WE DO
         }
-
-        //Handle failure to log remotely, currently, it logs locally
-
     }
 
-    private function logAdminToLocalDB($key, $inputs)
+    private function logAdminToLocalDB($inputs)
     {
-        $this->adminLogRepository->Create($key->id, $inputs);
+        $this->adminLogRepository->Create($inputs);
     }
 
-    private function logAdminToRemoteDB($key, $inputs)
+    private function logAdminToRemoteDB($inputs)
     {
         $httpURL = config('log.adminLogHttpUrl');
         $token = config('log.adminLogHttpToken');
 
-            $client = new Client();
-            $request = $client->post($httpURL, [
-                'headers' => [
-                    'Authorization' => "Bearer $token",
-                    'Content-Type' => "application/json"
-                ],
-                'body' => json_encode($inputs)
-            ]);
+        $client = new Client();
+        $request = $client->post($httpURL, [
+            'headers' => [
+                'Authorization' => "Bearer $token",
+                'Content-Type' => "application/json"
+            ],
+            'body' => json_encode($inputs)
+        ]);
 
-            if ($request->getStatusCode() != 201) {
-                //WE SEE WHAT WE DO
-            }
+        if ($request->getStatusCode() != 201) {
+            //WE SEE WHAT WE DO
+        }
     }
 }
