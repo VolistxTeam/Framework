@@ -80,13 +80,13 @@ class AccessTokenRepository
         ];
     }
 
-    public function FindAll($subscription_id, $needle, $page, $limit)
+    public function FindAll($needle, $page, $limit)
     {
-        $columns = Schema::getColumnListing('AccessToken');
+        $columns = Schema::getColumnListing('access_tokens');
         $query = AccessToken::query();
 
         foreach ($columns as $column) {
-            $query->orWhere("access_tokens.$column", 'LIKE', "%$needle%");
+            $query->orWhere("$column", 'LIKE', "%$needle%");
         }
         return $query->paginate($limit, ['*'], 'page', $page);
     }

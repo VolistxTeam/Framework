@@ -4,6 +4,7 @@ namespace App\Repositories\Auth;
 
 use App\Models\Auth\PersonalToken;
 use Carbon\Carbon;
+use Faker\Provider\Person;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
@@ -89,12 +90,12 @@ class PersonalTokenRepository
     public function FindAll($subscription_id, $needle, $page, $limit)
     {
         $columns = Schema::getColumnListing('personal_tokens');
-        $query = PersonalToken::query();
 
-        foreach ($columns as $column) {
-            $query->orWhere("personal_tokens.$column", 'LIKE', "%$needle%");
-        }
-        return $query->where('subscription_id', $subscription_id)->paginate($limit, ['*'], 'page', $page);
+        return PersonalToken::where('subscription_id', $subscription_id)->where(function($query) use($columns, $needle){
+            foreach ($columns as $column) {
+                $query->orWhere("$column", 'LIKE', "%$needle%");
+            }
+        })->paginate($limit, ['*'], 'page', $page);
     }
 
     public function AuthPersonalToken($token)
