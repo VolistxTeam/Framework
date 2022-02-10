@@ -14,7 +14,6 @@ class RateLimitValidationRule extends ValidationRuleBase
         $plan = $this->inputs['plan'];
 
         if(isset($plan['data']['rate_limit'])){
-            ray($plan['rate_limit']);
             $executed = RateLimiter::attempt(
                 $token->subscription_id, $plan['data']['rate_limit'],
                 function () {
