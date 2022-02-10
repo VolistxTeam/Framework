@@ -28,7 +28,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $accessToken = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0, 0);
 
-        $this->TestPermissions($accessToken, $key, 'POST', "/sys-bin/admin/personal-tokens/{$sub->id}", [
+        $this->TestPermissions($accessToken, $key, 'POST', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/", [
             'personal-tokens:*' => 201,
             '' => 401,
             'personal-tokens:create' => 201
@@ -82,13 +82,14 @@ class PersonalTokenControllerTest extends BaseTestCase
         $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0, 0);
 
-        $request = $this->json('POST', "/sys-bin/admin/personal-tokens/{$sub->id}", [
+        $request = $this->json('POST', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/", [
             'permissions' => array('*'),
             'whitelist_range' => array('127.0.0.0'),
             'hours_to_expire' => 500,
         ], [
             'Authorization' => "Bearer $key",
         ]);
+        ray($request);
 
         self::assertResponseStatus(201);
         self::assertSame($sub->id, json_decode($request->response->getContent())->subscription->id);
@@ -105,7 +106,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
-        $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
+        $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [
             'personal-tokens:*' => 200,
             'personal-tokens:update' => 200,
             '' => 401
@@ -123,7 +124,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $personalToken = $sub->personalTokens()->first();
 
 
-        $request = $this->json('PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
+        $request = $this->json('PUT', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [
             'permissions' => array('1'),
             'whitelist_range' => array('128.0.0.0'),
             'hours_to_expire' => 1000,
@@ -149,7 +150,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
-        $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/reset", [
+        $this->TestPermissions($accessToken, $key, 'PUT', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}/reset", [
             'personal-tokens:*' => 200,
             'personal-tokens:reset' => 200,
             '' => 401
@@ -167,7 +168,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $personalToken = $sub->personalTokens()->first();
         $oldKey = $personalToken->key;
 
-        $request = $this->json('PUT', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}/reset", [], [
+        $request = $this->json('PUT', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}/reset", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -183,17 +184,17 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0, 3);
 
         $personalToken = $sub->personalTokens()->first();
-        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
+        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [
             'personal-tokens:*' => 204,
         ]);
 
         $personalToken = $sub->personalTokens()->first();
-        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
+        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [
             'personal-tokens:delete' => 204,
         ]);
 
         $personalToken = $sub->personalTokens()->first();
-        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
+        $this->TestPermissions($token, $key, 'DELETE', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [
             '' => 401
         ]);
     }
@@ -206,7 +207,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
-        $request = $this->json('DELETE', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [], [
+        $request = $this->json('DELETE', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -221,7 +222,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0, 1);
         $personalToken = $sub->personalTokens()->first();
 
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [
             'personal-tokens:*' => 200,
             '' => 401,
             'personal-tokens:view' => 200
@@ -236,7 +237,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $sub = $this->GenerateSub(0, 3);
         $personalToken = $sub->personalTokens()->first();
 
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}/{$personalToken->id}", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens/{$personalToken->id}", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -251,7 +252,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0, 3);
 
-        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/personal-tokens/{$sub->id}", [
+        $this->TestPermissions($token, $key, 'GET', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens", [
             'personal-tokens:*' => 200,
             '' => 401,
             'personal-tokens:view-all' => 200
@@ -265,14 +266,14 @@ class PersonalTokenControllerTest extends BaseTestCase
         $token = $this->GenerateAccessToken($key);
         $sub = $this->GenerateSub(0, 3);
 
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens", [], [
             'Authorization' => "Bearer $key",
         ]);
 
         self::assertResponseStatus(200);
         self::assertCount(3, json_decode($request->response->getContent())->items);
 
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}?search=xxqsqeqeqw", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens?search=xxqsqeqeqw", [], [
             'Authorization' => "Bearer $key",
         ]);
 
@@ -280,7 +281,7 @@ class PersonalTokenControllerTest extends BaseTestCase
         self::assertCount(0, json_decode($request->response->getContent())->items);
 
 
-        $request = $this->json('GET', "/sys-bin/admin/personal-tokens/{$sub->id}?limit=2", [], [
+        $request = $this->json('GET', "/sys-bin/admin/subscriptions/{$sub->id}/personal-tokens?limit=2", [], [
             'Authorization' => "Bearer $key",
         ]);
 
