@@ -10,6 +10,8 @@ use Torann\GeoIP\GeoIPServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\AdminLoggingRepositoryServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\MessagesServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\PermissionsServiceProvider;
+use VolistxTeam\VSkeletonKernel\Providers\UserLoggingRepositoryServiceProvider;
+use VolistxTeam\VSkeletonKernel\VolistxServiceProvider;
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -37,10 +39,11 @@ $app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
-$app->register(\VolistxTeam\VSkeletonKernel\VolistxServiceProvider::class);
+$app->register(VolistxServiceProvider::class);
 $app->register(PermissionsServiceProvider::class);
 $app->register(MessagesServiceProvider::class);
 $app->register(AdminLoggingRepositoryServiceProvider::class);
+$app->register(UserLoggingRepositoryServiceProvider::class);
 
 
 $app->singleton(
@@ -72,5 +75,11 @@ $app->routeMiddleware([
     'throttle' => ThrottleRequests::class,
 ]);
 
+$app->router->group([
+    'namespace' => 'App\Http\Controllers',
+    'middleware' => 'throttle:api',
+], function ($router) {
+    require __DIR__ . '/../routes/api.php';
+});
 
 return $app;

@@ -5,6 +5,6 @@
 
 use Laravel\Lumen\Routing\Router;
 
-$router->group(['middleware' => ['auth.user', 'cacheResponse:5']], function () use ($router) {
-    $router->get('/ping', 'Services\ExampleService@Ping');
+$router->group(['middleware' => ['auth.user']], function () use ($router) {
+    $router->get('/ping', 'ServiceController@Ping');
 });

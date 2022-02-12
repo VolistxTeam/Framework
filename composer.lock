@@ -6949,12 +6949,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/VolistxTeam/VSkeleton-Kernel.git",
-                "reference": "2600ed6954c26faacdca6e08eb5660c42e2d69a0"
+                "reference": "6e1eede14a05d338a061c5e5b49e454d2edbcf1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/VolistxTeam/VSkeleton-Kernel/zipball/2600ed6954c26faacdca6e08eb5660c42e2d69a0",
-                "reference": "2600ed6954c26faacdca6e08eb5660c42e2d69a0",
+                "url": "https://api.github.com/repos/VolistxTeam/VSkeleton-Kernel/zipball/6e1eede14a05d338a061c5e5b49e454d2edbcf1f",
+                "reference": "6e1eede14a05d338a061c5e5b49e454d2edbcf1f",
                 "shasum": ""
             },
             "require": {
@@ -7010,7 +7010,7 @@
                 "source": "https://github.com/VolistxTeam/VSkeleton-Kernel/tree/master",
                 "issues": "https://github.com/VolistxTeam/VSkeleton-Kernel/issues"
             },
-            "time": "2022-02-12T21:51:59+00:00"
+            "time": "2022-02-12T22:38:52+00:00"
         },
         {
             "name": "webmozart/assert",
