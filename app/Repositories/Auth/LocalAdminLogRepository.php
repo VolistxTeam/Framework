@@ -3,9 +3,10 @@
 namespace App\Repositories\Auth;
 
 use App\Models\Auth\AdminLog;
+use App\Repositories\Auth\Interfaces\IAdminLogRepository;
 use Illuminate\Support\Facades\Schema;
 
-class AdminLogRepository
+class LocalAdminLogRepository implements IAdminLogRepository
 {
     public function Create(array $inputs)
     {
