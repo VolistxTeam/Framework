@@ -6,6 +6,7 @@ use App\Http\Middleware\Auth\FirewallMiddleware;
 use App\Http\Middleware\Auth\JsonBodyValidationFilteringMiddleware;
 use App\Http\Middleware\Auth\ParametersSanitizerMiddleware;
 use App\Http\Middleware\Auth\RequestLoggingMiddleware;
+use App\Providers\AdminLoggingRepositoryServiceProvider;
 use App\Providers\MessagesServiceProvider;
 use App\Providers\PermissionsServiceProvider;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
@@ -41,6 +42,7 @@ $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
 $app->register(PermissionsServiceProvider::class);
 $app->register(MessagesServiceProvider::class);
+$app->register(AdminLoggingRepositoryServiceProvider::class);
 
 
 $app->singleton(
