@@ -32,7 +32,16 @@ class LocalAdminLogRepository implements IAdminLogRepository
         foreach ($columns as $column) {
             $query->orWhere("admin_logs.$column", 'LIKE', "%$needle%");
         }
-        return $query->orderBy('created_at', 'DESC')
+        $logs = $query->orderBy('created_at', 'DESC')
             ->paginate($limit, ['*'], 'page', $page);
+
+        return response()->json([
+            'pagination' => [
+                'per_page' => $logs->perPage(),
+                'current' => $logs->currentPage(),
+                'total' => $logs->lastPage(),
+            ],
+            'items' => $logs->items()
+        ]);
     }
 }

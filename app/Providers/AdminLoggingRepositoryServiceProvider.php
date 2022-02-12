@@ -16,6 +16,7 @@ class AdminLoggingRepositoryServiceProvider extends ServiceProvider
 
     public function register()
     {
+        ray(config('log.adminLogMode'));
         if (config('log.adminLogMode') === 'local') {
             $this->app->bind(IAdminLogRepository::class, LocalAdminLogRepository::class);
         } else {

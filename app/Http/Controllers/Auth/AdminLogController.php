@@ -79,21 +79,7 @@ class AdminLogController extends Controller
                 return response()->json(Messages::E500(), 500);
             }
 
-            $items = [];
-            foreach ($logs->items() as $item) {
-                $items[] = AdminLogDTO::fromModel($item)->GetDTO();
-            }
-
-            ray($logs->items());
-
-            return response()->json([
-                'pagination' => [
-                    'per_page' => $logs->perPage(),
-                    'current' => $logs->currentPage(),
-                    'total' => $logs->lastPage(),
-                ],
-                'items' => $items
-            ]);
+            return response()->json($logs);
         } catch (Exception $ex) {
             return response()->json(Messages::E500(), 500);
         }

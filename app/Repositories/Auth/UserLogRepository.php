@@ -28,12 +28,22 @@ class UserLogRepository
     {
         $columns = Schema::getColumnListing('user_logs');
 
-        return UserLog::where('subscription_id', $subscription_id)->where(function($query) use($columns, $needle){
+        $logs = UserLog::where('subscription_id', $subscription_id)->where(function($query) use($columns, $needle){
             foreach ($columns as $column) {
                 $query->orWhere("$column", 'LIKE', "%$needle%");
             }
         })->orderBy('created_at', 'DESC')
             ->paginate($limit, ['*'], 'page', $page);
+
+
+        return response()->json([
+            'pagination' => [
+                'per_page' => $logs->perPage(),
+                'current' => $logs->currentPage(),
+                'total' => $logs->lastPage(),
+            ],
+            'items' => $logs->items
+        ]);
     }
 
     public function FindLogsBySubscriptionCount($subscription_id, $date): int
