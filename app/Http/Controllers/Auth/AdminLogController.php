@@ -6,7 +6,8 @@ use App\DataTransferObjects\Auth\AdminLogDTO;
 use App\Facades\Messages;
 use App\Facades\Permissions;
 use App\Http\Controllers\Controller;
-use App\Repositories\Auth\AdminLogRepository;
+use App\Repositories\Auth\Interfaces\IAdminLogRepository;
+use App\Repositories\Auth\LocalAdminLogRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,9 +15,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminLogController extends Controller
 {
-    private AdminLogRepository $adminLogRepository;
+    private IAdminLogRepository $adminLogRepository;
 
-    public function __construct(AdminLogRepository $adminLogRepository)
+    public function __construct(IAdminLogRepository $adminLogRepository)
     {
         $this->module = "logs";
         $this->adminLogRepository = $adminLogRepository;
@@ -82,6 +83,8 @@ class AdminLogController extends Controller
             foreach ($logs->items() as $item) {
                 $items[] = AdminLogDTO::fromModel($item)->GetDTO();
             }
+
+            ray($logs->items());
 
             return response()->json([
                 'pagination' => [
