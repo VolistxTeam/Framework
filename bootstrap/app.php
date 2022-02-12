@@ -2,18 +2,14 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Http\Middleware\Auth\FirewallMiddleware;
-use App\Http\Middleware\Auth\JsonBodyValidationFilteringMiddleware;
-use App\Http\Middleware\Auth\ParametersSanitizerMiddleware;
-use App\Http\Middleware\Auth\RequestLoggingMiddleware;
-use App\Providers\AdminLoggingRepositoryServiceProvider;
-use App\Providers\MessagesServiceProvider;
-use App\Providers\PermissionsServiceProvider;
 use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use LumenRateLimiting\ThrottleRequests;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Torann\GeoIP\GeoIPServiceProvider;
+use VolistxTeam\VSkeletonKernel\Providers\AdminLoggingRepositoryServiceProvider;
+use VolistxTeam\VSkeletonKernel\Providers\MessagesServiceProvider;
+use VolistxTeam\VSkeletonKernel\Providers\PermissionsServiceProvider;
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -41,6 +37,7 @@ $app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
+$app->register(\VolistxTeam\VSkeletonKernel\VolistxServiceProvider::class);
 $app->register(PermissionsServiceProvider::class);
 $app->register(MessagesServiceProvider::class);
 $app->register(AdminLoggingRepositoryServiceProvider::class);
@@ -59,33 +56,21 @@ $app->singleton(
 $app->configure('app');
 
 $app->middleware([
-    \App\Http\Middleware\Auth\TrustProxies::class,
+    VolistxTeam\VSkeletonKernel\Http\Middleware\TrustProxies::class,
     CloudfrontProxies::class,
     TrustProxies::class,
-    FirewallMiddleware::class,
-    RequestLoggingMiddleware::class
+    VolistxTeam\VSkeletonKernel\Http\Middleware\FirewallMiddleware::class,
+    VolistxTeam\VSkeletonKernel\Http\Middleware\RequestLoggingMiddleware::class,
 ]);
 
 $app->routeMiddleware([
-    'auth.admin' => \App\Http\Middleware\Auth\AdminAuthMiddleware::class,
-    'auth.user' => App\Http\Middleware\UserAuthMiddleware::class,
-    'sanitizer' => ParametersSanitizerMiddleware::class,
-    'filter.json' => JsonBodyValidationFilteringMiddleware::class,
+    'auth.admin' => VolistxTeam\VSkeletonKernel\Http\Middleware\AdminAuthMiddleware::class,
+    'auth.user' => VolistxTeam\VSkeletonKernel\Http\Middleware\UserAuthMiddleware::class,
+    'sanitizer' => VolistxTeam\VSkeletonKernel\Http\Middleware\ParametersSanitizerMiddleware::class,
+    'filter.json' => VolistxTeam\VSkeletonKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
     'cacheResponse' => CacheResponse::class,
     'throttle' => ThrottleRequests::class,
 ]);
 
-$app->router->group([
-    'namespace' => 'App\Http\Controllers',
-    'middleware' => 'throttle:api',
-], function ($router) {
-    require __DIR__ . '/../routes/api.php';
-});
-
-$app->router->group([
-    'namespace' => 'App\Http\Controllers',
-], function ($router) {
-    require __DIR__ . '/../routes/system.php';
-});
 
 return $app;

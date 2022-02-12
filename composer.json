@@ -5,24 +5,8 @@
     "type": "project",
     "require": {
         "php": ">=8.1",
-        "ext-apcu": "*",
-        "ext-json": "*",
-        "chuckrincon/lumen-config-discover": "^1.0",
-        "cryental/laravel-hashing-sha256": "^1.0",
-        "fakerphp/faker": "^1.19",
-        "fideloper/proxy": "^4.4",
-        "flipbox/lumen-generator": "^8.2",
-        "geoip2/geoip2": "^2.12",
-        "illuminate/redis": "^8.83",
-        "irazasyed/larasupport": "^1.7",
-        "jdavidbakr/cloudfront-proxies": "^1.6",
-        "laravel/lumen-framework": "^8.3",
-        "monicahq/laravel-cloudflare": "^2.0",
-        "rogervila/lumen-rate-limiting": "^1.0",
-        "spatie/laravel-responsecache": "^7.2",
-        "swooletw/laravel-swoole": "^2.11",
-        "torann/geoip": "^3.0",
-        "wikimedia/ip-set": "^3.0"
+        "laravel/lumen-framework": "^8.3.1",
+        "volistxteam/vskeleton-kernel": "dev-master"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
@@ -34,10 +18,7 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        },
-        "classmap": [
-            "app/Classes"
-        ]
+        }
     },
     "config": {
         "preferred-install": "dist",
@@ -54,5 +35,11 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "start": "php -S localhost:7777 -t public"
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/VolistxTeam/VSkeleton-Kernel"
+        }
+    ]
 }

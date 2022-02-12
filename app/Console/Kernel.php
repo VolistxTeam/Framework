@@ -15,8 +15,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\AccessKey\GenerateCommand::class,
-        Commands\AccessKey\DeleteCommand::class,
         ClearCommand::class,
         Reload::class,
 
