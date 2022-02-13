@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "00069b65ca1ef52751a370517e00c9ed",
+  "content-hash": "5232c2d4af79dda7013fe518913711f0",
   "packages": [
     {
       "name": "brick/math",
@@ -35,16 +35,16 @@
           "Brick\\Math\\": "src/"
         }
       },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Arbitrary-precision arithmetic library",
-            "keywords": [
-                "Arbitrary-precision",
-                "BigInteger",
-                "BigRational",
-                "arithmetic",
+      "notification-url": "https://packagist.org/downloads/",
+      "license": [
+        "MIT"
+      ],
+      "description": "Arbitrary-precision arithmetic library",
+      "keywords": [
+        "Arbitrary-precision",
+        "BigInteger",
+        "BigRational",
+        "arithmetic",
                 "bigdecimal",
                 "bignum",
                 "brick",
@@ -245,26 +245,81 @@
                 },
                 {
                     "url": "https://github.com/composer",
-                    "type": "github"
+                  "type": "github"
                 },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
-                }
+              {
+                "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                "type": "tidelift"
+              }
             ],
-            "time": "2021-10-28T20:44:15+00:00"
+          "time": "2021-10-28T20:44:15+00:00"
         },
+    {
+      "name": "cryental/laravel-stackpath",
+      "version": "1.0.1",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Cryental/laravel-stackpath.git",
+        "reference": "de69611439a8b7e98c43ea9fb1ed4fac59098849"
+      },
+      "dist": {
+        "type": "zip",
+        "url": "https://api.github.com/repos/Cryental/laravel-stackpath/zipball/de69611439a8b7e98c43ea9fb1ed4fac59098849",
+        "reference": "de69611439a8b7e98c43ea9fb1ed4fac59098849",
+        "shasum": ""
+      },
+      "require": {
+        "guzzlehttp/guzzle": "^7.4",
+        "illuminate/support": "^8.0 || ^9.0",
+        "php": "^7.4 || ^8.0 || ^8.1"
+      },
+      "type": "library",
+      "extra": {
+        "laravel": {
+          "providers": [
+            "Cryental\\StackPath\\TrustedProxyServiceProvider"
+          ]
+        }
+      },
+      "autoload": {
+        "psr-4": {
+          "Cryental\\StackPath\\": "src"
+        }
+      },
+      "notification-url": "https://packagist.org/downloads/",
+      "license": [
+        "MIT"
+      ],
+      "authors": [
         {
-            "name": "doctrine/inflector",
-            "version": "2.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/inflector.git",
-                "reference": "8b7ff3e4b7de6b2c84da85637b59fd2880ecaa89"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/inflector/zipball/8b7ff3e4b7de6b2c84da85637b59fd2880ecaa89",
+          "name": "Cryental",
+          "email": "contact@cryental.dev"
+        }
+      ],
+      "description": "Add StackPath ip addresses to trusted proxies for Laravel.",
+      "keywords": [
+        "cloudflare",
+        "laravel",
+        "php",
+        "proxies"
+      ],
+      "support": {
+        "issues": "https://github.com/Cryental/laravel-stackpath/issues",
+        "source": "https://github.com/Cryental/laravel-stackpath/tree/1.0.1"
+      },
+      "time": "2022-02-13T23:44:54+00:00"
+    },
+    {
+      "name": "doctrine/inflector",
+      "version": "2.0.4",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/doctrine/inflector.git",
+        "reference": "8b7ff3e4b7de6b2c84da85637b59fd2880ecaa89"
+      },
+      "dist": {
+        "type": "zip",
+        "url": "https://api.github.com/repos/doctrine/inflector/zipball/8b7ff3e4b7de6b2c84da85637b59fd2880ecaa89",
                 "reference": "8b7ff3e4b7de6b2c84da85637b59fd2880ecaa89",
                 "shasum": ""
             },
@@ -2915,16 +2970,16 @@
                     "email": "taylor@laravel.com"
                 },
                 {
-                    "name": "Nuno Maduro",
-                    "email": "nuno@laravel.com"
+                  "name": "Nuno Maduro",
+                  "email": "nuno@laravel.com"
                 }
             ],
-            "description": "Laravel Serializable Closure provides an easy and secure way to serialize closures in PHP.",
-            "keywords": [
-                "closure",
-              "laravel",
-              "serializable"
-            ],
+          "description": "Laravel Serializable Closure provides an easy and secure way to serialize closures in PHP.",
+          "keywords": [
+            "closure",
+            "laravel",
+            "serializable"
+          ],
           "support": {
             "issues": "https://github.com/laravel/serializable-closure/issues",
             "source": "https://github.com/laravel/serializable-closure"
@@ -3010,16 +3065,16 @@
       "dist": {
         "type": "zip",
         "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/094defdb4a7001845300334e7c1ee2335925ef99",
-                "reference": "094defdb4a7001845300334e7c1ee2335925ef99",
-                "shasum": ""
-            },
-            "require": {
-                "ext-fileinfo": "*",
-                "league/mime-type-detection": "^1.3",
-                "php": "^7.2.5 || ^8.0"
-            },
-            "conflict": {
-                "league/flysystem-sftp": "<1.0.6"
+        "reference": "094defdb4a7001845300334e7c1ee2335925ef99",
+        "shasum": ""
+      },
+      "require": {
+        "ext-fileinfo": "*",
+        "league/mime-type-detection": "^1.3",
+        "php": "^7.2.5 || ^8.0"
+      },
+      "conflict": {
+        "league/flysystem-sftp": "<1.0.6"
             },
             "require-dev": {
                 "phpspec/prophecy": "^1.11.1",
@@ -3138,10 +3193,10 @@
                 "source": "https://github.com/thephpleague/mime-type-detection/tree/1.9.0"
             },
             "funding": [
-                {
-                    "url": "https://github.com/frankdejonge",
-                  "type": "github"
-                },
+              {
+                "url": "https://github.com/frankdejonge",
+                "type": "github"
+              },
               {
                 "url": "https://tidelift.com/funding/github/packagist/league/flysystem",
                 "type": "tidelift"
@@ -3226,16 +3281,16 @@
       "dist": {
         "type": "zip",
         "url": "https://api.github.com/repos/maxmind/MaxMind-DB-Reader-php/zipball/b1f3c0699525336d09cc5161a2861268d9f2ae5b",
-                "reference": "b1f3c0699525336d09cc5161a2861268d9f2ae5b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "conflict": {
-                "ext-maxminddb": "<1.10.1,>=2.0.0"
-            },
-            "require-dev": {
+        "reference": "b1f3c0699525336d09cc5161a2861268d9f2ae5b",
+        "shasum": ""
+      },
+      "require": {
+        "php": ">=7.2"
+      },
+      "conflict": {
+        "ext-maxminddb": "<1.10.1,>=2.0.0"
+      },
+      "require-dev": {
                 "friendsofphp/php-cs-fixer": "3.*",
                 "php-coveralls/php-coveralls": "^2.1",
                 "phpstan/phpstan": "*",
@@ -6957,12 +7012,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/VolistxTeam/VSkeleton-Kernel.git",
-              "reference": "51cbccb7cf624944ce6644122f3008fc351bf6ce"
+              "reference": "726accecef3af74348721647f7c4e3669531a814"
             },
             "dist": {
               "type": "zip",
-              "url": "https://api.github.com/repos/VolistxTeam/VSkeleton-Kernel/zipball/51cbccb7cf624944ce6644122f3008fc351bf6ce",
-              "reference": "51cbccb7cf624944ce6644122f3008fc351bf6ce",
+              "url": "https://api.github.com/repos/VolistxTeam/VSkeleton-Kernel/zipball/726accecef3af74348721647f7c4e3669531a814",
+              "reference": "726accecef3af74348721647f7c4e3669531a814",
               "shasum": ""
             },
             "require": {
@@ -7014,7 +7069,7 @@
                 "source": "https://github.com/VolistxTeam/VSkeleton-Kernel/tree/master",
                 "issues": "https://github.com/VolistxTeam/VSkeleton-Kernel/issues"
             },
-          "time": "2022-02-13T21:38:18+00:00"
+          "time": "2022-02-13T23:02:57+00:00"
         },
         {
             "name": "webmozart/assert",

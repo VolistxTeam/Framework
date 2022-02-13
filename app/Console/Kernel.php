@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('geoip:update')->monthly();
-        $schedule->command('cloudflare:reload')->monthly();
+        $schedule->command('cloudflare:reload')->weekly();
+        $schedule->command('stackpath:reload')->weekly();
     }
 }

@@ -47,6 +47,8 @@ $app->register(UserLoggingRepositoryServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(Marcha\Opcache\OpcacheServiceProvider::class);
+$app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
+$app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -65,6 +67,7 @@ $app->middleware([
     VolistxTeam\VSkeletonKernel\Http\Middleware\RequestLoggingMiddleware::class,
     jdavidbakr\CloudfrontProxies\CloudfrontProxies::class,
     Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
+    Cryental\StackPath\Http\Middleware\TrustProxies::class,
     TrustProxies::class,
 ]);
 

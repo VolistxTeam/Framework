@@ -8,6 +8,7 @@
         "ext-apcu": "*",
         "ext-json": "*",
         "chuckrincon/lumen-config-discover": "^1.0",
+        "cryental/laravel-stackpath": "^1.0",
         "fakerphp/faker": "^1.19",
         "fideloper/proxy": "^4.4",
         "flipbox/lumen-generator": "^8.2",
