@@ -16,7 +16,7 @@ class ServiceController extends Controller
 
     public function Ping(Request $request): JsonResponse
     {
-        if (! Permissions::check($request->X_PERSONAL_TOKEN, $this->module, 'permission-name')) {
+        if (!Permissions::check($request->X_PERSONAL_TOKEN, $this->module, 'permission-name')) {
             // do something if permissions failed
         }
 
