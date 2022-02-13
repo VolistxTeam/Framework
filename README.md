@@ -33,7 +33,6 @@ After that, run following commands:
 composer install
 php artisan key:generate
 php artisan migrate
-php artisan geoip:update
 php artisan cloudflare:reload
 php artisan optimize
 ```
