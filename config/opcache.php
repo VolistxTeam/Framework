@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'url' => env('APP_URL', config('app.url')),
-    'prefix' => 'opcache-api',
-    'verify' => true,
-    'headers' => [],
+    'url'         => env('APP_URL', config('app.url')),
+    'prefix'      => 'opcache-api',
+    'verify'      => true,
+    'headers'     => [],
     'directories' => [
         base_path('app'),
         base_path('bootstrap'),
