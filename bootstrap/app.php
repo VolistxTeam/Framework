@@ -6,7 +6,6 @@ use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
 use LumenRateLimiting\ThrottleRequests;
 use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
-use Torann\GeoIP\GeoIPServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\AdminLoggingRepositoryServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\MessagesServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\PermissionsServiceProvider;
@@ -35,10 +34,8 @@ $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
-$app->register(GeoIPServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
-$app->register(Cryental\LaravelHashingSHA256\LaravelHashingSHA256ServiceProvider::class);
 $app->register(VolistxServiceProvider::class);
 $app->register(PermissionsServiceProvider::class);
 $app->register(MessagesServiceProvider::class);
@@ -59,7 +56,7 @@ $app->singleton(
 $app->configure('app');
 
 $app->middleware([
-    VolistxTeam\VSkeletonKernel\Http\Middleware\TrustProxies::class,
+    \App\Http\Middleware\TrustProxies::class,
     CloudfrontProxies::class,
     TrustProxies::class,
     VolistxTeam\VSkeletonKernel\Http\Middleware\FirewallMiddleware::class,

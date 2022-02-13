@@ -1,30 +1,30 @@
 {
-    "_readme": [
-        "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
-        "This file is @generated automatically"
-    ],
-    "content-hash": "47be89edf7b6f7d85a02bbc81f4ef14b",
-    "packages": [
-        {
-            "name": "brick/math",
-            "version": "0.9.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/brick/math.git",
-                "reference": "ca57d18f028f84f777b2168cd1911b0dee2343ae"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/ca57d18f028f84f777b2168cd1911b0dee2343ae",
-                "reference": "ca57d18f028f84f777b2168cd1911b0dee2343ae",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": "^7.1 || ^8.0"
-            },
-            "require-dev": {
+  "_readme": [
+    "This file locks the dependencies of your project to a known state",
+    "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+    "This file is @generated automatically"
+  ],
+  "content-hash": "8b5bc2d09cd35b72f109f782331379f1",
+  "packages": [
+    {
+      "name": "brick/math",
+      "version": "0.9.3",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/brick/math.git",
+        "reference": "ca57d18f028f84f777b2168cd1911b0dee2343ae"
+      },
+      "dist": {
+        "type": "zip",
+        "url": "https://api.github.com/repos/brick/math/zipball/ca57d18f028f84f777b2168cd1911b0dee2343ae",
+        "reference": "ca57d18f028f84f777b2168cd1911b0dee2343ae",
+        "shasum": ""
+      },
+      "require": {
+        "ext-json": "*",
+        "php": "^7.1 || ^8.0"
+      },
+      "require-dev": {
                 "php-coveralls/php-coveralls": "^2.2",
                 "phpunit/phpunit": "^7.5.15 || ^8.5 || ^9.0",
                 "vimeo/psalm": "4.9.2"
@@ -253,52 +253,6 @@
                 }
             ],
             "time": "2021-10-28T20:44:15+00:00"
-        },
-        {
-            "name": "cryental/laravel-hashing-sha256",
-            "version": "1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Cryental/LaravelHashingSHA256.git",
-                "reference": "c08c9126d2ab8aa4eff919dd9947b10424f3f2e0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Cryental/LaravelHashingSHA256/zipball/c08c9126d2ab8aa4eff919dd9947b10424f3f2e0",
-                "reference": "c08c9126d2ab8aa4eff919dd9947b10424f3f2e0",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "^5.6|^6.0|^7.0|^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Cryental\\LaravelHashingSHA256\\LaravelHashingSHA256ServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cryental\\LaravelHashingSHA256\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Cryental",
-                    "email": "contact@cryental.dev"
-                }
-            ],
-            "support": {
-                "issues": "https://github.com/Cryental/LaravelHashingSHA256/issues",
-                "source": "https://github.com/Cryental/LaravelHashingSHA256/tree/1.0"
-            },
-            "time": "2021-10-11T12:45:39+00:00"
         },
         {
             "name": "doctrine/inflector",
@@ -933,12 +887,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\": "src/"
-                },
-                "files": [
-                    "src/functions_include.php"
-                ]
+              "files": [
+                "src/functions_include.php"
+              ],
+              "psr-4": {
+                "GuzzleHttp\\": "src/"
+              }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -6710,86 +6664,6 @@
             "time": "2022-01-17T16:30:37+00:00"
         },
         {
-            "name": "torann/geoip",
-            "version": "3.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Torann/laravel-geoip.git",
-                "reference": "3d730ae7470b86ae828b4128b1757a96156fd941"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Torann/laravel-geoip/zipball/3d730ae7470b86ae828b4128b1757a96156fd941",
-                "reference": "3d730ae7470b86ae828b4128b1757a96156fd941",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/cache": "^8.0|^9.0",
-                "illuminate/console": "^8.0|^9.0",
-                "illuminate/support": "^8.0|^9.0",
-                "php": "^8.0"
-            },
-            "require-dev": {
-                "geoip2/geoip2": "~2.1",
-                "mockery/mockery": "^1.3",
-                "phpstan/phpstan": "^0.12.14",
-                "phpunit/phpunit": "^8.0",
-                "squizlabs/php_codesniffer": "^3.5",
-                "vlucas/phpdotenv": "^5.0"
-            },
-            "suggest": {
-                "geoip2/geoip2": "Required to use the MaxMind database or web service with GeoIP (~2.1).",
-                "monolog/monolog": "Allows for storing location not found errors to the log"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                },
-                "laravel": {
-                    "providers": [
-                        "Torann\\GeoIP\\GeoIPServiceProvider"
-                    ],
-                    "aliases": {
-                        "GeoIP": "Torann\\GeoIP\\Facades\\GeoIP"
-                    }
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
-                "psr-4": {
-                    "Torann\\GeoIP\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Stainback",
-                    "email": "torann@gmail.com"
-                }
-            ],
-            "description": "Support for multiple GeoIP services.",
-            "keywords": [
-                "IP API",
-                "geoip",
-                "geolocation",
-                "infoDB",
-                "laravel",
-                "location",
-                "maxmind"
-            ],
-            "support": {
-                "issues": "https://github.com/Torann/laravel-geoip/issues",
-                "source": "https://github.com/Torann/laravel-geoip/tree/3.0.4"
-            },
-            "time": "2022-02-09T14:48:24+00:00"
-        },
-        {
             "name": "vlucas/phpdotenv",
             "version": "v5.4.1",
             "source": {
@@ -6949,32 +6823,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/VolistxTeam/VSkeleton-Kernel.git",
-                "reference": "6e1eede14a05d338a061c5e5b49e454d2edbcf1f"
+              "reference": "dface72d1ab34d17b7903a9319cb3d89b66d2813"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/VolistxTeam/VSkeleton-Kernel/zipball/6e1eede14a05d338a061c5e5b49e454d2edbcf1f",
-                "reference": "6e1eede14a05d338a061c5e5b49e454d2edbcf1f",
-                "shasum": ""
+              "type": "zip",
+              "url": "https://api.github.com/repos/VolistxTeam/VSkeleton-Kernel/zipball/dface72d1ab34d17b7903a9319cb3d89b66d2813",
+              "reference": "dface72d1ab34d17b7903a9319cb3d89b66d2813",
+              "shasum": ""
             },
             "require": {
-                "chuckrincon/lumen-config-discover": "^1.0",
-                "cryental/laravel-hashing-sha256": "^1.0",
-                "fakerphp/faker": "^1.19",
-                "fideloper/proxy": "^4.4",
-                "flipbox/lumen-generator": "^8.2",
-                "geoip2/geoip2": "^2.12",
-                "illuminate/redis": "^8.83",
-                "irazasyed/larasupport": "^1.7",
-                "jdavidbakr/cloudfront-proxies": "^1.6",
-                "laravel/lumen-framework": "^8.0",
-                "monicahq/laravel-cloudflare": "^2.0",
-                "php": ">=8.1",
-                "rogervila/lumen-rate-limiting": "^1.0",
-                "spatie/laravel-responsecache": "^7.2",
-                "swooletw/laravel-swoole": "^2.11",
-                "torann/geoip": "^3.0",
-                "wikimedia/ip-set": "^3.0"
+              "chuckrincon/lumen-config-discover": "^1.0",
+              "fakerphp/faker": "^1.19",
+              "guzzlehttp/guzzle": "^7.4",
+              "laravel/lumen-framework": "^8.0",
+              "php": ">=8.1",
+              "rogervila/lumen-rate-limiting": "^1.0",
+              "wikimedia/ip-set": "^3.0"
             },
             "require-dev": {
                 "mockery/mockery": "^1.5",
@@ -7000,17 +6864,21 @@
                 ]
             },
             "authors": [
-                {
-                    "name": "Cryental",
-                    "email": "contact@cryental.dev"
-                }
+              {
+                "name": "Cryental",
+                "email": "contact@cryental.dev"
+              },
+              {
+                "name": "Mostama Samy",
+                "email": "mostafa.samy203@gmail.com"
+              }
             ],
             "description": "The Volistx Framework (Kernel)",
             "support": {
                 "source": "https://github.com/VolistxTeam/VSkeleton-Kernel/tree/master",
                 "issues": "https://github.com/VolistxTeam/VSkeleton-Kernel/issues"
             },
-            "time": "2022-02-12T22:38:52+00:00"
+          "time": "2022-02-13T00:07:56+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -9455,7 +9323,9 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.1"
+      "php": ">=8.1",
+      "ext-apcu": "*",
+      "ext-json": "*"
     },
     "platform-dev": [],
     "platform-overrides": {
