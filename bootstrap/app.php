@@ -46,6 +46,7 @@ $app->register(UserLoggingRepositoryServiceProvider::class);
 // Response cache and Swoole providers
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
+$app->register(Marcha\Opcache\OpcacheServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
