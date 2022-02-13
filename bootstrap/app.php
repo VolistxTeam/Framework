@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use App\Http\Middleware\TrustProxies;
 use LumenRateLimiting\ThrottleRequests;
@@ -68,19 +68,19 @@ $app->middleware([
 ]);
 
 $app->routeMiddleware([
-    'auth.admin' => VolistxTeam\VSkeletonKernel\Http\Middleware\AdminAuthMiddleware::class,
-    'auth.user' => VolistxTeam\VSkeletonKernel\Http\Middleware\UserAuthMiddleware::class,
-    'sanitizer' => VolistxTeam\VSkeletonKernel\Http\Middleware\ParametersSanitizerMiddleware::class,
-    'filter.json' => VolistxTeam\VSkeletonKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
+    'auth.admin'    => VolistxTeam\VSkeletonKernel\Http\Middleware\AdminAuthMiddleware::class,
+    'auth.user'     => VolistxTeam\VSkeletonKernel\Http\Middleware\UserAuthMiddleware::class,
+    'sanitizer'     => VolistxTeam\VSkeletonKernel\Http\Middleware\ParametersSanitizerMiddleware::class,
+    'filter.json'   => VolistxTeam\VSkeletonKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
     'cacheResponse' => CacheResponse::class,
-    'throttle' => ThrottleRequests::class,
+    'throttle'      => ThrottleRequests::class,
 ]);
 
 $app->router->group([
-    'namespace' => 'App\Http\Controllers',
+    'namespace'  => 'App\Http\Controllers',
     'middleware' => 'throttle:api',
 ], function ($router) {
-    require __DIR__ . '/../routes/api.php';
+    require __DIR__.'/../routes/api.php';
 });
 
 return $app;
