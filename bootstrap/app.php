@@ -2,9 +2,8 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use jdavidbakr\CloudfrontProxies\CloudfrontProxies;
+use App\Http\Middleware\TrustProxies;
 use LumenRateLimiting\ThrottleRequests;
-use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use VolistxTeam\VSkeletonKernel\Providers\AdminLoggingRepositoryServiceProvider;
 use VolistxTeam\VSkeletonKernel\Providers\MessagesServiceProvider;
@@ -27,21 +26,26 @@ $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 $app->withFacades();
 $app->withEloquent();
 
+// Packages to provide compatibility with Laravel and Redis support
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
-
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
+
+// Default providers of Lumen
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
-$app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
-$app->register(SwooleTW\Http\LumenServiceProvider::class);
+
+// Kernel providers
 $app->register(VolistxServiceProvider::class);
 $app->register(PermissionsServiceProvider::class);
 $app->register(MessagesServiceProvider::class);
 $app->register(AdminLoggingRepositoryServiceProvider::class);
 $app->register(UserLoggingRepositoryServiceProvider::class);
 
+// Response cache and Swoole providers
+$app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
+$app->register(SwooleTW\Http\LumenServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -56,11 +60,11 @@ $app->singleton(
 $app->configure('app');
 
 $app->middleware([
-    \App\Http\Middleware\TrustProxies::class,
-    CloudfrontProxies::class,
-    TrustProxies::class,
     VolistxTeam\VSkeletonKernel\Http\Middleware\FirewallMiddleware::class,
     VolistxTeam\VSkeletonKernel\Http\Middleware\RequestLoggingMiddleware::class,
+    jdavidbakr\CloudfrontProxies\CloudfrontProxies::class,
+    Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
+    TrustProxies::class,
 ]);
 
 $app->routeMiddleware([

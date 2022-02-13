@@ -1,5 +1,11 @@
 <?php
 
+use VolistxTeam\VSkeletonKernel\ValidationRules\IPValidationRule;
+use VolistxTeam\VSkeletonKernel\ValidationRules\KeyExpiryValidationRule;
+use VolistxTeam\VSkeletonKernel\ValidationRules\RateLimitValidationRule;
+use VolistxTeam\VSkeletonKernel\ValidationRules\RequestsCountValidationRule;
+use VolistxTeam\VSkeletonKernel\ValidationRules\ValidKeyValidationRule;
+
 return [
     'firewall' => [
         'ipBlacklist' => [
@@ -15,10 +21,10 @@ return [
         'userLogHttpToken' => env('LOG_AUTH_USER_HTTP_TOKEN'),
     ],
     'validators' => [
-        \VolistxTeam\VSkeletonKernel\ValidationRules\ValidKeyValidationRule::class,
-        \VolistxTeam\VSkeletonKernel\ValidationRules\KeyExpiryValidationRule::class,
-        \VolistxTeam\VSkeletonKernel\ValidationRules\IPValidationRule::class,
-        \VolistxTeam\VSkeletonKernel\ValidationRules\RequestsCountValidationRule::class,
-        \VolistxTeam\VSkeletonKernel\ValidationRules\RateLimitValidationRule::class
+        ValidKeyValidationRule::class,
+        KeyExpiryValidationRule::class,
+        IPValidationRule::class,
+        RequestsCountValidationRule::class,
+        RateLimitValidationRule::class
     ]
 ];
