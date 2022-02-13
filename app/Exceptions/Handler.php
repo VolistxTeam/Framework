@@ -39,9 +39,10 @@ class Handler extends ExceptionHandler
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
      * @param Throwable $exception
-     * @return void
      *
      * @throws Exception
+     *
+     * @return void
      */
     public function report(Throwable $exception)
     {
@@ -51,13 +52,13 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param Request $request
+     * @param Request   $request
      * @param Throwable $exception
-     * @return JsonResponse|RedirectResponse|Response|Redirector
      *
      * @throws Throwable
+     *
+     * @return JsonResponse|RedirectResponse|Response|Redirector
      */
-
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof NotFoundHttpException) {

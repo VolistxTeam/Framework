@@ -5,7 +5,7 @@ use Symfony\Component\HttpFoundation\Request;
 if (env('HEROKU_ENV', false)) {
     return [
         'proxies' => [
-            '*'
+            '*',
         ],
 
         'headers' => Request::HEADER_X_FORWARDED_AWS_ELB,
