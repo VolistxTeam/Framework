@@ -26,7 +26,6 @@ composer create-project --prefer-dist cryental/volistx-skeleton myproject ^4.0
 ### Usage
 First, copy `.env.example` to `.env`.
 
-You have to register to MaxMind, get an API key and put it inside `.env` file.
 After that, run following commands:
 
 ```
