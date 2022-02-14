@@ -1,5 +1,5 @@
-# Volistx Skeleton
-Reusable Framework For Volistx API
+# Volistx Framework
+Volistx Framework For RESTful API Based on Laravel/Lumen
 
 This is a pre-made skeleton for Volistx API platform using Lumen PHP Framework.
 
