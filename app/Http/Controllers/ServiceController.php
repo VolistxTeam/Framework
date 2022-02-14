@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use VolistxTeam\VSkeletonKernel\Facades\Permissions;
-use VolistxTeam\VSkeletonKernel\Http\Controllers\Controller;
+use Volistx\FrameworkKernel\Facades\Permissions;
+use Volistx\FrameworkKernel\Http\Controllers\Controller;
 
 class ServiceController extends Controller
 {
