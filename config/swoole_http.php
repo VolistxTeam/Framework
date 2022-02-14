@@ -21,12 +21,12 @@ return [
         'socket_type'  => SWOOLE_SOCK_TCP,
         'process_type' => SWOOLE_PROCESS,
         'options'      => [
-            'pid_file' => env('SWOOLE_HTTP_PID_FILE', base_path('storage/logs/swoole_http.pid')),
-            'log_file' => env('SWOOLE_HTTP_LOG_FILE', base_path('storage/logs/swoole_http.log')),
+            'pid_file'  => env('SWOOLE_HTTP_PID_FILE', base_path('storage/logs/swoole_http.pid')),
+            'log_file'  => env('SWOOLE_HTTP_LOG_FILE', base_path('storage/logs/swoole_http.log')),
             'daemonize' => env('SWOOLE_HTTP_DAEMONIZE', false),
             // Normally this value should be 1~4 times larger according to your cpu cores.
-            'reactor_num' => env('SWOOLE_HTTP_REACTOR_NUM', swoole_cpu_num() * 2),
-            'worker_num' => env('SWOOLE_HTTP_WORKER_NUM', swoole_cpu_num() * 2),
+            'reactor_num'     => env('SWOOLE_HTTP_REACTOR_NUM', swoole_cpu_num() * 2),
+            'worker_num'      => env('SWOOLE_HTTP_WORKER_NUM', swoole_cpu_num() * 2),
             'task_worker_num' => env('SWOOLE_HTTP_TASK_WORKER_NUM', swoole_cpu_num() * 2),
             // The data to receive can't be larger than buffer_output_size.
             'package_max_length' => 20 * 1024 * 1024,
@@ -59,11 +59,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'hot_reload' => [
-        'enabled' => env('SWOOLE_HOT_RELOAD_ENABLE', true),
+        'enabled'     => env('SWOOLE_HOT_RELOAD_ENABLE', true),
         'recursively' => env('SWOOLE_HOT_RELOAD_RECURSIVELY', true),
-        'directory' => env('SWOOLE_HOT_RELOAD_DIRECTORY', base_path()),
-        'log' => env('SWOOLE_HOT_RELOAD_LOG', true),
-        'filter' => env('SWOOLE_HOT_RELOAD_FILTER', '.php'),
+        'directory'   => env('SWOOLE_HOT_RELOAD_DIRECTORY', base_path()),
+        'log'         => env('SWOOLE_HOT_RELOAD_LOG', true),
+        'filter'      => env('SWOOLE_HOT_RELOAD_FILTER', '.php'),
     ],
 
     /*
