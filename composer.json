@@ -10,7 +10,6 @@
         "fakerphp/faker": "^1.19",
         "fideloper/proxy": "^4.4",
         "flipbox/lumen-generator": "^8.2",
-        "geoip2/geoip2": "^2.12",
         "illuminate/redis": "^8.82",
         "irazasyed/larasupport": "^1.7",
         "jdavidbakr/cloudfront-proxies": "^1.6",
