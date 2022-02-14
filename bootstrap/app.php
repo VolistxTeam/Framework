@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use App\Http\Middleware\TrustProxies;
 use LumenRateLimiting\ThrottleRequests;
@@ -72,12 +72,12 @@ $app->middleware([
 ]);
 
 $app->routeMiddleware([
-    'auth.admin' => Volistx\FrameworkKernel\Http\Middleware\AdminAuthMiddleware::class,
-    'auth.user' => Volistx\FrameworkKernel\Http\Middleware\UserAuthMiddleware::class,
-    'sanitizer' => Volistx\FrameworkKernel\Http\Middleware\ParametersSanitizerMiddleware::class,
-    'filter.json' => Volistx\FrameworkKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
+    'auth.admin'    => Volistx\FrameworkKernel\Http\Middleware\AdminAuthMiddleware::class,
+    'auth.user'     => Volistx\FrameworkKernel\Http\Middleware\UserAuthMiddleware::class,
+    'sanitizer'     => Volistx\FrameworkKernel\Http\Middleware\ParametersSanitizerMiddleware::class,
+    'filter.json'   => Volistx\FrameworkKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
     'cacheResponse' => CacheResponse::class,
-    'throttle' => ThrottleRequests::class,
+    'throttle'      => ThrottleRequests::class,
 ]);
 
 $app->router->group([
