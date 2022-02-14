@@ -1,7 +1,7 @@
 # Volistx Framework
 Volistx Framework For RESTful API Based on Laravel/Lumen
 
-This is a pre-made skeleton for Volistx API platform using Lumen PHP Framework.
+This is a framework skeleton for Volistx API platform using Lumen PHP Framework.
 
 Let's make some awesome thing together!
 
@@ -15,12 +15,7 @@ Let's make some awesome thing together!
 
 ### Installation
 ```
-composer create-project --prefer-dist cryental/volistx-skeleton myproject ^5.0
-```
-
-For Simple Subscription Management:
-```
-composer create-project --prefer-dist cryental/volistx-skeleton myproject ^4.0
+composer create-project --prefer-dist volistx/framework myproject ^5.0
 ```
 
 ### Usage

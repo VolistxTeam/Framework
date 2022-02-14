@@ -1,6 +1,6 @@
 {
-    "name": "cryental/volistx-skeleton",
-    "description": "Skeleton for Volistx API",
+    "name": "volistx/framework",
+    "description": "Volistx Framework For RESTful API Based on Laravel/Lumen",
     "license": "MIT",
     "type": "project",
     "require": {
@@ -20,7 +20,7 @@
         "rogervila/lumen-rate-limiting": "^1.0",
         "spatie/laravel-responsecache": "^7.2",
         "swooletw/laravel-swoole": "^2.11",
-        "volistxteam/vskeleton-kernel": "dev-master",
+        "volistx/framework-kernel": "dev-master",
         "wikimedia/ip-set": "^3.0"
     },
     "require-dev": {
@@ -54,7 +54,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/VolistxTeam/VSkeleton-Kernel"
+            "url": "https://github.com/VolistxTeam/Framework-Kernel"
         }
     ]
 }
