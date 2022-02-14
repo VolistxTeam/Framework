@@ -15,7 +15,7 @@ Let's make some awesome thing together!
 
 ### Installation
 ```
-composer create-project --prefer-dist volistx/framework myproject ^5.0
+composer create-project --prefer-dist volistx/framework myproject
 ```
 
 ### Usage
