@@ -26,9 +26,7 @@ $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 $app->withFacades();
 $app->withEloquent();
 
-// Packages to provide compatibility with Laravel and Redis support
-$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
-$app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
+// Packages to provide compatibility with Laravel and Redis support\
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 
 // Default providers of Lumen
@@ -43,10 +41,8 @@ $app->register(MessagesServiceProvider::class);
 $app->register(AdminLoggingRepositoryServiceProvider::class);
 $app->register(UserLoggingRepositoryServiceProvider::class);
 
-// Response cache and Swoole providers
+// Response cache
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
-$app->register(SwooleTW\Http\LumenServiceProvider::class);
-$app->register(Marcha\Opcache\OpcacheServiceProvider::class);
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 
@@ -65,7 +61,6 @@ $app->configure('app');
 $app->middleware([
     Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
     Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
-    jdavidbakr\CloudfrontProxies\CloudfrontProxies::class,
     Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
     Cryental\StackPath\Http\Middleware\TrustProxies::class,
     TrustProxies::class,
