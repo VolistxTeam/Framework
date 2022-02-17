@@ -21,7 +21,7 @@ return [
         Volistx\FrameworkKernel\ValidationRules\RequestsCountValidationRule::class,
         Volistx\FrameworkKernel\ValidationRules\RateLimitValidationRule::class,
     ],
-    'services_permissions'=>[
-        '*'
-    ]
+    'services_permissions'=> [
+        '*',
+    ],
 ];
