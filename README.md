@@ -29,7 +29,6 @@ php artisan key:generate
 php artisan migrate
 php artisan cloudflare:reload
 php artisan stackpath:reload
-php artisan optimize
 ```
 
 Do not forget to set a cronjob for production:
@@ -40,24 +39,6 @@ Do not forget to set a cronjob for production:
 Generate an admin access key using this command:
 ```
 php artisan access-key:generate
-```
-
-Run Laravel/Lumen Swoole using this package:
-
-```
-php artisan swoole:http start
-```
-
-If you want the Swoole server to run after reboot, add the following line to your crontab:
-
-```
-@reboot php /path/to/artisan swoole:http start
-```
-
-You can pre-compile application for OPcache using this command. You should enable dups_fix before this operation.
-
-```
-php artisan opcache:compile
 ```
 
 For more information, please go to https://docs.volistx.io/vskeleton/introduction

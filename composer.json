@@ -10,6 +10,7 @@
         "fakerphp/faker": "^1.19",
         "illuminate/redis": "^9.1",
         "laravel/lumen-framework": "^9.0",
+        "maxsky/lumen-app-key-generator": "^1.0",
         "mlntn/lumen-artisan-serve": "^1.5",
         "monicahq/laravel-cloudflare": "^3.2",
         "spatie/laravel-responsecache": "^7.2",

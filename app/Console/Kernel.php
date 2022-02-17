@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         ClearCommand::class,
         Reload::class,
         Serve::class,
+        \Illuminate\Console\KeyGenerateCommand::class,
 
         // Custom Commands Here
         Commands\ExampleCommand::class,
