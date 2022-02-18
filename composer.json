@@ -45,11 +45,5 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "start": "php -S localhost:7777 -t public"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/VolistxTeam/Framework-Kernel"
-        }
-    ]
+    }
 }
