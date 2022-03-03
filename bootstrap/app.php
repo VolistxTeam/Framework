@@ -26,7 +26,7 @@ $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 $app->withFacades();
 $app->withEloquent();
 
-// Packages to provide compatibility with Laravel and Redis support\
+// Packages to provide compatibility with Laravel and Redis support
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 
 // Default providers of Lumen
@@ -41,10 +41,12 @@ $app->register(MessagesServiceProvider::class);
 $app->register(AdminLoggingServiceProvider::class);
 $app->register(UserLoggingServiceProvider::class);
 
-// Response cache
+// Additional libraries
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
+$app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
+$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
