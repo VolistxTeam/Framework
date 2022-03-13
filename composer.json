@@ -10,19 +10,18 @@
         "cryental/laravel-stackpath": "^1.0",
         "cryental/lumen-generator": "^8.2",
         "fakerphp/faker": "^1.19",
-        "illuminate/redis": "^9.3",
+        "illuminate/redis": "^9.4",
         "laravel/lumen-framework": "^9.0",
         "maxsky/lumen-app-key-generator": "^1.0",
         "monicahq/laravel-cloudflare": "^3.2",
         "spatie/laravel-responsecache": "^7.2",
-        "volistx/framework-kernel": "^1.0",
+        "volistx/framework-kernel": "^1.2",
         "volistx/lumen-rate-limiting": "^1.1",
         "wikimedia/ip-set": "^3.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.5",
-        "spatie/ray": "^1.33"
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
