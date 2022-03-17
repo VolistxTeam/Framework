@@ -8,10 +8,7 @@ Let's make some awesome thing together!
 ### Requirements
 - PHP 8.1
 - MaxmindDB Extension
-- All Extensions for Lumen
-
-### Optional Requirements
-- Swoole Extension
+- All Extensions for 
 
 ### Installation
 ```
@@ -29,6 +26,7 @@ php artisan key:generate
 php artisan migrate
 php artisan cloudflare:reload
 php artisan stackpath:reload
+php artisan optimize
 ```
 
 Do not forget to set a cronjob for production:
@@ -40,5 +38,3 @@ Generate an admin access key using this command:
 ```
 php artisan access-key:generate
 ```
-
-For more information, please go to https://docs.volistx.io/vskeleton/introduction
