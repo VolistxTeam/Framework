@@ -10,7 +10,7 @@
         "cryental/laravel-stackpath": "^1.0",
         "flipbox/lumen-generator": "^9.0",
         "fakerphp/faker": "^1.19",
-        "illuminate/redis": "^9.4",
+        "illuminate/redis": "^9.5",
         "laravel/lumen-framework": "^9.0",
         "maxsky/lumen-app-key-generator": "^1.0",
         "monicahq/laravel-cloudflare": "^3.2",
