@@ -22,7 +22,7 @@ class CreateAccessTokensTable extends Migration
             $table->json('whitelist_range')->default('[]');
             $table->json('permissions')->default('[]');
             $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
+            $table->dateTime('updated_at')->useCurrentOnUpdate();
         });
     }
 

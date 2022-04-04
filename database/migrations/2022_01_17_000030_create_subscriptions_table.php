@@ -21,8 +21,8 @@ class CreateSubscriptionsTable extends Migration
             $table->foreign('plan_id')->references('id')->on('plans');
             $table->dateTime('plan_activated_at');
             $table->dateTime('plan_expires_at')->nullable();
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->dateTime('created_at')->useCurrent();
+            $table->dateTime('updated_at')->useCurrentOnUpdate();
         });
     }
 

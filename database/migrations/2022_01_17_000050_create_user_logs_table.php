@@ -21,7 +21,7 @@ class CreateUserLogsTable extends Migration
             $table->string('method');
             $table->ipAddress('ip');
             $table->string('user_agent')->nullable();
-            $table->dateTime('created_at');
+            $table->dateTime('created_at')->useCurrent();
         });
     }
 

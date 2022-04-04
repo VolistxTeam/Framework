@@ -47,6 +47,7 @@ $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+$app->register(\Torann\GeoIP\GeoIPServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -71,7 +72,6 @@ $app->middleware([
 $app->routeMiddleware([
     'auth.admin'    => Volistx\FrameworkKernel\Http\Middleware\AdminAuthMiddleware::class,
     'auth.user'     => Volistx\FrameworkKernel\Http\Middleware\UserAuthMiddleware::class,
-    'sanitizer'     => Volistx\FrameworkKernel\Http\Middleware\ParametersSanitizerMiddleware::class,
     'filter.json'   => Volistx\FrameworkKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
     'cacheResponse' => CacheResponse::class,
     'throttle'      => ThrottleRequests::class,
