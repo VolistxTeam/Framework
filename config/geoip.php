@@ -34,11 +34,11 @@ return [
     | Here you may specify the default storage driver that should be used
     | by the framework.
     |
-    | Supported: "maxmind_database", "maxmind_api", "ipapi"
+    |
     |
     */
 
-    'service' => 'ipapi',
+    'service' => 'geopoint',
 
     /*
     |--------------------------------------------------------------------------
@@ -90,6 +90,13 @@ return [
         'ipfinder' => [
             'class'   => \Torann\GeoIP\Services\IPFinder::class,
             'key'     => env('IPFINDER_API_KEY'),
+            'secure'  => true,
+            'locales' => ['en'],
+        ],
+
+        'geopoint' => [
+            'class'   => \Volistx\FrameworkKernel\Services\Interfaces\GeoPoint::class,
+            'key'     => env('GEOPOINT_API_KEY'),
             'secure'  => true,
             'locales' => ['en'],
         ],
@@ -146,20 +153,6 @@ return [
     |
     */
 
-    'default_location' => [
-        'ip'          => '127.0.0.0',
-        'iso_code'    => 'US',
-        'country'     => 'United States',
-        'city'        => 'New Haven',
-        'state'       => 'CT',
-        'state_name'  => 'Connecticut',
-        'postal_code' => '06510',
-        'lat'         => 41.31,
-        'lon'         => -72.92,
-        'timezone'    => 'America/New_York',
-        'continent'   => 'NA',
-        'default'     => true,
-        'currency'    => 'USD',
-    ],
+    'default_location' => null,
 
 ];
