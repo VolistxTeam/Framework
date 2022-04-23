@@ -43,11 +43,10 @@ $app->register(UserLoggingServiceProvider::class);
 
 // Additional libraries
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
-$app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
+//$app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
-$app->register(\Torann\GeoIP\GeoIPServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 
 $app->singleton(
@@ -66,7 +65,6 @@ $app->middleware([
     Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
     Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
     Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
-    Cryental\StackPath\Http\Middleware\TrustProxies::class,
     TrustProxies::class,
 ]);
 

@@ -7,7 +7,6 @@
         "php": "^8.1",
         "chuckrincon/lumen-config-discover": "^1.0",
         "cryental/larasupport": "^1.7",
-        "cryental/laravel-stackpath": "^1.0",
         "fakerphp/faker": "^1.19",
         "flipbox/lumen-generator": "^9.0",
         "illuminate/redis": "^9.5",
@@ -16,7 +15,6 @@
         "monicahq/laravel-cloudflare": "^3.2",
         "spatie/laravel-responsecache": "^7.2",
         "swooletw/laravel-swoole": "^2.12",
-        "torann/geoip": "^3.0",
         "volistx/framework-kernel": "dev-master",
         "volistx/lumen-rate-limiting": "^1.1",
         "wikimedia/ip-set": "^3.0"
