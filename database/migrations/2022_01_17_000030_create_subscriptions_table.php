@@ -22,7 +22,7 @@ class CreateSubscriptionsTable extends Migration
             $table->dateTime('plan_activated_at');
             $table->dateTime('plan_expires_at')->nullable();
             $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrentOnUpdate();
+            $table->dateTime('updated_at')->useCurrent();
         });
     }
 

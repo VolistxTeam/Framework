@@ -27,7 +27,7 @@ class CreatePersonalTokensTable extends Migration
             $table->dateTime('activated_at')->nullable();
             $table->dateTime('expires_at')->nullable();
             $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrentOnUpdate();
+            $table->dateTime('updated_at')->useCurrent();
         });
     }
 

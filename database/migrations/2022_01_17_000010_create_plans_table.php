@@ -20,7 +20,7 @@ class CreatePlansTable extends Migration
             $table->string('description')->nullable();
             $table->json('data')->default('[]');
             $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrentOnUpdate();
+            $table->dateTime('updated_at')->useCurrent();
         });
     }
 
