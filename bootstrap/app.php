@@ -48,6 +48,7 @@ $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(\Torann\GeoIP\GeoIPServiceProvider::class);
+$app->register(SwooleTW\Http\LumenServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
