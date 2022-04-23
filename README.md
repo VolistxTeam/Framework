@@ -1,14 +1,18 @@
 # Volistx Framework
-Volistx Framework For RESTful API Based on Laravel/Lumen
+Volistx Framework For RESTful API Based on Laravel/Lumen 9.x
 
 This is a framework skeleton for Volistx API platform using Lumen PHP Framework.
 
 Let's make some awesome thing together!
 
 ### Requirements
-- PHP 8.1
-- MaxmindDB Extension
-- All Extensions for 
+- PHP 8.1.0+
+- All Required Extensions for Laravel/Lumen 
+
+### Optional Requirements
+- Swoole Extension
+- Redis Extension
+- Memcached Extension
 
 ### Installation
 ```
@@ -16,9 +20,10 @@ composer create-project --prefer-dist volistx/framework myproject
 ```
 
 ### Usage
-First, copy `.env.example` to `.env`.
-
-After that, run following commands:
+1. Copy `.env.example` to `.env`.
+2. Get GeoPoint token and put it to `.env` file.
+3. Get StackPath API client id and secret from [StackPath](https://control.stackpath.com/account/api-management) and put it to `.env` file.
+4. Run following commands:
 
 ```
 composer install
@@ -38,3 +43,16 @@ Generate an admin access key using this command:
 ```
 php artisan access-key:generate
 ```
+
+### Swoole Setup
+Run Laravel/Lumen Swoole using this package:
+```
+php artisan swoole:http start
+```
+
+If you want the Swoole server to run after reboot, add the following line to your crontab:
+```
+@reboot php /path/to/artisan swoole:http start
+```
+
+Check more information about it at [swooletw/laravel-swoole](https://github.com/swooletw/laravel-swoole)
