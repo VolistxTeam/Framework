@@ -2,7 +2,7 @@
 
 return [
     'geopoint_api_key' => env('GEOPOINT_API_KEY'),
-    'firewall' => [
+    'firewall'         => [
         'blacklist' => [
 
         ],
