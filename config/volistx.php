@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'geopoint_api_key' => env('GEOPOINT_API_KEY'),
     'firewall'         => [
         'blacklist' => [
 
@@ -19,8 +18,13 @@ return [
         Volistx\FrameworkKernel\UserAuthValidationRules\ValidKeyValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\KeyExpiryValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\IPValidationRule::class,
+        Volistx\FrameworkKernel\UserAuthValidationRules\CountryValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\RequestsCountValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\RateLimitValidationRule::class,
+    ],
+    'geoPoint' =>[
+        'BaseUrl' => env('GEOPOINT_API_URL'),
+        "APIToken" => env('GEOPOINT_API_KEY')
     ],
     'services_permissions'=> [
         '*',
