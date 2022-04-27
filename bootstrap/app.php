@@ -7,6 +7,7 @@ use LumenRateLimiting\ThrottleRequests;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Volistx\FrameworkKernel\Providers\AdminLoggingServiceProvider;
 use Volistx\FrameworkKernel\Providers\GeoLocationServiceProvider;
+use Volistx\FrameworkKernel\Providers\HMACServiceProvider;
 use Volistx\FrameworkKernel\Providers\KeysServiceProvider;
 use Volistx\FrameworkKernel\Providers\MessagesServiceProvider;
 use Volistx\FrameworkKernel\Providers\PermissionsServiceProvider;
@@ -44,6 +45,7 @@ $app->register(AdminLoggingServiceProvider::class);
 $app->register(UserLoggingServiceProvider::class);
 $app->register(KeysServiceProvider::class);
 $app->register(GeoLocationServiceProvider::class);
+$app->register(HMACServiceProvider::class);
 
 // Additional libraries
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
