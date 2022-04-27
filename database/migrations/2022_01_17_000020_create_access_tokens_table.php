@@ -24,8 +24,8 @@ class CreateAccessTokensTable extends Migration
             $table->integer('country_rule');
             $table->json('country_range')->default('[]');
             $table->json('permissions')->default('[]');
-            $table->dateTime('created_at')->useCurrent();
-            $table->dateTime('updated_at')->useCurrent();
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
         });
     }
 
