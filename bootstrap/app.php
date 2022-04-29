@@ -31,6 +31,9 @@ $app->withEloquent();
 
 // Packages to provide compatibility with Laravel and Redis support
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
+$app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
+$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+$app->register(Laravel\Tinker\TinkerServiceProvider::class);
 
 // Default providers of Lumen
 $app->register(App\Providers\AppServiceProvider::class);
@@ -51,8 +54,6 @@ $app->register(HMACServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
-$app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
-$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 
 $app->singleton(
