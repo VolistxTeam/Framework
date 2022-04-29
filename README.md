@@ -7,12 +7,11 @@ Let's make some awesome thing together!
 
 ### Requirements
 - PHP 8.1.0+
-- All Required Extensions for Laravel/Lumen 
+- All Required Extensions for Laravel/Lumen
+- Redis and Redis PHP Extension 
 
 ### Optional Requirements
 - Swoole Extension
-- Redis Extension
-- Memcached Extension
 
 ### Installation
 ```
@@ -53,6 +52,17 @@ php artisan swoole:http start
 If you want the Swoole server to run after reboot, add the following line to your crontab:
 ```
 @reboot php /path/to/artisan swoole:http start
+```
+
+For supervisor, check following configuration:
+```
+[program:volistx-swoole-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php81 /path/to/artisan swoole:http start
+autostart=true
+autorestart=true
+user=volistx.io
+stopwaitsecs=3600
 ```
 
 Check more information about it at [swooletw/laravel-swoole](https://github.com/swooletw/laravel-swoole)
