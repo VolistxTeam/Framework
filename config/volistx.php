@@ -22,9 +22,9 @@ return [
         Volistx\FrameworkKernel\UserAuthValidationRules\RequestsCountValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\RateLimitValidationRule::class,
     ],
-    'geoPoint' => [
-        'BaseUrl'  => env('GEOPOINT_API_URL'),
-        'APIToken' => env('GEOPOINT_API_KEY'),
+    'geolocation' => [
+        'token' => env('GEOPOINT_API_KEY'),
+        'base_url'  => env('GEOPOINT_API_URL'),
     ],
     'services_permissions'=> [
         '*',
