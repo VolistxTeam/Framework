@@ -23,7 +23,7 @@ return [
         Volistx\FrameworkKernel\UserAuthValidationRules\RateLimitValidationRule::class,
     ],
     'geolocation' => [
-        'token' => env('GEOPOINT_API_KEY'),
+        'token'     => env('GEOPOINT_API_KEY'),
         'base_url'  => env('GEOPOINT_API_URL'),
     ],
     'services_permissions'=> [
