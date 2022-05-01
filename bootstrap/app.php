@@ -42,13 +42,6 @@ $app->register(App\Providers\EventServiceProvider::class);
 
 // Kernel providers
 $app->register(VolistxServiceProvider::class);
-$app->register(PermissionsServiceProvider::class);
-$app->register(MessagesServiceProvider::class);
-$app->register(AdminLoggingServiceProvider::class);
-$app->register(UserLoggingServiceProvider::class);
-$app->register(KeysServiceProvider::class);
-$app->register(GeoLocationServiceProvider::class);
-$app->register(HMACServiceProvider::class);
 
 // Additional libraries
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
