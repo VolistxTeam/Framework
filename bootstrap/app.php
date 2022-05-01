@@ -5,13 +5,6 @@ require_once __DIR__.'/../vendor/autoload.php';
 use App\Http\Middleware\TrustProxies;
 use LumenRateLimiting\ThrottleRequests;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
-use Volistx\FrameworkKernel\Providers\AdminLoggingServiceProvider;
-use Volistx\FrameworkKernel\Providers\GeoLocationServiceProvider;
-use Volistx\FrameworkKernel\Providers\HMACServiceProvider;
-use Volistx\FrameworkKernel\Providers\KeysServiceProvider;
-use Volistx\FrameworkKernel\Providers\MessagesServiceProvider;
-use Volistx\FrameworkKernel\Providers\PermissionsServiceProvider;
-use Volistx\FrameworkKernel\Providers\UserLoggingServiceProvider;
 use Volistx\FrameworkKernel\VolistxServiceProvider;
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
