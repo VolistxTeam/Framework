@@ -25,7 +25,8 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "spatie/ray": "^1.34"
     },
     "autoload": {
         "psr-4": {

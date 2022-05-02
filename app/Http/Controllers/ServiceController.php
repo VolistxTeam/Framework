@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Volistx\FrameworkKernel\Facades\Permissions;
+use Volistx\FrameworkKernel\Facades\PersonalTokens;
 use Volistx\FrameworkKernel\Http\Controllers\Controller;
 
 class ServiceController extends Controller
@@ -16,7 +17,8 @@ class ServiceController extends Controller
 
     public function Ping(Request $request): JsonResponse
     {
-        if (!Permissions::check($request->X_PERSONAL_TOKEN, $this->module, 'permission-name')) {
+ray(PersonalTokens::getToken());
+        if (!Permissions::check(PersonalTokens::getToken(), $this->module, 'permission-name')) {
             // do something if permissions failed
         }
 
