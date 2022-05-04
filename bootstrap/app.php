@@ -39,7 +39,6 @@ $app->register(VolistxServiceProvider::class);
 // Additional libraries
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
-$app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 
 $app->singleton(
@@ -57,7 +56,6 @@ $app->configure('app');
 $app->middleware([
     Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
     Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
-    Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
     \Cryental\StackPath\Http\Middleware\TrustProxies::class,
     TrustProxies::class,
 ]);
