@@ -9,7 +9,7 @@
         "ext-json": "*",
         "chuckrincon/lumen-config-discover": "^1.0",
         "cryental/larasupport": "^1.7",
-        "cryental/laravel-stackpath": "1.1.0",
+        "cryental/laravel-stackpath": "^1.1",
         "fakerphp/faker": "^1.19",
         "flipbox/lumen-generator": "^9.1",
         "illuminate/redis": "^9.11",
