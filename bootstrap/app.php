@@ -56,6 +56,7 @@ $app->configure('app');
 $app->middleware([
     Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
     Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
+    \Cryental\StackPath\Http\Middleware\TrustProxies::class,
     TrustProxies::class,
 ]);
 
