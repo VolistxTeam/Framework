@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
-use Monicahq\Cloudflare\Commands\Reload;
 use Spatie\ResponseCache\Commands\ClearCommand;
 
 class Kernel extends ConsoleKernel
@@ -16,7 +15,6 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         ClearCommand::class,
-        Reload::class,
 
         // Custom Commands Here
         Commands\ExampleCommand::class,
