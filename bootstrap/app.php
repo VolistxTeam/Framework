@@ -40,7 +40,7 @@ $app->register(VolistxServiceProvider::class);
 $app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
-$app->register(SwooleTW\Http\LumenServiceProvider::class);
+$app->register(Hhxsv5\LaravelS\Illuminate\LaravelSServiceProvider::class);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,

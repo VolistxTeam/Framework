@@ -46,23 +46,26 @@ php artisan access-key:generate
 ### Swoole Setup
 Run Laravel/Lumen Swoole using this package:
 ```
-php artisan swoole:http start
+php bin/laravels start -i
 ```
 
 If you want the Swoole server to run after reboot, add the following line to your crontab:
 ```
-@reboot php /path/to/artisan swoole:http start
+@reboot php /path/to/bin/laravels start -i
 ```
 
 For supervisor, check following configuration:
 ```
 [program:volistx-swoole-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php81 /path/to/artisan swoole:http start
+directory=/path/to/
+command=php81 /path/to/bin/laravels start -i
+numprocs=1
 autostart=true
 autorestart=true
-user=volistx.io
-stopwaitsecs=3600
+startretries=3
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
 ```
 
-Check more information about it at [swooletw/laravel-swoole](https://github.com/swooletw/laravel-swoole)
+Check more information about it at [hhxsv5/laravel-s](https://github.com/hhxsv5/laravel-s)
