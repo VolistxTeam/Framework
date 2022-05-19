@@ -8,7 +8,7 @@ Let's make some awesome thing together!
 ### Requirements
 - PHP 8.1.0+
 - All Required Extensions for Laravel/Lumen
-- Redis and Redis PHP Extension 
+- Redis PHP Extension 
 
 ### Optional Requirements
 - Swoole Extension
