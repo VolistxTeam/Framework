@@ -12,16 +12,16 @@
         "cryental/laravel-stackpath": "^1.1",
         "fakerphp/faker": "^1.19",
         "flipbox/lumen-generator": "^9.1",
-        "hhxsv5/laravel-s": "^3.4",
-        "illuminate/redis": "^9.11",
+        "hhxsv5/laravel-s": "^3.7",
+        "illuminate/redis": "^9.19",
         "laravel/lumen-framework": "^9.0",
         "laravel/tinker": "^2.7",
         "league/flysystem": "^3.1",
         "monicahq/laravel-cloudflare": "^3.2",
         "rogervila/lumen-rate-limiting": "^1.1",
-        "spatie/laravel-responsecache": "^7.2",
-        "volistx/framework-kernel": "^2.11",
-        "wikimedia/ip-set": "^3.0"
+        "spatie/laravel-responsecache": "^7.3",
+        "volistx/framework-kernel": "^2.12",
+        "wikimedia/ip-set": "^3.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
