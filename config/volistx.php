@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'firewall'         => [
+    'firewall' => [
         'blacklist' => [
 
         ],
@@ -14,6 +14,11 @@ return [
         'userLogHttpUrl'    => env('LOG_AUTH_USER_HTTP_URL'),
         'userLogHttpToken'  => env('LOG_AUTH_USER_HTTP_TOKEN'),
     ],
+    'geolocation' => [
+        'token'         => env('GEOPOINT_API_KEY'),
+        'base_url'      => env('GEOPOINT_API_URL'),
+        'verification'  => env('GEOPOINT_API_HMAC_VERIFICATION', false),
+    ],
     'validators' => [
         Volistx\FrameworkKernel\UserAuthValidationRules\ValidKeyValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\KeyExpiryValidationRule::class,
@@ -22,11 +27,7 @@ return [
         Volistx\FrameworkKernel\UserAuthValidationRules\RequestsCountValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\RateLimitValidationRule::class,
     ],
-    'geolocation' => [
-        'token'     => env('GEOPOINT_API_KEY'),
-        'base_url'  => env('GEOPOINT_API_URL'),
-    ],
-    'services_permissions'=> [
+    'services_permissions' => [
         '*',
     ],
 ];
