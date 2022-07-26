@@ -11,7 +11,7 @@ Let's make some awesome thing together!
 - Redis PHP Extension 
 
 ### Optional Requirements
-- Swoole Extension
+- Swoole or OpenSwoole Extension
 
 ### Installation
 ```
@@ -20,9 +20,8 @@ composer create-project --prefer-dist volistx/framework myproject
 
 ### Usage
 1. Copy `.env.example` to `.env`.
-2. Get GeoPoint token and put it to `.env` file.
-3. Get StackPath API client id and secret from [StackPath](https://control.stackpath.com/account/api-management) and put it to `.env` file.
-4. Run following commands:
+2. Get GeoPoint token and put it to `.env` file. (Optional, only if you want to use country filter)
+3. Run following commands:
 
 ```
 composer install
