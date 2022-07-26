@@ -21,6 +21,7 @@ return [
     ],
     'validators' => [
         Volistx\FrameworkKernel\UserAuthValidationRules\ValidKeyValidationRule::class,
+        Volistx\FrameworkKernel\UserAuthValidationRules\PlanExpiryValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\KeyExpiryValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\IPValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\CountryValidationRule::class,
