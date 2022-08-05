@@ -26,7 +26,8 @@ return [
         Volistx\FrameworkKernel\UserAuthValidationRules\IPValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\CountryValidationRule::class,
         Volistx\FrameworkKernel\UserAuthValidationRules\RequestsCountValidationRule::class,
-        Volistx\FrameworkKernel\UserAuthValidationRules\RateLimitValidationRule::class,
+        Volistx\FrameworkKernel\UserAuthValidationRules\SubscriptionRateLimitValidationRule::class,
+        Volistx\FrameworkKernel\UserAuthValidationRules\IPRateLimitValidationRule::class,
     ],
     'services_permissions' => [
         '*',

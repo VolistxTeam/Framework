@@ -13,14 +13,13 @@
         "fakerphp/faker": "^1.20",
         "flipbox/lumen-generator": "^9.1",
         "hhxsv5/laravel-s": "^3.7",
-        "illuminate/redis": "^9.21",
-        "laravel/lumen-framework": "^9.0",
+        "illuminate/redis": "^9.23",
+        "laravel/lumen-framework": "^9.1",
         "laravel/tinker": "^2.7",
-        "league/flysystem": "^3.1",
+        "league/flysystem": "^3.2",
         "monicahq/laravel-cloudflare": "^3.2",
         "rogervila/lumen-rate-limiting": "^1.1",
-        "spatie/laravel-responsecache": "^7.3",
-        "volistx/framework-kernel": "^3.0",
+        "volistx/framework-kernel": "^4.0",
         "wikimedia/ip-set": "^3.1"
     },
     "require-dev": {

@@ -4,7 +4,6 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 use App\Http\Middleware\TrustProxies;
 use LumenRateLimiting\ThrottleRequests;
-use Spatie\ResponseCache\Middlewares\CacheResponse;
 use Volistx\FrameworkKernel\VolistxServiceProvider;
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
@@ -37,7 +36,6 @@ $app->register(App\Providers\EventServiceProvider::class);
 $app->register(VolistxServiceProvider::class);
 
 // Additional libraries
-$app->register(Spatie\ResponseCache\ResponseCacheServiceProvider::class);
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
 $app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 $app->register(Hhxsv5\LaravelS\Illuminate\LaravelSServiceProvider::class);
@@ -66,7 +64,6 @@ $app->routeMiddleware([
     'auth.admin'    => Volistx\FrameworkKernel\Http\Middleware\AdminAuthMiddleware::class,
     'auth.user'     => Volistx\FrameworkKernel\Http\Middleware\UserAuthMiddleware::class,
     'filter.json'   => Volistx\FrameworkKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
-    'cacheResponse' => CacheResponse::class,
     'throttle'      => ThrottleRequests::class,
 ]);
 
