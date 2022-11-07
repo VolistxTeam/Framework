@@ -1,0 +1,1905 @@
+openapi: 3.0.0
+info:
+  title: Volistx Kernel
+  version: 4.x
+  description: |-
+    # Introduction
+
+    This is Volistx's Kernel API documentation.
+
+    # Authentication
+
+    Volistx's API uses Bearer authentication. This is usually done via the ```Authorization``` header.
+
+    # Pagination
+
+    Volistx offers the ability to paginate any list endpoint. The `pagination.total` field returns the total number of pages for the resources at the specific endpoint you're using if it's supported by the endpoint.
+
+    By default, 50 resources are displayed per page.
+
+    # Errors
+
+    All errors will include a message attribute detailing the error message.
+
+    ```json
+    {
+      "error": {
+        "type": "Unauthorized",
+        "info": "You have insufficient permissions to access this resource."
+      }
+    }
+    ```
+
+    The Volistx API uses the following error codes:
+
+    | Error Codes | Meaning                                                          |
+    |-------------|------------------------------------------------------------------|
+    | 400         | Bad Request - Invalid parameters                                 |
+    | 401         | Unauthorized - Unable to authenticate, use valid bearer token.   |
+    | 403         | Forbidden - The request is not allowed.                          |
+    | 404         | Not Found - The specified resource could not be found.           |
+    | 406         | Not Acceptable - You requested a format that isn't json.         |
+    | 429         | Too Many Requests - You have reached the rate limit.             |
+    | 500         | Internal Server Error - We had a problem with our server.        |
+    | 503         | Service Unavailable - We're temporarily offline for maintenance. |
+tags:
+  - name: Plans
+  - name: Subscriptions
+  - name: Personal Tokens
+  - name: Admin Logs
+  - name: User Logs
+servers: []
+paths:
+  /plans:
+    get:
+      tags:
+        - Plans
+      summary: List All Plans
+      operationId: get-plans
+      description: Returns a list of the Blacklist.
+      parameters:
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Plan'
+              examples:
+                example-1:
+                  value:
+                    pagination:
+                      per_page: 2
+                      current: 1
+                      total: 20
+                    items:
+                      - id: 1769677a-d836-4d40-8f94-cfcae1733c28
+                        name: Basic
+                        tag: basic
+                        description: this is basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 5
+                        price: 8.99
+                        custom: false
+                        created_at: '2019-08-24T14:15:22Z'
+                        updated_at: '2019-08-24T14:15:22Z'
+                      - id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                        name: Pro
+                        tag: basic
+                        description: this is basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 1
+                        price: 49.99
+                        custom: false
+                        created_at: '2019-08-24T14:15:22Z'
+                        updated_at: '2019-08-24T14:15:22Z'
+    post:
+      tags:
+        - Plans
+      summary: Create a Plan
+      operationId: post-plan
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+              examples:
+                Example:
+                  value:
+                    id: 12210185-166c-4b64-ad13-5f287f8e8321
+                    name: Pro
+                    tag: pro
+                    description: this is pro plan for enterprise
+                    data:
+                      rate_limit: 500
+                      requests: 50000
+                    tier: 1
+                    price: 49.99
+                    custom: false
+                    created_at: '2019-08-24T14:15:22Z'
+                    updated_at: '2019-08-24T14:15:22Z'
+      description: Create a new plan
+      requestBody:
+        $ref: '#/components/requestBodies/CreatePlanRequest'
+  '/plans/{plan_id}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: plan_id
+        in: path
+        required: true
+        description: The subscription ID must exist
+    get:
+      tags:
+        - Plans
+      summary: Get a Plan
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+              examples:
+                Example:
+                  value:
+                    id: 497f6eca-6276-4993-bfeb-53ccbbba6f08
+                    name: Pro
+                    tag: pro
+                    description: this is pro plan for enterprise
+                    data:
+                      rate_limit: 500
+                      requests: 50000
+                    tier: 1
+                    price: 49.99
+                    custom: false
+                    created_at: '2019-08-24T14:15:22Z'
+                    updated_at: '2019-08-24T14:15:22Z'
+      operationId: put-plan
+      description: Retrieves a Plan by ID
+    delete:
+      tags:
+        - Plans
+      summary: Destroy a Plan
+      operationId: delete-plan
+      responses:
+        '204':
+          description: No Content
+      description: Destroys a Plan by ID
+    patch:
+      tags:
+        - Plans
+      summary: Update a Plan
+      operationId: update-plan
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+              examples:
+                Example:
+                  value:
+                    id: 497f6eca-6276-4993-bfeb-53cbebba6f08
+                    name: Pro
+                    tag: pro
+                    description: this is pro plan for enterprise
+                    data:
+                      rate_limit: 500
+                      requests: 50000
+                    tier: 1
+                    price: 49.99
+                    custom: false
+                    created_at: '2019-08-24T14:15:22Z'
+                    updated_at: '2019-08-24T14:15:22Z'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Plan'
+      description: Update a Plan by ID and return the updated Plan.
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePlanRequest'
+  /subscriptions:
+    get:
+      tags:
+        - Subscriptions
+      summary: List All Subscriptions
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+              examples:
+                Example:
+                  value:
+                    pagination:
+                      per_page: 2
+                      current: 3
+                      total: 71
+                    items:
+                      - id: 467f6eca-6276-4993-bfeb-53cbbbba6f07
+                        user_id: 20
+                        plan:
+                          id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                          name: Basic
+                          tag: basic
+                          description: This is basic plan for startups
+                          data:
+                            rate_limit: 500
+                            requests: 50000
+                          tier: 2
+                          price: 14.99
+                          custom: false
+                          created_at: '2019-08-24T14:15:22Z'
+                          updated_at: '2019-08-24T14:15:22Z'
+                        hmac_token: Ntl6BNNl0ItWAwtyQ3yUrFo74KOr06CG
+                        plan_status:
+                          is_expired: true
+                          activated_at: '2019-08-24T14:15:22Z'
+                          expires_at: null
+                        created_at: '2019-08-24T14:15:22Z'
+                        updated_at: '2019-08-24T14:15:22Z'
+                      - id: 497f6eca-6276-4993-bfeb-53cbbbba6f10
+                        user_id: 25
+                        plan:
+                          id: 497f6eca-6276-4993-bfeb-63cbbbba6f08
+                          name: Basic
+                          tag: basic
+                          description: This is basic plan for startups
+                          data:
+                            rate_limit: 500
+                            requests: 50000
+                          tier: 2
+                          price: 14.99
+                          custom: false
+                          created_at: '2019-08-24T14:15:22Z'
+                          updated_at: '2019-08-24T14:15:22Z'
+                        hmac_token: dw3mbjA29g6nwqGz5iSOG9n2WjW47Woj
+                        plan_status:
+                          is_expired: true
+                          activated_at: '2018-08-24T14:15:22Z'
+                          expires_at: null
+                        created_at: '2019-08-24T14:15:22Z'
+                        updated_at: '2019-08-24T14:15:22Z'
+      operationId: get-subscriptions
+      description: 'Returns a list of the Subscriptions. The subscriptions are sorted by creation date, with the most recently created subscriptions being first.'
+      parameters:
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+    post:
+      tags:
+        - Subscriptions
+      summary: Create a Subscription
+      operationId: post-subscription
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Example:
+                  value:
+                    id: 497f6eca-6276-4996-bfeb-53cbbbba6f08
+                    user_id: 0
+                    plan:
+                      id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                      name: string
+                      tag: string
+                      description: string
+                      data:
+                        rate_limit: 0
+                        requests: 0
+                      tier: 0
+                      price: 7
+                      custom: false
+                      created_at: '2019-08-24T14:15:22Z'
+                      updated_at: '2019-08-24T14:15:22Z'
+                    hmac_token: stringstringstringstringstringst
+                    plan_status:
+                      is_expired: true
+                      activated_at: '2019-08-24T14:15:22Z'
+                      expires_at: '2019-08-24T14:15:22Z'
+                    created_at: '2019-08-24T14:15:22Z'
+                    updated_at: '2019-08-24T14:15:22Z'
+      description: Create a new subscription
+      parameters: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSubscriptionRequest'
+  '/subscriptions/{subscription_id}':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: The subscription ID must exist
+    get:
+      tags:
+        - Subscriptions
+      summary: Get a Subscription
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Example:
+                  value:
+                    id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                    user_id: 0
+                    plan:
+                      id: 497f6eca-6276-4993-bfeb-53cccbba6f08
+                      name: string
+                      tag: string
+                      description: string
+                      data:
+                        rate_limit: 0
+                        requests: 0
+                      tier: 0
+                      price: 7
+                      custom: false
+                      created_at: '2019-08-24T14:15:22Z'
+                      updated_at: '2019-08-24T14:15:22Z'
+                    hmac_token: stringstringstringstringstringst
+                    plan_status:
+                      is_expired: true
+                      activated_at: '2019-08-24T14:15:22Z'
+                      expires_at: '2019-08-24T14:15:22Z'
+                    created_at: '2019-08-24T14:15:22Z'
+                    updated_at: '2019-08-24T14:15:22Z'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+      operationId: get-subscription
+      description: Retrieves a Subscription by ID
+    patch:
+      tags:
+        - Subscriptions
+      summary: Update a Subscription
+      operationId: update-subscription
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+              examples:
+                Example:
+                  value:
+                    id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                    user_id: 0
+                    plan:
+                      id: 497f6eca-6276-4993-bfeb-53cbbbba9f08
+                      name: string
+                      tag: string
+                      description: string
+                      data:
+                        rate_limit: 0
+                        requests: 0
+                      tier: 0
+                      price: 7
+                      custom: false
+                      created_at: '2019-08-24T14:15:22Z'
+                      updated_at: '2019-08-24T14:15:22Z'
+                    hmac_token: stringstringstringstringstringst
+                    plan_status:
+                      is_expired: true
+                      activated_at: '2019-08-24T14:15:22Z'
+                      expires_at: '2019-08-24T14:15:22Z'
+                    created_at: '2019-08-24T14:15:22Z'
+                    updated_at: '2019-08-24T14:15:22Z'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateSubscriptionRequest'
+      description: Update a Subscription by ID and return the updated Subscription.
+    delete:
+      tags:
+        - Subscriptions
+      summary: Destroy a Subscription
+      operationId: delete-subscription
+      responses:
+        '204':
+          description: No Content
+      description: Destroys a Subscription by ID
+  '/subscriptions/{subscription_id}/logs':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: The subscription ID must exist
+    get:
+      tags:
+        - Subscriptions
+      summary: Get a Subscription Logs
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserLog'
+              examples:
+                example-1:
+                  value:
+                    pagination:
+                      per_page: 2
+                      current: 5
+                      total: 521
+                    items:
+                      - id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ad
+                        subscription:
+                          id: 405fa12a-7704-4ef2-bc01-897224296221
+                        url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                        ip: 127.0.0.1
+                        method: PUT
+                        user_agent: PostmanRuntime/7.29.2
+                        created_at: '2022-09-20 00:42:48'
+                      - id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ef
+                        subscription:
+                          id: 405fa12a-7704-4ef2-bc01-897224296221
+                        url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                        ip: 127.0.0.1
+                        method: PATCH
+                        user_agent: PostmanRuntime/7.29.2
+                        created_at: '2022-09-20 00:42:48'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+      operationId: get-subscription-logs
+      description: Retrieves Logs made by a Subscription using Subscription ID
+  '/subscriptions/{subscription_id}/usages':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: The subscription ID must exist
+    get:
+      tags:
+        - Subscriptions
+      summary: Get a Subscription Usages
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usage:
+                    type: object
+                    description: over view of usage
+                    properties:
+                      current:
+                        type: integer
+                        description: current usage
+                      max:
+                        type: integer
+                        description: max allowed usage
+                      percent:
+                        type: number
+                        description: percentage
+                  details:
+                    type: array
+                    description: usage details
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          description: date of usage
+                        count:
+                          type: number
+                          description: number of requests
+              examples:
+                Example:
+                  value:
+                    usage:
+                      current: 571
+                      max: 1000
+                      percent: 57.1
+                    details:
+                      - date: '2022-5-9'
+                        count: 200
+                      - date: '2022-5-10'
+                        count: 371
+            text/html:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+      operationId: get-subscription-usages
+      description: Retrieves usages made by a Subscription using Subscription ID
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - detailed
+              - focused
+          in: query
+          name: mode
+          description: 'detailed | focused ,default is detailed, when set to focused, it ignores 0 usages days'
+  /logs:
+    get:
+      tags:
+        - Admin Logs
+      summary: List All Admin Logs
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminLog'
+              examples:
+                example-1:
+                  value:
+                    pagination:
+                      per_page: 2
+                      current: 534
+                      total: 5200
+                    items:
+                      - id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ac
+                        access_token:
+                          id: 405fa12a-7704-4ef2-bc01-897224296221
+                        url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                        ip: 127.0.0.1
+                        method: PUT
+                        user_agent: PostmanRuntime/7.29.2
+                        created_at: '2022-09-20 00:42:48'
+                      - id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ad
+                        access_token:
+                          id: 405fa12a-7704-4ef2-bc01-897224296221
+                        url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                        ip: 127.0.0.1
+                        method: POST
+                        user_agent: PostmanRuntime/7.29.2
+                        created_at: '2022-09-20 00:42:48'
+      operationId: get-admin-logs
+      description: 'Returns a list of the Admin Logs. The admin logs are sorted by creation date, with the most recently created admin logs being first.'
+      parameters:
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+  /user-logs:
+    get:
+      tags:
+        - User Logs
+      summary: List All User Logs
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserLog'
+              examples:
+                Example:
+                  value:
+                    pagination:
+                      per_page: 0
+                      current: 0
+                      total: 0
+                    items:
+                      - id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ed
+                        subscription:
+                          id: 405fa12a-7704-4ef2-bc01-897224296221
+                        url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                        ip: 127.0.0.1
+                        method: PUT
+                        user_agent: PostmanRuntime/7.29.2
+                        created_at: '2022-09-20 00:42:48'
+                      - id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ad
+                        subscription:
+                          id: 405fa12a-7704-4ef2-bc01-897224296221
+                        url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                        ip: 127.0.0.1
+                        method: POST
+                        user_agent: PostmanRuntime/7.29.2
+                        created_at: '2022-09-20 00:42:48'
+      operationId: get-user-logs
+      description: 'Returns a list of the User Logs. The admin logs are sorted by creation date, with the most recently created admin logs being first.'
+      parameters:
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+    parameters: []
+  '/logs/{log_id}':
+    get:
+      summary: Get a Admin Log
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLog'
+              examples:
+                Example:
+                  value:
+                    id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ad
+                    access_token:
+                      id: 405fa12a-7704-4ef2-bc01-897224296221
+                    url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
+                    ip: 127.0.0.1
+                    method: POST
+                    user_agent: PostmanRuntime/7.29.2
+                    created_at: '2022-09-20 00:42:48'
+      operationId: get-admin-log
+      description: Retrieves a Admin Log by ID
+      parameters: []
+      tags:
+        - Admin Logs
+    parameters:
+      - schema:
+          type: string
+        name: log_id
+        in: path
+        required: true
+        description: The log ID
+  '/user-logs/{log_id}':
+    get:
+      tags:
+        - User Logs
+      summary: Get a User Log
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLog'
+      operationId: get-user-log
+      description: Retrieves a User Log by ID
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: log_id
+        in: path
+        required: true
+        description: 'log unique uuid, must exist in logs table'
+  '/subscription/{subscription_id}/personal-tokens':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: The subscription unique identifier
+    get:
+      tags:
+        - Personal Tokens
+      summary: List All Personal Tokens
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PersonalToken'
+              examples:
+                Example:
+                  value:
+                    pagination:
+                      per_page: 0
+                      current: 0
+                      total: 0
+                    items:
+                      - id: 65c36a59-a407-487c-b99e-c88883867b42
+                        key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                        subscription:
+                          id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                          user_id: 1
+                          plan:
+                            id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                            name: Basic
+                            tag: basic
+                            description: basic plan for startups
+                            data:
+                              rate_limit: 500
+                              requests: 50000
+                            tier: 2
+                            price: 20
+                            custom: false
+                            created_at: '2022-09-17 03:08:24'
+                            updated_at: '2022-09-17 03:08:24'
+                          hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
+                          plan_status:
+                            is_expired: false
+                            activated_at: '2022-07-05 00:00:00'
+                            expires_at: null
+                          created_at: '2022-09-21 08:28:53'
+                          updated_at: '2022-09-21 08:28:53'
+                        permissions:
+                          - '*'
+                        rate_limit_mode: IP
+                        geolocation:
+                          ip_rule: NONE
+                          ip_range: []
+                          country_rule: NONE
+                          country_range: []
+                        token_status:
+                          is_expired: false
+                          activated_at: '2022-09-21 08:29:01'
+                          expires_at: null
+                        disable_logging: true
+                        created_at: '2022-09-21 08:29:01'
+                        updated_at: '2022-09-21 08:29:01'
+                      - id: 65c36a59-a407-487c-b99e-c88883867b56
+                        key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                        subscription:
+                          id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                          user_id: 1
+                          plan:
+                            id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                            name: Basic
+                            tag: basic
+                            description: Basic plan for startups
+                            data:
+                              rate_limit: 500
+                              requests: null
+                            tier: 3
+                            price: 20
+                            custom: false
+                            created_at: '2022-09-17 03:08:24'
+                            updated_at: '2022-09-17 03:08:24'
+                          hmac_token: dw3mbjA29g6nwqGz5iSOG9n2WjW47Woj
+                          plan_status:
+                            is_expired: false
+                            activated_at: '2022-07-05 00:00:00'
+                            expires_at: null
+                          created_at: '2022-09-21 08:28:53'
+                          updated_at: '2022-09-21 08:28:53'
+                        permissions:
+                          - '*'
+                        rate_limit_mode: IP
+                        geolocation:
+                          ip_rule: NONE
+                          ip_range: []
+                          country_rule: NONE
+                          country_range: []
+                        token_status:
+                          is_expired: false
+                          activated_at: '2022-09-21 08:29:01'
+                          expires_at: null
+                        disable_logging: true
+                        created_at: '2022-09-21 08:29:01'
+                        updated_at: '2022-09-21 08:29:01'
+      operationId: get-personal-tokens
+      description: 'Returns a list of the Personal Tokens. The personal tokens are sorted by creation date, with the most recently created personal tokens being first.'
+      parameters:
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/page'
+    post:
+      tags:
+        - Personal Tokens
+      summary: Create a Personal Token
+      operationId: create-personal-token
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalToken'
+              examples:
+                Example:
+                  value:
+                    id: 65c36a59-a407-487c-b99e-c88883867b42
+                    key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                    subscription:
+                      id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                      user_id: 1
+                      plan:
+                        id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                        name: Basic
+                        tag: basic
+                        description: basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 2
+                        price: 20
+                        custom: false
+                        created_at: '2022-09-17 03:08:24'
+                        updated_at: '2022-09-17 03:08:24'
+                      hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
+                      plan_status:
+                        is_expired: false
+                        activated_at: '2022-07-05 00:00:00'
+                        expires_at: null
+                      created_at: '2022-09-21 08:28:53'
+                      updated_at: '2022-09-21 08:28:53'
+                    permissions:
+                      - '*'
+                    rate_limit_mode: IP
+                    geolocation:
+                      ip_rule: NONE
+                      ip_range: []
+                      country_rule: NONE
+                      country_range: []
+                    token_status:
+                      is_expired: false
+                      activated_at: '2022-09-21 08:29:01'
+                      expires_at: null
+                    disable_logging: true
+                    created_at: '2022-09-21 08:29:01'
+                    updated_at: '2022-09-21 08:29:01'
+      description: Creates a Personal Token
+      requestBody:
+        $ref: '#/components/requestBodies/CreatePersonalTokenRequest'
+  '/subscription/{subscription_id}/personal-tokens/{token_id}':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: The subscription unique identifier
+      - schema:
+          type: string
+        name: token_id
+        in: path
+        required: true
+        description: The personal token unique identifier
+    get:
+      tags:
+        - Personal Tokens
+      summary: Get a Personal Token
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalToken'
+              examples:
+                Example:
+                  value:
+                    id: 65c36a59-a407-487c-b99e-c88883867b42
+                    key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                    subscription:
+                      id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                      user_id: 1
+                      plan:
+                        id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                        name: Basic
+                        tag: basic
+                        description: basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 2
+                        price: 20
+                        custom: false
+                        created_at: '2022-09-17 03:08:24'
+                        updated_at: '2022-09-17 03:08:24'
+                      hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
+                      plan_status:
+                        is_expired: false
+                        activated_at: '2022-07-05 00:00:00'
+                        expires_at: null
+                      created_at: '2022-09-21 08:28:53'
+                      updated_at: '2022-09-21 08:28:53'
+                    permissions:
+                      - '*'
+                    rate_limit_mode: IP
+                    geolocation:
+                      ip_rule: NONE
+                      ip_range: []
+                      country_rule: NONE
+                      country_range: []
+                    token_status:
+                      is_expired: false
+                      activated_at: '2022-09-21 08:29:01'
+                      expires_at: null
+                    disable_logging: true
+                    created_at: '2022-09-21 08:29:01'
+                    updated_at: '2022-09-21 08:29:01'
+      operationId: get-personal-token
+      description: Retrieves a Personal Token by ID
+      parameters: []
+    patch:
+      tags:
+        - Personal Tokens
+      summary: Update a Personal Token
+      operationId: update-personal-token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalToken'
+              examples:
+                Example:
+                  value:
+                    id: 65c36a59-a407-487c-b99e-c88883867b42
+                    key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                    subscription:
+                      id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                      user_id: 1
+                      plan:
+                        id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                        name: Basic
+                        tag: basic
+                        description: basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 2
+                        price: 20
+                        custom: false
+                        created_at: '2022-09-17 03:08:24'
+                        updated_at: '2022-09-17 03:08:24'
+                      hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
+                      plan_status:
+                        is_expired: false
+                        activated_at: '2022-07-05 00:00:00'
+                        expires_at: null
+                      created_at: '2022-09-21 08:28:53'
+                      updated_at: '2022-09-21 08:28:53'
+                    permissions:
+                      - '*'
+                    rate_limit_mode: IP
+                    geolocation:
+                      ip_rule: NONE
+                      ip_range: []
+                      country_rule: NONE
+                      country_range: []
+                    token_status:
+                      is_expired: false
+                      activated_at: '2022-09-21 08:29:01'
+                      expires_at: null
+                    disable_logging: true
+                    created_at: '2022-09-21 08:29:01'
+                    updated_at: '2022-09-21 08:29:01'
+      description: Update a Personal Token by ID
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePersonalTokenRequest'
+    delete:
+      tags:
+        - Personal Tokens
+      summary: Destroy a Personal Token
+      operationId: delete-personal-token
+      responses:
+        '204':
+          description: No Content
+      description: Destroys a Personal Token by ID
+  '/subscription/{subscription_id}/personal-tokens/{token_id}/reset':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: subscription unique identifier
+      - schema:
+          type: string
+        name: token_id
+        in: path
+        required: true
+        description: personal token unique identifier
+    patch:
+      tags:
+        - Personal Tokens
+      summary: Reset a Personal Token
+      operationId: reset-personal-token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalToken'
+              examples:
+                Example:
+                  value:
+                    id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                    key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                    subscription:
+                      id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                      user_id: 1
+                      plan:
+                        id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                        name: Basic
+                        tag: basic
+                        description: basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 2
+                        price: 20
+                        custom: false
+                        created_at: '2022-09-17 03:08:24'
+                        updated_at: '2022-09-17 03:08:24'
+                      hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
+                      plan_status:
+                        is_expired: false
+                        activated_at: '2022-07-05 00:00:00'
+                        expires_at: null
+                      created_at: '2022-09-21 08:28:53'
+                      updated_at: '2022-09-21 08:28:53'
+                    permissions:
+                      - '*'
+                    rate_limit_mode: IP
+                    geolocation:
+                      ip_rule: NONE
+                      ip_range: []
+                      country_rule: NONE
+                      country_range: []
+                    token_status:
+                      is_expired: false
+                      activated_at: '2022-09-21 08:29:01'
+                      expires_at: null
+                    disable_logging: true
+                    created_at: '2022-09-21 08:29:01'
+                    updated_at: '2022-09-21 08:29:01'
+      description: Reset a personal token and returns new generated object
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePersonalTokenRequest'
+  '/subscription/{subscription_id}/personal-tokens/{token_id}/sync':
+    parameters:
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+        description: subscription unique identifier
+      - schema:
+          type: string
+        name: token_id
+        in: path
+        required: true
+        description: personal token unique identifier
+    post:
+      tags:
+        - Personal Tokens
+      summary: Sync a Personal Token
+      operationId: sync-personal-token
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalToken'
+              examples:
+                Example:
+                  value:
+                    id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                    key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
+                    subscription:
+                      id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
+                      user_id: 1
+                      plan:
+                        id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                        name: Basic
+                        tag: basic
+                        description: basic plan for startups
+                        data:
+                          rate_limit: 500
+                          requests: 50000
+                        tier: 2
+                        price: 20
+                        custom: false
+                        created_at: '2022-09-17 03:08:24'
+                        updated_at: '2022-09-17 03:08:24'
+                      hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
+                      plan_status:
+                        is_expired: false
+                        activated_at: '2022-07-05 00:00:00'
+                        expires_at: null
+                      created_at: '2022-09-21 08:28:53'
+                      updated_at: '2022-09-21 08:28:53'
+                    permissions:
+                      - '*'
+                    rate_limit_mode: IP
+                    geolocation:
+                      ip_rule: NONE
+                      ip_range: []
+                      country_rule: NONE
+                      country_range: []
+                    token_status:
+                      is_expired: false
+                      activated_at: '2022-09-21 08:29:01'
+                      expires_at: null
+                    disable_logging: true
+                    created_at: '2022-09-21 08:29:01'
+                    updated_at: '2022-09-21 08:29:01'
+      description: Sync the personal token to be be used in central api
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePersonalTokenRequest'
+components:
+  schemas:
+    Plan:
+      title: Plan
+      type: object
+      description: This object is used by subscription to determine the rules and limitations of subscriptions
+      properties:
+        id:
+          type: string
+          description: The plan unique identifier
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: The display name
+          maxLength: 255
+          minLength: 1
+        tag:
+          type: string
+          description: The tag for internal usage
+          maxLength: 255
+          minLength: 1
+        description:
+          type: string
+          description: The plan description
+          minLength: 1
+          maxLength: 1000
+        data:
+          type: object
+          description: 'The plan data which used by all projects, keycipher will use extra plan data specified in the project documentation'
+          required:
+            - rate_limit
+            - requests
+          properties:
+            rate_limit:
+              type: integer
+              description: The allowed amount of requests per minute for a plan subscriber
+              minimum: 0
+              nullable: true
+            requests:
+              type: integer
+              description: The allowed amount of requests per month for a plan subscriber
+              minimum: 0
+              nullable: true
+        tier:
+          type: integer
+          description: The plan tier is used to determine which plan is in a higher bracket than other plans since price can't be used for that because it could be subjected to discounts
+          maximum: 255
+          minimum: 0
+        price:
+          type: number
+          description: The plan price per month
+          example: 7
+          minimum: 0
+          maximum: 10000
+        custom:
+          type: boolean
+          description: The flag to determine which plan is custom-made for specific customers
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+        - id
+        - name
+        - tag
+        - description
+        - data
+        - tier
+        - price
+        - custom
+        - created_at
+        - updated_at
+    Pagination:
+      type: object
+      title: Pagination
+      description: This model is used in get-all routes to specify pagination info
+      properties:
+        per_page:
+          type: integer
+          description: The number of items displayed on one page
+          readOnly: true
+        current:
+          type: integer
+          description: The current page
+          readOnly: true
+        total:
+          type: integer
+          description: The total page
+          readOnly: true
+    Subscription:
+      type: object
+      title: Subscription
+      description: This model represents access to a service for a specific time.
+      properties:
+        id:
+          type: string
+          description: The subscription unique identifier
+          format: uuid
+          readOnly: true
+        user_id:
+          type: integer
+          description: The user unique identifier in the central service
+        plan:
+          $ref: '#/components/schemas/Plan'
+        hmac_token:
+          type: string
+          description: The user HMAC token is randomly generated when creating but can be changed later
+          minLength: 32
+          maxLength: 32
+        plan_status:
+          type: object
+          description: The plan status object
+          required:
+            - is_expired
+            - activated_at
+            - expires_at
+          properties:
+            is_expired:
+              type: boolean
+              description: Expiration status
+            activated_at:
+              type: string
+              format: date-time
+              description: The date time when the subscription is activated
+            expires_at:
+              format: date-time
+              type: string
+              description: The date time when subscription expires
+              nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - user_id
+        - plan
+        - hmac_token
+        - plan_status
+        - created_at
+        - updated_at
+    AdminLog:
+      type: object
+      description: This model is used for sys-bin routes
+      title: AdminLog
+      properties:
+        id:
+          type: string
+          description: The admin log unique identifier
+          format: uuid
+          readOnly: true
+        access_token:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: The access token unique identifier
+              format: uuid
+        url:
+          type: string
+          description: The URL from the request of the admin
+          format: uri
+        ip:
+          type: string
+          format: ip
+          description: The origin IP address from the request of the admin
+        method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          description: The requested HTTP method from the request of the admin
+        user_agent:
+          type: string
+          description: The user agent from the request of the admin
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+        - access_token
+        - url
+        - ip
+        - method
+        - user_agent
+    UserLog:
+      type: object
+      description: This model is used for user routes
+      title: UserLog
+      properties:
+        id:
+          type: string
+          description: The user log unique identifier
+          format: uuid
+        subscription:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: The access token unique identifier
+              format: uuid
+        url:
+          type: string
+          description: The URL from the request of the user
+          format: uri
+        ip:
+          type: string
+          description: The origin IP address from the request of the user
+          format: ip
+        method:
+          type: string
+          description: The requested HTTP method from the request of the user
+          enum:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+        user_agent:
+          type: string
+          description: The user agent from the request of the user
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - subscription
+        - url
+        - ip
+        - method
+        - user_agent
+        - created_at
+    PersonalToken:
+      type: object
+      description: Personal token is used to access services user routes available to subscription
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The personal token unique identifier
+          readOnly: true
+        key:
+          type: string
+          description: 'Token key, used as bearer token for user routes'
+          minLength: 64
+          maxLength: 64
+        subscription:
+          $ref: '#/components/schemas/Subscription'
+        permissions:
+          type: array
+          description: The array of key-value pairs representing personal token permissions
+          items:
+            type: string
+        rate_limit_mode:
+          type: string
+          enum:
+            - SUBSCRIPTION
+            - IP
+          description: 'The rate limit mode for the personal token, either IP-based, subscription-based, or rate limiting'
+        geolocation:
+          type: object
+          required:
+            - ip_rule
+            - ip_range
+            - country_rule
+            - country_range
+          properties:
+            ip_rule:
+              type: string
+              description: 'Geolocation IP rule, determine the rules of handling IP range of requests'
+              enum:
+                - NONE
+                - BLACKLIST
+                - WHITELIST
+            ip_range:
+              type: array
+              description: The array of IPs to be used by IP rules for allowing or blocking requests from specific IPs
+              items:
+                type: string
+            country_rule:
+              type: string
+              description: Geolocation country rule determine the rules of handling requests coming from certain countries
+              enum:
+                - NONE
+                - BLACKLIST
+                - WHITELIST
+            country_range:
+              type: array
+              description: The array of country short names to be used by country rules for allowing or blocking requests from certain countries
+              items:
+                type: string
+        token_status:
+          type: object
+          required:
+            - is_expired
+            - activated_at
+            - expires_at
+          properties:
+            is_expired:
+              type: boolean
+              description: Personal token expiration status
+            activated_at:
+              type: string
+              format: date-time
+              description: The date time when the personal token is activated
+            expires_at:
+              type: string
+              format: date-time
+              description: The date time when personal token expires
+              nullable: true
+        disable_logging:
+          type: boolean
+          description: Disable logging for that personal token. This function should only use for specific cases such as Health services to avoid logs bloating
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+        - key
+        - subscription
+        - permissions
+        - rate_limit_mode
+        - geolocation
+        - token_status
+        - disable_logging
+  requestBodies:
+    CreateSubscriptionRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                description: The user unique identifier in the central service
+              plan_id:
+                type: string
+                description: The plan identifier to which the subscription should be subscribed to
+                format: uuid
+              plan_activated_at:
+                type: string
+                description: The date time when the subscription is activated
+                format: date
+              plan_expires_at:
+                description: The date time when subscription expires
+                format: date
+                type: string
+                nullable: true
+            required:
+              - user_id
+              - plan_id
+              - plan_activated_at
+              - plan_expires_at
+          examples:
+            Example:
+              value:
+                user_id: 25
+                plan_id: 8661199e-3011-4a9a-93db-8dc725b15d9f
+                plan_activated_at: '2022-07-05'
+                plan_expires_at: null
+        application/xml:
+          schema:
+            type: object
+            properties: {}
+      description: subscription request body
+    CreatePlanRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The display name
+              description:
+                type: string
+                description: The plan description
+              data:
+                type: object
+                description: 'The plan data which used by all projects, keycipher will use extra plan data specified in the project documentation'
+                required:
+                  - rate_limit
+                  - requests
+                properties:
+                  rate_limit:
+                    type: integer
+                    description: 'The allowed amount of requests per minute for a plan subscriber, either based on ip or subscription according to personal token details'
+                    nullable: true
+                  requests:
+                    description: The allowed amount of requests per month for a plan subscriber
+                    type: integer
+                    nullable: true
+              price:
+                type: number
+                description: The plan price per month
+              custom:
+                type: boolean
+                description: The flag to determine which plan is custom-made for specific customers
+                default: false
+              tier:
+                type: integer
+                description: The plan tier is used to determine which plan is in a higher bracket than other plans since price can't be used for that because it could be subjected to discounts
+              tag:
+                type: string
+                description: The tag for internal usage
+            required:
+              - name
+              - description
+              - data
+              - price
+              - custom
+              - tier
+              - tag
+          examples:
+            Plan request example:
+              value:
+                name: Basic
+                description: The basic plan for the service
+                data:
+                  rate_limit: 500
+                  requests: null
+                price: 20
+                custom: false
+                tier: 1233
+                tag: basic
+      description: The request body for plan object
+    UpdatePlanRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The display name
+              description:
+                type: string
+                description: The plan description
+              data:
+                type: object
+                description: 'The plan data, if it exists, then should have complete data as it replaced the previous data, you can''t partially edit it'
+                properties:
+                  rate_limit:
+                    type: integer
+                    description: 'The allowed amount of requests per minute for a plan subscriber, either based on ip or subscription according to personal token details'
+                    nullable: true
+                  requests:
+                    type: integer
+                    description: The allowed amount of requests per month for a plan subscriber
+                    nullable: true
+                required:
+                  - rate_limit
+                  - requests
+              price:
+                type: number
+                description: The plan price per month
+              custom:
+                type: boolean
+                description: The flag to determine which plan is custom-made for specific customers
+              tier:
+                type: integer
+                description: The plan tier is used to determine which plan is in a higher bracket than other plans since price can't be used for that because it could be subjected to discounts
+              tag:
+                type: string
+                description: The tag for internal usage
+          examples:
+            Example:
+              value:
+                name: Basic Plan
+                description: Basic plan for small startups
+                data:
+                  requests: 5000
+                  rate_limit: null
+                custom: true
+                price: 29.99
+                tier: 3
+                tag: basic
+      description: The request body for updating the plan
+    UpdateSubscriptionRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              plan_id:
+                type: string
+                format: uuid
+                description: The plan unique identifier
+              plan_activated_at:
+                type: string
+                format: date-time
+                description: The date time when the subscription is activated
+              plan_expires_at:
+                type: string
+                format: date-time
+                description: The date time when subscription expires
+              hmac_token:
+                type: string
+                maxLength: 255
+                description: The user HMAC token
+          examples:
+            example-1:
+              value:
+                plan_id: 00713021-9aea-41da-9a88-87760c08fa72
+                plan_activated_at: '2019-08-24T14:15:22Z'
+                plan_expires_at: '2019-08-24T14:15:22Z'
+                hmac_token: Ntl6BNNl0ItWAwtyQ3yUrFo74KOr06CG
+      description: The request body for updating the subscription
+    CreatePersonalTokenRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              duration:
+                type: integer
+                description: 'The amount of hours for token validity, null for non-expiring token'
+                nullable: true
+              permissions:
+                type: array
+                description: The array of key-value pairs representing personal token permissions
+                items:
+                  type: string
+                  enum:
+                    - '*'
+                    - 'subscriptions:*'
+                    - 'subscriptions:create'
+                    - 'subscriptions:update'
+                    - 'subscriptions:delete'
+                    - 'subscriptions:view'
+                    - 'subscriptions:view-all'
+                    - 'subscriptions:logs'
+                    - 'subscriptions:stats'
+                    - 'personal-tokens:*'
+                    - 'personal-tokens:create'
+                    - 'personal-tokens:update'
+                    - 'personal-tokens:delete'
+                    - 'personal-tokens:reset'
+                    - 'personal-tokens:view'
+                    - 'personal-tokens:view-all'
+                    - 'personal-tokens:logs'
+                    - 'plans:*'
+                    - 'plans:create'
+                    - 'plans:update'
+                    - 'plans:delete'
+                    - 'plans:view'
+                    - 'plans:view-all'
+                    - 'plans:logs'
+                    - 'logs:*'
+                    - 'logs:view'
+                    - 'logs:view-all'
+              ip_rule:
+                type: integer
+                enum:
+                  - 0
+                  - 1
+                  - 2
+                description: 'Geolocation IP rule, determine the rules of handling IP range of requests. 0 for NONE, 1 for BLACKLIST, 2 for WHITELIST'
+              ip_range:
+                type: array
+                description: The array of IPs to be used by IP rules for allowing or blocking requests from specific IPs
+                items:
+                  type: string
+              country_rule:
+                type: integer
+                description: 'Geolocation country rule determine the rules of handling requests coming from certain countries. 0 for NONE, 1 for BLACKLIST, 2 for WHITELIST'
+                enum:
+                  - 0
+                  - 1
+                  - 2
+              country_range:
+                type: array
+                description: The array of country short names to be used by country rules for allowing or blocking requests from certain countries
+                items:
+                  type: string
+              disable_logging:
+                type: boolean
+                description: Disable logging for the token
+                default: false
+              rate_limit_mode:
+                type: integer
+                description: 'The rate limit mode for the personal token, either IP-based, subscription-based, or rate limiting. 0 for SUBSCRIPTION, 1 for IP'
+                enum:
+                  - 0
+                  - 1
+            required:
+              - duration
+              - permissions
+              - ip_rule
+              - ip_range
+              - country_rule
+              - country_range
+              - disable_logging
+              - rate_limit_mode
+          examples:
+            Example:
+              value:
+                duration: 0
+                permissions:
+                  - '*'
+                ip_rule: 2
+                ip_range:
+                  - 127.0.0.1
+                country_rule: 1
+                country_range:
+                  - USA
+                disable_logging: true
+                rate_limit_mode: 0
+      description: The request body for creating personal token
+    UpdatePersonalTokenRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              duration:
+                type: integer
+                description: 'The amount of hours for token validity, null for non-expiring token'
+                nullable: true
+              permissions:
+                type: array
+                description: The array of key-value pairs representing personal token permissions
+                items:
+                  type: string
+              ip_rule:
+                type: integer
+                enum:
+                  - 0
+                  - 1
+                  - 2
+                description: 'Geolocation IP rule, determine the rules of handling IP range of requests. 0 for NONE, 1 for BLACKLIST, 2 for WHITELIST'
+              ip_range:
+                type: array
+                description: The array of IPs to be used by IP rules for allowing or blocking requests from specific IPs
+                items:
+                  type: string
+              country_rule:
+                type: integer
+                description: 'Geolocation country rule determine the rules of handling requests coming from certain countries. 0 for NONE, 1 for BLACKLIST, 2 for WHITELIST'
+                enum:
+                  - 0
+                  - 1
+                  - 2
+              country_range:
+                type: array
+                description: The array of country short names to be used by country rules for allowing or blocking requests from certain countries
+                items:
+                  type: string
+              disable_logging:
+                type: boolean
+                description: Disable logging for token
+                default: false
+              rate_limit_mode:
+                type: integer
+                description: 'The rate limit mode for the personal token, either IP-based, subscription-based, or rate limiting. 0 for SUBSCRIPTION, 1 for IP'
+                enum:
+                  - 0
+                  - 1
+            required:
+              - duration
+              - permissions
+              - ip_rule
+              - ip_range
+              - country_rule
+              - country_range
+              - disable_logging
+              - rate_limit_mode
+          examples:
+            example-1:
+              value:
+                duration: 30
+                permissions:
+                  - string
+                ip_rule: 2
+                ip_range:
+                  - 156.0.0.5
+                country_rule: 2
+                country_range:
+                  - KSA
+                disable_logging: true
+                rate_limit_mode: 0
+      description: The request body for updating the personal token
+  responses: {}
+  parameters:
+    search:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: 'This parameter retrieves records with specific search work %[needle]% specified with a particular column. The usage is basically [column]:[needle] ex: name:basic'
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 50
+      description: This parameter is used to determine the max number of records to retrieve per page.
+    page:
+      name: page
+      in: query
+      schema:
+        type: string
+        default: '1'
+      description: This parameter is used to determine the page to retrieve.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  examples: {}
+security:
+  - bearerAuth: []
