@@ -6,7 +6,7 @@ This is a framework skeleton for Volistx API platform using Lumen PHP Framework.
 Let's make some awesome thing together!
 
 ### Requirements
-- PHP 8.1.0+
+- PHP 8.1.2 or Above
 - All Required Extensions for Laravel/Lumen
 - Redis PHP Extension 
 
