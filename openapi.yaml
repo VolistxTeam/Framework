@@ -2106,7 +2106,7 @@ components:
                   - string
                 ip_rule: 2
                 ip_range:
-                  - 156.0.0.5
+                  - 156.0.0.4
                 country_rule: 2
                 country_range:
                   - KSA
