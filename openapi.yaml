@@ -457,6 +457,8 @@ paths:
         required: true
         description: The subscription ID must exist
     post:
+      tags:
+        - Subscriptions
       summary: Cancel a Subscription
       operationId: post-subscriptions-subscription_id-cancel
       responses:
@@ -478,6 +480,8 @@ paths:
         required: true
         description: The subscription ID must exist
     post:
+      tags:
+        - Subscriptions
       summary: Uncancel a Subscription
       operationId: post-subscriptions-subscription_id-uncancel
       responses:
@@ -2106,7 +2110,7 @@ components:
                   - string
                 ip_rule: 2
                 ip_range:
-                  - 156.0.0.4
+                  - 156.0.0.5
                 country_rule: 2
                 country_range:
                   - KSA
