@@ -48,14 +48,6 @@ tags:
   - name: Personal Tokens
   - name: Admin Logs
   - name: User Logs
-x-tagGroups:
-  - name: General
-    tags:
-      - Plans
-      - Subscriptions
-      - Personal Tokens
-      - Admin Logs
-      - User Logs
 servers: []
 paths:
   /plans:
@@ -1236,25 +1228,8 @@ components:
   schemas:
     Plan:
       title: Plan
-      x-stoplight:
-        id: 2kjusoqxvfrsu
       type: object
       description: This object is used by subscription to determine the rules and limitations of subscriptions
-      x-examples:
-        Example:
-          id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
-          tag: basic
-          name: Basic
-          description: Basic Plan
-          data:
-            rate_limit: 500
-            requests: 50000
-          tier: 1
-          price: 8.99
-          custom: false
-          is_active: true
-          created_at: '2019-08-24T14:15:22Z'
-          updated_at: '2019-08-24T14:15:22Z'
       properties:
         id:
           type: string
@@ -1334,12 +1309,6 @@ components:
         - updated_at
     Pagination:
       type: object
-      x-examples:
-        Example:
-          pagination:
-            per_page: 50
-            current: 1
-            total: 1
       title: Pagination
       description: This model is used in get-all routes to specify pagination info
       properties:
@@ -1357,30 +1326,6 @@ components:
           readOnly: true
     Subscription:
       type: object
-      x-examples:
-        Example:
-          id: 497f6eca-6276-4993-bfeb-53cbbbbeef08
-          user_id: 25
-          plan:
-            id: 497f6eca-6276-4993-bfeb-53cb5tba6f08
-            name: Basic
-            tag: basic
-            description: This is basic plan for startups
-            data:
-              rate_limit: 500
-              requests: 50000
-            tier: 2
-            price: 14.99
-            custom: false
-            created_at: '2019-08-24T14:15:22Z'
-            updated_at: '2019-08-24T14:15:22Z'
-          hmac_token: Ntl6BNNl0ItWAwtyQ3yUrFo74KOr06CG
-          plan_status:
-            is_expired: true
-            activated_at: '2019-08-24T14:15:22Z'
-            expires_at: null
-          created_at: '2019-08-24T14:15:22Z'
-          updated_at: '2019-08-24T14:15:22Z'
       title: Subscription
       description: This model represents access to a service for a specific time.
       properties:
@@ -1450,16 +1395,6 @@ components:
         - updated_at
     AdminLog:
       type: object
-      x-examples:
-        Example:
-          id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ad
-          access_token:
-            id: 405fa12a-7704-4ef2-bc01-897224296221
-          url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
-          ip: 127.0.0.1
-          method: PUT
-          user_agent: PostmanRuntime/7.29.2
-          created_at: '2022-09-20 00:42:48'
       description: This model is used for sys-bin routes
       title: AdminLog
       properties:
@@ -1509,16 +1444,6 @@ components:
         - user_agent
     UserLog:
       type: object
-      x-examples:
-        Example:
-          id: f81a885a-54a5-4799-9e94-cfbfaa5ec2ad
-          subscription:
-            id: 405fa12a-7704-4ef2-bc01-897224296221
-          url: 'http://127.0.0.1:8000/sys-bin/admin/subscriptions/fe9b0493-fd07-465b-ab88-f81448ed54bd'
-          ip: 127.0.0.1
-          method: PUT
-          user_agent: PostmanRuntime/7.29.2
-          created_at: '2022-09-20 00:42:48'
       description: This model is used for user routes
       title: UserLog
       properties:
@@ -1568,48 +1493,6 @@ components:
         - created_at
     PersonalToken:
       type: object
-      x-examples:
-        Example:
-          id: 65c36a59-a407-487c-b99e-c88883867b42
-          key: 2dyRTmn4vRoQMBPRTf4TZvLxXJc63L0PW5kATcYSApgCbqWthH3F7EbWOe6D9bL5
-          subscription:
-            id: dc7b709d-88a7-4a8d-b900-d4a6afc8e8cc
-            user_id: -1
-            plan:
-              id: 8661199e-3011-4a9a-93db-8dc725b15d9f
-              name: Basic
-              tag: basic
-              description: basic plan for startups
-              data:
-                rate_limit: 500
-                requests: null
-              tier: 2
-              price: 20
-              custom: false
-              created_at: '2022-09-17 03:08:24'
-              updated_at: '2022-09-17 03:08:24'
-            hmac_token: Wg8C3yuYDJO6abGJHtymX2sBkcjHPaKS
-            plan_status:
-              is_expired: false
-              activated_at: '2022-07-05 00:00:00'
-              expires_at: null
-            created_at: '2022-09-21 08:28:53'
-            updated_at: '2022-09-21 08:28:53'
-          permissions:
-            - '*'
-          rate_limit_mode: IP
-          geolocation:
-            ip_rule: NONE
-            ip_range: []
-            country_rule: NONE
-            country_range: []
-          token_status:
-            is_expired: false
-            activated_at: '2022-09-21 08:29:01'
-            expires_at: null
-          disable_logging: true
-          created_at: '2022-09-21 08:29:01'
-          updated_at: '2022-09-21 08:29:01'
       description: Personal token is used to access services user routes available to subscription
       properties:
         id:
@@ -1712,12 +1595,6 @@ components:
         application/json:
           schema:
             type: object
-            x-examples:
-              example-1:
-                user_id: -1
-                plan_id: 8661199e-3011-4a9a-93db-8dc725b15d9f
-                plan_activated_at: '2022-07-05 00:00:00.000'
-                plan_expires_at: null
             properties:
               user_id:
                 type: integer
@@ -1757,23 +1634,6 @@ components:
         application/json:
           schema:
             type: object
-            x-examples:
-              example-1:
-                name: BASIC111sw1ze
-                description: DESaC
-                data:
-                  rate_limit: 500
-                  requests: null
-                  policies: 5
-                  products: 5
-                  releases: 5
-                  distribution_max_file_size: 1000
-                  distribution_max_storage_size: 10000
-                  distribution: true
-                price: 20
-                custom: false
-                tier: 1233
-                tag: baasicc
             properties:
               name:
                 type: string
@@ -1835,15 +1695,6 @@ components:
         application/json:
           schema:
             type: object
-            x-examples:
-              example-1:
-                name: PROO
-                description: Updated Decs
-                data:
-                  requests: 50000
-                  rate_limit: 1000
-                custom: true
-                price: 30
             properties:
               name:
                 type: string
@@ -1926,17 +1777,6 @@ components:
         application/json:
           schema:
             type: object
-            x-examples:
-              example-1:
-                duration: null
-                permissions:
-                  - '*'
-                ip_rule: 0
-                ip_range: []
-                country_rule: 0
-                country_range: []
-                disable_logging: true
-                rate_limit_mode: 1
             properties:
               duration:
                 type: integer
@@ -2038,17 +1878,6 @@ components:
         application/json:
           schema:
             type: object
-            x-examples:
-              example-1:
-                duration: null
-                permissions:
-                  - '*'
-                ip_rule: 0
-                ip_range: []
-                country_rule: 0
-                country_range: []
-                disable_logging: true
-                rate_limit_mode: 1
             properties:
               duration:
                 type: integer
@@ -2128,10 +1957,6 @@ components:
                 deprecated: false
                 default: false
                 description: 'By default the subscription will remain active until the end of the period, you may pass true to end the subscription immediately.'
-              ignore_fallback:
-                type: boolean
-                default: false
-                description: 'If a fallback_plan_tag is not null in config, when cancel is called, subscription will not be canceled but changed to fallback plan. If you just want to cancel without fallback, check this option.'
           examples:
             Example:
               value:

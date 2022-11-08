@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
-use Spatie\ResponseCache\Commands\ClearCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,8 +13,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        ClearCommand::class,
-
         // Custom Commands Here
         Commands\ExampleCommand::class,
     ];
@@ -29,7 +26,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('cloudflare:reload')->weekly();
         $schedule->command('stackpath:reload')->weekly();
     }
 }

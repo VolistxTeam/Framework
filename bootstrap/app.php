@@ -2,9 +2,7 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use App\Http\Middleware\TrustProxies;
 use LumenRateLimiting\ThrottleRequests;
-use Volistx\FrameworkKernel\VolistxServiceProvider;
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -33,11 +31,10 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 
 // Kernel providers
-$app->register(VolistxServiceProvider::class);
+$app->register(\Volistx\FrameworkKernel\ServiceProvider::class);
 
 // Additional libraries
 $app->register(Cryental\StackPath\TrustedProxyServiceProvider::class);
-$app->register(\Monicahq\Cloudflare\TrustedProxyServiceProvider::class);
 $app->register(Hhxsv5\LaravelS\Illuminate\LaravelSServiceProvider::class);
 
 $app->singleton(
@@ -56,8 +53,6 @@ $app->middleware([
     Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
     Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
     \Cryental\StackPath\Http\Middleware\TrustProxies::class,
-    \Monicahq\Cloudflare\Http\Middleware\TrustProxies::class,
-    TrustProxies::class,
 ]);
 
 $app->routeMiddleware([

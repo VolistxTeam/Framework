@@ -17,11 +17,9 @@
         "laravel/lumen-framework": "^9.1",
         "laravel/tinker": "^2.7",
         "league/flysystem": "^3.2",
-        "monicahq/laravel-cloudflare": "^3.2",
         "rogervila/lumen-rate-limiting": "^1.1",
-        "volistx/framework-kernel": "^4.0",
-        "wikimedia/ip-set": "^3.1",
-        "spatie/laravel-responsecache": "^7.4"
+        "volistx/framework-kernel": "^5.1",
+        "wikimedia/ip-set": "^3.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
