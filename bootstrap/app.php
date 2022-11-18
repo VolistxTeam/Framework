@@ -63,8 +63,7 @@ $app->routeMiddleware([
 ]);
 
 $app->router->group([
-    'namespace'  => 'App\Http\Controllers',
-    'middleware' => 'throttle:api',
+    'namespace'  => 'App\Http\Controllers'
 ], function ($router) {
     require __DIR__.'/../routes/api.php';
 });
