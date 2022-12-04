@@ -12,6 +12,6 @@ class ExampleCommand extends Command
 
     public function handle()
     {
-        $this->info('Test');
+        $this->components->info('Test');
     }
 }

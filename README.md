@@ -8,9 +8,7 @@ Let's make some awesome thing together!
 ### Requirements
 - PHP 8.1.2 or Above
 - All Required Extensions for Laravel/Lumen
-- Redis PHP Extension 
-
-### Optional Requirements
+- Redis PHP Extension
 - Swoole or OpenSwoole Extension
 
 ### Installation
@@ -20,7 +18,7 @@ composer create-project --prefer-dist volistx/framework myproject
 
 ### Usage
 1. Copy `.env.example` to `.env`.
-2. Get GeoPoint token and put it to `.env` file. (Optional, only if you want to use country filter)
+2. Get GeoPoint API key and put it to `.env` file. (Optional, only if you want to use country filter)
 3. Run following commands:
 
 ```
@@ -42,7 +40,7 @@ php artisan access-key:generate
 ```
 
 ### Swoole Setup
-Run Laravel/Lumen Swoole using this package:
+Run Swoole using this command:
 ```
 php bin/laravels start -i
 ```
@@ -52,7 +50,7 @@ If you want the Swoole server to run after reboot, add the following line to you
 @reboot php /path/to/bin/laravels start -i
 ```
 
-For supervisor, check following configuration:
+For Supervisor, check following configuration:
 ```
 [program:volistx-swoole-worker]
 directory=/path/to/
@@ -66,4 +64,4 @@ redirect_stderr=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 ```
 
-Check more information about it at [hhxsv5/laravel-s](https://github.com/hhxsv5/laravel-s)
+Check more information about it at [hhxsv5/laravel-s](https://github.com/hhxsv5/laravel-s).

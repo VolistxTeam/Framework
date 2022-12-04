@@ -3,29 +3,39 @@
     "description": "Volistx Framework For RESTful API Based on Laravel/Lumen",
     "license": "MIT",
     "type": "project",
+    "authors": [
+        {
+            "name": "Cryental",
+            "email": "contact@cryental.dev"
+        },
+        {
+            "name": "Mostafa Samy",
+            "email": "mostafa.samy203@gmail.com"
+        }
+    ],
     "require": {
         "php": "^8.1",
         "ext-curl": "*",
         "ext-json": "*",
+        "ext-pdo": "*",
         "chuckrincon/lumen-config-discover": "^1.0",
         "cryental/larasupport": "^1.7",
         "cryental/laravel-stackpath": "^1.1",
         "fakerphp/faker": "^1.20",
         "flipbox/lumen-generator": "^9.1",
         "hhxsv5/laravel-s": "^3.7",
-        "illuminate/redis": "^9.23",
+        "illuminate/redis": "^9.42",
         "laravel/lumen-framework": "^9.1",
         "laravel/tinker": "^2.7",
-        "league/flysystem": "^3.2",
+        "league/flysystem": "^3.11",
         "rogervila/lumen-rate-limiting": "^1.1",
-        "volistx/framework-kernel": "dev-master",
-        "wikimedia/ip-set": "^3.1",
-        "ext-pdo": "*"
+        "volistx/framework-kernel": "^6.0",
+        "wikimedia/ip-set": "^3.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
         "phpunit/phpunit": "^9.5",
-        "spatie/ray": "^1.34"
+        "spatie/ray": "^1.36"
     },
     "autoload": {
         "psr-4": {
