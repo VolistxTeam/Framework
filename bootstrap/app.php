@@ -52,6 +52,7 @@ $app->singleton(
 $app->configure('app');
 
 $app->middleware([
+    \App\Http\Middleware\Locale::class,
     Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
     Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
     TrustProxies::class,

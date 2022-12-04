@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Facades\Messages;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use Volistx\FrameworkKernel\Facades\Messages;
 
 class Handler extends ExceptionHandler
 {
