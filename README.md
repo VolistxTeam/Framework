@@ -31,7 +31,7 @@ php artisan stackpath:reload
 php artisan optimize
 ```
 
-Do not forget to set a cronjob for production:
+Do not forget to set a cronjob for production (This is not required if you're using Swoole):
 ```
 * * * * * php /path/to/artisan schedule:run
 ```
