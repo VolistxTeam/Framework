@@ -29,7 +29,7 @@
         "laravel/tinker": "^2.7",
         "league/flysystem": "^3.11",
         "rogervila/lumen-rate-limiting": "^1.1",
-        "volistx/framework-kernel": "^6.0",
+        "volistx/framework-kernel": "^6.1",
         "wikimedia/ip-set": "^3.1"
     },
     "require-dev": {
