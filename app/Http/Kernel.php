@@ -48,6 +48,6 @@ class Kernel extends HttpKernel
         'auth.admin'    => AdminAuthMiddleware::class,
         'auth.user'     => UserAuthMiddleware::class,
         'filter.json'   => JsonBodyValidationFilteringMiddleware::class,
-        'throttle' => ThrottleRequests::class,
+        'throttle'      => ThrottleRequests::class,
     ];
 }
