@@ -1,13 +1,13 @@
 # Volistx Framework
-Volistx Framework For RESTful API Based on Laravel/Lumen 9.x
+Volistx Framework For RESTful API Based on Laravel 9.x (Slimmed Version)
 
-This is a framework skeleton for Volistx API platform using Lumen PHP Framework.
+This is a framework skeleton for Volistx API platform using Laravel PHP Framework.
 
 Let's make some awesome thing together!
 
 ### Requirements
 - PHP 8.1.2 or Above
-- All Required Extensions for Laravel/Lumen
+- All Required Extensions for Laravel 9.x
 - Redis PHP Extension
 - Swoole or OpenSwoole Extension
 
@@ -25,8 +25,6 @@ composer create-project --prefer-dist volistx/framework myproject
 composer install
 php artisan key:generate
 php artisan migrate
-php artisan stackpath:reload
-php artisan optimize
 ```
 
 Do not forget to set a cronjob for production (This is not required if you're using Swoole):
@@ -40,21 +38,23 @@ php artisan access-key:generate
 ```
 
 ### Swoole Setup
+It uses Laravel Octane. You can use Swoole or OpenSwoole. You can find the installation guide here: https://laravel.com/docs/9.x/octane
+
 Run Swoole using this command:
 ```
-php bin/laravels start -i
+php artisan octane:start
 ```
 
 If you want the Swoole server to run after reboot, add the following line to your crontab:
 ```
-@reboot php /path/to/bin/laravels start -i
+@reboot php artisan octane:start
 ```
 
 For Supervisor, check following configuration:
 ```
 [program:volistx-swoole-worker]
 directory=/path/to/
-command=php81 /path/to/bin/laravels start -i
+command=php artisan octane:start
 numprocs=1
 autostart=true
 autorestart=true
@@ -63,5 +63,3 @@ user=www-data
 redirect_stderr=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 ```
-
-Check more information about it at [hhxsv5/laravel-s](https://github.com/hhxsv5/laravel-s).

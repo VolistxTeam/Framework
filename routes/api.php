@@ -1,10 +1,9 @@
-
 <?php
 
-/** @var Router $router */
+use App\Http\Controllers\ServiceController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
-use Laravel\Lumen\Routing\Router;
-
-$router->group(['middleware' => ['auth.user']], function () use ($router) {
-    $router->get('/ping', 'ServiceController@Ping');
+Route::middleware('auth.user')->group(function () {
+    Route::get('/ping', [ServiceController::class, 'Ping']);
 });

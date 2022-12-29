@@ -6,7 +6,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Volistx\FrameworkKernel\Facades\Permissions;
 use Volistx\FrameworkKernel\Facades\PersonalTokens;
-use Volistx\FrameworkKernel\Http\Controllers\Controller;
 
 class ServiceController extends Controller
 {

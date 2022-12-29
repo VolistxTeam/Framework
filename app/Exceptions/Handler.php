@@ -2,90 +2,65 @@
 
 namespace App\Exceptions;
 
-use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\File;
-use Illuminate\Validation\ValidationException;
-use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
-use Laravel\Lumen\Http\Redirector;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 use Volistx\FrameworkKernel\Facades\Messages;
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Run;
 
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of the exception types that should not be reported.
+     * A list of exception types with their corresponding custom log levels.
      *
-     * @var array
+     * @var array<class-string<Throwable>, \Psr\Log\LogLevel::*>
      */
-    protected $dontReport = [
-        AuthorizationException::class,
-        HttpException::class,
-        ModelNotFoundException::class,
-        ValidationException::class,
+    protected $levels = [
+        //
     ];
 
     /**
-     * Report or log an exception.
+     * A list of the exception types that are not reported.
      *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
+     * @var array<int, class-string<Throwable>>
+     */
+    protected $dontReport = [
+        //
+    ];
+
+    /**
+     * A list of the inputs that are never flashed to the session on validation exceptions.
      *
-     * @param Throwable $exception
-     *
-     * @throws Exception
+     * @var array<int, string>
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+
+    /**
+     * Register the exception handling callbacks for the application.
      *
      * @return void
      */
-    public function report(Throwable $exception)
+    public function register()
     {
-        parent::report($exception);
-    }
+        $this->reportable(function (Throwable $e) {
+            //
+        });
 
-    /**
-     * Render an exception into an HTTP response.
-     *
-     * @param Request   $request
-     * @param Throwable $exception
-     *
-     * @throws Throwable
-     *
-     * @return JsonResponse|RedirectResponse|Response|Redirector
-     */
-    public function render($request, Throwable $exception)
-    {
-        if ($exception instanceof NotFoundHttpException) {
+        $this->renderable(function (NotFoundHttpException $e, $request) {
             return response('', 404);
-        }
+        });
 
-        if ($exception instanceof MethodNotAllowedHttpException) {
+        $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
             return response('', 405);
-        }
+        });
 
-        if ($exception instanceof ThrottleRequestsException) {
+        $this->renderable(function (ThrottleRequestsException $e, $request) {
             return response()->json(Messages::E429(), 429);
-        }
-
-        if (config('app.debug', false)) {
-            $whoops = new Run();
-            $whoops->allowQuit(false);
-            $whoops->writeToOutput(false);
-            $whoops->pushHandler(new PrettyPageHandler());
-            $html = $whoops->handleException($exception);
-
-            return response($html, 500);
-        } else {
-            return response(File::get(resource_path('views/error.html')), 500)->header('Content-Type', 'text/html');
-        }
+        });
     }
 }
