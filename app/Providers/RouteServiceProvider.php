@@ -15,8 +15,7 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->routes(function () {
-            Route::middleware('api')
-                ->group(base_path('routes/api.php'));
+            $this->loadRoutesFrom(base_path('routes/api.php'));
         });
     }
 }
