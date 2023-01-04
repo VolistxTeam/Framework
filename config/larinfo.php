@@ -17,7 +17,7 @@ return [
     */
 
     'converter' => [
-        'precision' => 1,
+        'precision'  => 1,
         'use_binary' => true,
     ],
 
@@ -32,19 +32,19 @@ return [
 
     'linfo' => [
         'show' => [
-            'kernel' => true,
-            'os' => true,
-            'ram' => true,
-            'mounts' => true,
-            'webservice' => true,
-            'phpversion' => true,
-            'uptime' => true,
-            'cpu' => true,
-            'distro' => true,
-            'model' => true,
-            'virtualization' => true,
+            'kernel'           => true,
+            'os'               => true,
+            'ram'              => true,
+            'mounts'           => true,
+            'webservice'       => true,
+            'phpversion'       => true,
+            'uptime'           => true,
+            'cpu'              => true,
+            'distro'           => true,
+            'model'            => true,
+            'virtualization'   => true,
             'duplicate_mounts' => false,
-            'mounts_options' => false,
+            'mounts_options'   => false,
         ],
     ],
 ];
