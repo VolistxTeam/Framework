@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Locale;
+use App\Http\Middleware\TrustProxies;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
@@ -26,6 +28,8 @@ class Kernel extends HttpKernel
         ConvertEmptyStringsToNull::class,
         FirewallMiddleware::class,
         RequestLoggingMiddleware::class,
+        Locale::class,
+        TrustProxies::class,
     ];
 
     /**
