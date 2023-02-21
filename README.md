@@ -67,7 +67,3 @@ user=www-data
 redirect_stderr=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 ```
-
-### Check System Information
-You can check your system information by running `php artisan larinfo` command.
-For more information, please check documentation [here](https://github.com/matriphe/larinfo).
