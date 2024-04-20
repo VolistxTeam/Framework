@@ -11,10 +11,12 @@ use Laravel\Octane\Events\TickTerminated;
 use Laravel\Octane\Events\WorkerErrorOccurred;
 use Laravel\Octane\Events\WorkerStarting;
 use Laravel\Octane\Events\WorkerStopping;
+use Laravel\Octane\Listeners\CloseMonologHandlers;
 use Laravel\Octane\Listeners\CollectGarbage;
 use Laravel\Octane\Listeners\DisconnectFromDatabases;
 use Laravel\Octane\Listeners\EnsureUploadedFilesAreValid;
 use Laravel\Octane\Listeners\EnsureUploadedFilesCanBeMoved;
+use Laravel\Octane\Listeners\FlushOnce;
 use Laravel\Octane\Listeners\FlushTemporaryContainerInstances;
 use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
@@ -32,11 +34,11 @@ return [
     | when starting, restarting, or stopping your server via the CLI. You
     | are free to change this to the supported server of your choosing.
     |
-    | Supported: "roadrunner", "swoole"
+    | Supported: "roadrunner", "swoole", "frankenphp"
     |
     */
 
-    'server' => env('OCTANE_SERVER', 'roadrunner'),
+    'server' => env('OCTANE_SERVER', 'swoole'),
 
     /*
     |--------------------------------------------------------------------------
@@ -101,6 +103,7 @@ return [
         ],
 
         OperationTerminated::class => [
+            FlushOnce::class,
             FlushTemporaryContainerInstances::class,
             // DisconnectFromDatabases::class,
             // CollectGarbage::class,
@@ -112,7 +115,7 @@ return [
         ],
 
         WorkerStopping::class => [
-            //
+            CloseMonologHandlers::class,
         ],
     ],
 
@@ -137,7 +140,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Octane Cache Table
+    | Octane Swoole Tables
+    |--------------------------------------------------------------------------
+    |
+    | While using Swoole, you may define additional tables as required by the
+    | application. These tables can be used to store data that needs to be
+    | quickly accessed by other workers on the particular Swoole server.
+    |
+    */
+
+    'tables' => [
+        'example:1000' => [
+            'name' => 'string:1000',
+            'votes' => 'int',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Octane Swoole Cache Table
     |--------------------------------------------------------------------------
     |
     | While using Swoole, you may leverage the Octane cache, which is powered
@@ -149,21 +170,6 @@ return [
     'cache' => [
         'rows' => 1000,
         'bytes' => 10000,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Octane Swoole Tables
-    |--------------------------------------------------------------------------
-    |
-    | While using Swoole, you may define additional tables as required by the
-    | application. These tables can be used to store data that needs to be
-    | quickly accessed by other workers on the particular Swoole server.
-    |
-    */
-
-    'tables' => [
-
     ],
 
     /*
@@ -181,7 +187,7 @@ return [
         'app',
         'bootstrap',
         'config',
-        'database',
+        'database/**/*.php',
         'public/**/*.php',
         'resources/**/*.php',
         'routes',
