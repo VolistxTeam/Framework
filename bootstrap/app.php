@@ -14,7 +14,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(RouteServiceProvider::HOME);
+
+        $middleware->append([
+            \Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
+            \Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
+            \App\Http\Middleware\Locale::class,
+        ]);
+
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
+
+        $middleware->alias([
+            'auth.admin' => \Volistx\FrameworkKernel\Http\Middleware\AdminAuthMiddleware::class,
+            'auth.user' => \Volistx\FrameworkKernel\Http\Middleware\UserAuthMiddleware::class,
+            'filter.json' => \Volistx\FrameworkKernel\Http\Middleware\JsonBodyValidationFilteringMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
