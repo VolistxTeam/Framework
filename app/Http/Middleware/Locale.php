@@ -4,16 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Locale
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $acceptableLocales = ['en', 'ko', 'ru', 'jp', 'zh'];
         $userLocales = $request->getLanguages();
         $selectedLocale = false;
 
-        if (!empty($userLocales)) {
+        if (! empty($userLocales)) {
             foreach ($userLocales as $lang) {
                 $langToSearch = str_replace('_', '-', $lang);
                 if (in_array($langToSearch, $acceptableLocales)) {
@@ -24,7 +25,7 @@ class Locale
             }
         }
 
-        if (!$selectedLocale) {
+        if (! $selectedLocale) {
             app('translator')->setLocale('en'); // fallback
         }
 
