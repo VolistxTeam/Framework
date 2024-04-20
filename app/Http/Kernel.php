@@ -49,9 +49,9 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $routeMiddleware = [
-        'auth.admin'    => AdminAuthMiddleware::class,
-        'auth.user'     => UserAuthMiddleware::class,
-        'filter.json'   => JsonBodyValidationFilteringMiddleware::class,
-        'throttle'      => ThrottleRequests::class,
+        'auth.admin' => AdminAuthMiddleware::class,
+        'auth.user' => UserAuthMiddleware::class,
+        'filter.json' => JsonBodyValidationFilteringMiddleware::class,
+        'throttle' => ThrottleRequests::class,
     ];
 }
