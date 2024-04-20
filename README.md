@@ -1,16 +1,16 @@
 # Volistx Framework
-Volistx Framework For RESTful API Based on Laravel 10.x
+Volistx Framework For RESTful API Based on Laravel 11.x
 
 This is a framework skeleton for Volistx API platform using Laravel PHP Framework.
 
 Let's make some awesome thing together!
 
 ### Requirements
-- PHP 8.1.2 or Above
-- All Required Extensions for Laravel 10.x
+- PHP 8.2 or Above
+- All Required Extensions for Laravel 11.x
 - Redis PHP Extension
 - Swoole or OpenSwoole Extension
-- MariaDB 10.5.x
+- MariaDB 11.1 or Above
 - Flare Subscription for Error Monitoring (Optional) (https://flareapp.io/)
 
 ### Installation
