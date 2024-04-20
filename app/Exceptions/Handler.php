@@ -52,11 +52,11 @@ class Handler extends ExceptionHandler
         });
 
         $this->renderable(function (NotFoundHttpException $e, $request) {
-            return response('', 404);
+            return response()->noContent(404);
         });
 
         $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
-            return response('', 405);
+            return response()->noContent(405);
         });
 
         $this->renderable(function (ThrottleRequestsException $e, $request) {
