@@ -4,6 +4,10 @@ use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Volistx\FrameworkKernel\Facades\Messages;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders()
@@ -33,5 +37,19 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->reportable(function (Throwable $e) {
+            //
+        });
+
+        $exceptions->renderable(function (NotFoundHttpException $e, $request) {
+            return response()->noContent(404);
+        });
+
+        $exceptions->renderable(function (MethodNotAllowedHttpException $e, $request) {
+            return response()->noContent(405);
+        });
+
+        $exceptions->renderable(function (ThrottleRequestsException $e, $request) {
+            return response()->json(Messages::E429(), 429);
+        });
     })->create();
