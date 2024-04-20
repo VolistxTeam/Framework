@@ -1,10 +1,17 @@
 <?php
 
-use App\Providers\AppServiceProvider;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Symfony\Component\HttpFoundation\Request as RequestAlias;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Volistx\FrameworkKernel\Facades\Messages;
@@ -12,15 +19,18 @@ use Volistx\FrameworkKernel\Facades\Messages;
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders()
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
-        // channels: __DIR__.'/../routes/channels.php',
-        health: '/up',
+        apiPrefix: ''
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(AppServiceProvider::HOME);
+        $middleware->api(remove: [
+            StartSession::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            ShareErrorsFromSession::class,
+            ValidateCsrfToken::class,
+            SubstituteBindings::class
+        ]);
 
         $middleware->append([
             \Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
@@ -28,7 +38,16 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\Locale::class,
         ]);
 
-        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
+        $middleware->trustProxies(at: [
+            '127.0.0.1'
+        ]);
+
+        $middleware->trustProxies(headers: RequestAlias::HEADER_X_FORWARDED_FOR |
+            RequestAlias::HEADER_X_FORWARDED_HOST |
+            RequestAlias::HEADER_X_FORWARDED_PORT |
+            RequestAlias::HEADER_X_FORWARDED_PROTO |
+            RequestAlias::HEADER_X_FORWARDED_AWS_ELB
+        );
 
         $middleware->alias([
             'auth.admin' => \Volistx\FrameworkKernel\Http\Middleware\AdminAuthMiddleware::class,
@@ -37,19 +56,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->reportable(function (Throwable $e) {
+        $exceptions->render(function (Throwable $e) {
             //
         });
 
-        $exceptions->renderable(function (NotFoundHttpException $e, $request) {
-            return response()->noContent(404);
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            return response()->json(Messages::E404(), 404);
         });
 
-        $exceptions->renderable(function (MethodNotAllowedHttpException $e, $request) {
-            return response()->noContent(405);
+        $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) {
+            return response()->json(Messages::E404(), 404);
         });
 
-        $exceptions->renderable(function (ThrottleRequestsException $e, $request) {
+        $exceptions->render(function (ThrottleRequestsException $e, $request) {
             return response()->json(Messages::E429(), 429);
+        });
+
+        $exceptions->render(function (ErrorException $e, Request $request) {
+            return response()->json(Messages::E500(), 500);
         });
     })->create();
