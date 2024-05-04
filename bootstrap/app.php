@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
             \Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
             \App\Http\Middleware\Locale::class,
+            \App\Http\Middleware\Cors::class,
         ]);
 
         $middleware->trustProxies(at: [
