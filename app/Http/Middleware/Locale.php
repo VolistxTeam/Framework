@@ -14,7 +14,7 @@ class Locale
         $userLocales = $request->getLanguages();
         $selectedLocale = false;
 
-        if (! empty($userLocales)) {
+        if (!empty($userLocales)) {
             foreach ($userLocales as $lang) {
                 $langToSearch = str_replace('_', '-', $lang);
                 if (in_array($langToSearch, $acceptableLocales)) {
@@ -25,7 +25,7 @@ class Locale
             }
         }
 
-        if (! $selectedLocale) {
+        if (!$selectedLocale) {
             app('translator')->setLocale('en'); // fallback
         }
 
