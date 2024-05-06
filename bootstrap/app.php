@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             AddQueuedCookiesToResponse::class,
             ShareErrorsFromSession::class,
             ValidateCsrfToken::class,
-            SubstituteBindings::class
+            SubstituteBindings::class,
         ]);
 
         $middleware->append([
@@ -40,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->trustProxies(at: [
-            '127.0.0.1'
+            '127.0.0.1',
         ]);
 
         $middleware->trustProxies(headers: RequestAlias::HEADER_X_FORWARDED_FOR |
