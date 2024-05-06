@@ -42,7 +42,7 @@ php artisan access-key:generate
 ```
 
 ### Swoole Setup
-It uses Laravel Octane. You can use Swoole or OpenSwoole. You can find the installation guide here: https://laravel.com/docs/9.x/octane
+It uses Laravel Octane. You can use Swoole or OpenSwoole. You can find the installation guide here: https://laravel.com/docs/11.x/octane
 
 Run Swoole using this command:
 ```
