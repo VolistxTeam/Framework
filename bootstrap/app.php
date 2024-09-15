@@ -33,15 +33,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append([
-            \Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
-            \Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
             \App\Http\Middleware\Locale::class,
             \App\Http\Middleware\Cors::class,
+            \Volistx\FrameworkKernel\Http\Middleware\FirewallMiddleware::class,
+            \Volistx\FrameworkKernel\Http\Middleware\RequestLoggingMiddleware::class,
         ]);
 
         $middleware->replace(
             \Illuminate\Http\Middleware\TrustProxies::class,
-            \Monicahq\Cloudflare\Http\Middleware\TrustProxies::class
+            Volistx\Proxies\Http\Middleware\TrustProxies::class
         );
 
         $middleware->trustProxies(at: [
